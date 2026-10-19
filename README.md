@@ -59,8 +59,8 @@ props. App-owned styles use `styled` from `@jfrader/ui` with theme callbacks —
 
 ## Built with `@jfrader/ui`
 
-Game: `GameTable` (Seat, Play, Center, Header, Dock, Footer, Floating), `GameSeat`, `GameHand`,
-`GameCard`, `GameCardStack`, `GameActions`, `GameScore`, `GameRounds`, `GameResult`, `GameMarks`,
+Game: `GameTable` (Seat, Center, Floating), `GameSeat`, `GameHand`,
+`GameCard`, `GameActions`, `GameScore`, `GameRounds`, `GameResult`, `GameMarks`,
 `FlipGameCard`, `DeckProvider`.
 
 Overlays and feedback: `Dialog`, `Drawer`, `Toast`, `Alert`, `Tabs`, `Menu`, `Tooltip`, `Popover`,
@@ -87,8 +87,9 @@ integration.
 ## Testing
 
 `pnpm test` runs the pure engine and storage suites (38 tests). `pnpm test:e2e` drives the real UI in
-Chromium: a completed trick, a full five-round match, the three target viewports and axe audits of
-the table, rules and settings in both palettes. The build must pass `pnpm typecheck` and
+Chromium: a completed trick, a full five-round match, four viewports (1440×900, 1280×720, 768×1024,
+390×844) with the hand kept in view, and axe audits of the table (desktop and phone), rules and
+settings in both palettes. The build must pass `pnpm typecheck` and
 `pnpm build`; screenshots live in `docs/` and are visually reviewed.
 
 ## License

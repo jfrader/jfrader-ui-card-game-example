@@ -35,8 +35,10 @@ here; none of these is an upstream bug report yet.
   `seatPlacement="edge"` and a compact board under 600px. The library was not patched to force this.
 - The `GameTable` `insufficient-space` observer was removed because switching the whole layout on
   and off oscillated. The compact board is a stable branch.
-- The played cards use `cardWidth={theme.size.gameCardSm}`; the `GameTable` play region footprint
-  stays ~107px, which is the library feature above, not a consumer CSS bug.
+- The four plays render in one `TrickTray` inside `GameTable.Center` (and in the phone board)
+  instead of `GameTable.Play` + `GameCardStack`: the play region footprint stays ~107px and the
+  regions collide, which is the library feature above, not a consumer CSS bug. Revisit when the
+  compact four-play layout lands.
 - The result dialog's "Review scores" closes the dialog; it does not start a new game.
 - A redundant `aria-label` on the hand-card slot caused axe `label-content-name-mismatch`; the
   library's `GameCard` label already names the button, so the override was removed.
