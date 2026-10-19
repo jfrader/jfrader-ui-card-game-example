@@ -13,7 +13,6 @@ export function TableActions({ view, onCommand }: {
   const actions: GameActionItem[] = [];
   const add = (command: TableCommand, label: string) =>
     actions.push({ key: command, label, onSelect: () => onCommand(command) });
-  if (view.phase === 'ready') add('start', copy.table.start);
   if (view.phase === 'playing') {
     add(view.paused ? 'resume' : 'pause', view.paused ? copy.table.resume : copy.table.pause);
   }

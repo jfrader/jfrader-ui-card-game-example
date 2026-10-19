@@ -22,8 +22,9 @@ export const config = {
   layout: {
     shellMaxInline: 1_360,
     sidebarInline: 280,
-    desktopTableBlock: 680,
-    tabletTableBlock: 760,
+    tableMinBlock: 360,
+    tableMaxBlock: 640,
+    tableChromeBlock: 450,
     phoneTableBlock: 700,
   },
   urls: {

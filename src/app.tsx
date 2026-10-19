@@ -83,6 +83,7 @@ function TableRoute({
   controller: GameController;
   inlineSidebar: boolean;
 }) {
+  const compact = useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
   useEffect(() => {
     if (!inlineSidebar || !controller.dialogs.scores) return;
     const panel = document.getElementById('score-history');
@@ -94,7 +95,7 @@ function TableRoute({
   return (
     <>
       <PageTitle>{copy.app.name}</PageTitle>
-      {!controller.noticeDismissed && controller.view.phase === 'ready' && (
+      {!compact && !controller.noticeDismissed && controller.view.phase === 'ready' && (
         <Notice>
           <AnnouncementBar
             open
@@ -136,6 +137,7 @@ function TableRoute({
         <BoardColumn>
           <GameBoard
             view={controller.view}
+            stats={controller.stats}
             selectedCardId={controller.selectedCardId}
             onSelectCard={controller.selectCard}
             onPlayCard={controller.playCard}

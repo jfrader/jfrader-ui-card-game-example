@@ -1,5 +1,4 @@
 import { Avatar } from '@jfrader/ui/avatar';
-import { GameCard } from '@jfrader/ui/game-card';
 import { GameSeat } from '@jfrader/ui/game-seat';
 import { Pill } from '@jfrader/ui/pill';
 import { styled } from '@jfrader/ui';
@@ -10,6 +9,7 @@ import { PlayerHand } from './player-hand';
 import { RoundStrip } from './round-strip';
 import { TableActions, TrickAnnouncement } from './table-actions';
 import { TableLayout } from './table.styles';
+import { TrickTray } from './trick-tray';
 
 const MobileTable = styled.div(({ theme }) => ({
   display: 'grid',
@@ -36,36 +36,13 @@ const MobileSeatFrame = styled.div(({ theme }) => ({
   '& [data-ui~="game-seat-name"]': { fontSize: theme.textSize.xs },
 }));
 
-const TrickRow = styled.div(({ theme }) => ({
+const TrickBand = styled.div(({ theme }) => ({
   position: 'relative',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-  gap: theme.space[2],
-  alignItems: 'end',
-  justifyItems: 'center',
   paddingBlock: theme.space[3],
   paddingInline: theme.space[2],
   borderRadius: theme.radius.md,
   backgroundColor: theme.color.surface,
   minInlineSize: 0,
-}));
-
-const TrickCell = styled.div(({ theme }) => ({
-  display: 'grid',
-  gap: theme.space[1],
-  justifyItems: 'center',
-  minInlineSize: 0,
-  fontSize: theme.textSize.xs,
-  color: theme.color.textMuted,
-  textAlign: 'center',
-}));
-
-const EmptySlot = styled.div(({ theme }) => ({
-  inlineSize: theme.size.gameCardMd,
-  blockSize: `calc(${theme.size.gameCardMd} * 1.4)`,
-  border: `1px dashed ${theme.color.borderControl}`,
-  borderRadius: `calc(${theme.size.gameCardMd} / 8)`,
-  maxInlineSize: '100%',
 }));
 
 function MobileSeat({ seat }: { seat: SeatView }) {
@@ -103,26 +80,11 @@ export function MobileBoard({
         <Opponents>
           {opponents.map((seat) => <MobileSeat key={seat.key} seat={seat} />)}
         </Opponents>
-        <TrickRow>
-          {view.seats.map((seat) => {
-            const play = view.plays.find((entry) => entry.playerKey === seat.key);
-            return (
-              <TrickCell key={seat.key}>
-                <span>{seat.name}</span>
-                {play ? (
-                  <GameCard
-                    size="md"
-                    label={`${seat.name} · ${play.card.label}`}
-                    value={play.card.value}
-                  />
-                ) : (
-                  <EmptySlot aria-hidden="true" />
-                )}
-              </TrickCell>
-            );
-          })}
-          <TrickAnnouncement view={view} />
-        </TrickRow>
+        <TrickBand>
+          <TrickTray view={view} size="md">
+            <TrickAnnouncement view={view} />
+          </TrickTray>
+        </TrickBand>
         {me && <MobileSeat seat={me} />}
         <PlayerHand
           view={view}

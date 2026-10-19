@@ -20,8 +20,7 @@ export function PlayerSeat({ view, compact }: { view: TableView; compact: boolea
         {player.dealer && <Pill>{copy.table.dealer}</Pill>}
         {player.active && <Pill tone="accent">{player.isMe ? copy.table.yourTurn : copy.table.playing}</Pill>}
       </>}
-      points={<span>{copy.table.points(player.totalPoints)}</span>}
-      hand={player.isMe ? undefined : <span>{copy.table.cards(player.handCount)}</span>}
+      points={<span>{[copy.table.points(player.totalPoints), player.isMe ? null : copy.table.cards(player.handCount)].filter(Boolean).join(' · ')}</span>}
       turn={turn} />
   </SeatFrame>;
 }

@@ -1,19 +1,21 @@
-import { useEffect, useState } from 'react';
 import { GameTable } from '@jfrader/ui/game-table';
+import { useMediaQuery } from '../app/use-media-query';
 import type { TableCommand, TableView } from '../contracts';
 import { config } from '../config';
 import { copy } from '../content/en';
 import { PlayerSeat } from './player-seat';
-import { SeatPile } from './seat-pile';
 import { PlayerHand } from './player-hand';
 import { TrumpIndicator } from './trump-indicator';
 import { RoundStrip } from './round-strip';
 import { MobileBoard } from './mobile-board';
+import { ReadyScreen, type ReadyScreenProps } from './ready-screen';
 import { TableActions, TrickAnnouncement } from './table-actions';
-import { BoardFrame, TableLayout } from './table.styles';
+import { BoardFrame, DockSlot, HandDock, TableLayout } from './table.styles';
+import { TrickTray } from './trick-tray';
 
 export interface GameBoardProps {
   view: TableView;
+  stats: ReadyScreenProps['stats'];
   selectedCardId: string | null;
   onSelectCard: (id: string | null) => void;
   onPlayCard: (id: string) => void;
@@ -21,17 +23,10 @@ export interface GameBoardProps {
 }
 
 export function GameBoard(props: GameBoardProps) {
-  const { view, selectedCardId, onSelectCard, onPlayCard, onCommand } = props;
-  const [compact, setCompact] = useState(false);
+  const { view, stats, selectedCardId, onSelectCard, onPlayCard, onCommand } = props;
+  const compact = useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
 
-  useEffect(() => {
-    const media = window.matchMedia(`(max-width: ${config.breakpoints.compactChrome}px)`);
-    const update = () => setCompact(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, []);
-
+  if (view.phase === 'ready') return <ReadyScreen view={view} stats={stats} onCommand={onCommand} />;
   if (compact) return <MobileBoard {...props} />;
 
   return (
@@ -48,20 +43,23 @@ export function GameBoard(props: GameBoardProps) {
           clearance="var(--ui-space-2)"
         >
           <GameTable.Seat><PlayerSeat view={view} compact={false} /></GameTable.Seat>
-          <GameTable.Play><SeatPile view={view} /></GameTable.Play>
-          <GameTable.Center><TrumpIndicator view={view} /></GameTable.Center>
+          <GameTable.Center><TrickTray view={view} size="lg" surface="felt" /></GameTable.Center>
           <GameTable.Floating><TrickAnnouncement view={view} /></GameTable.Floating>
         </GameTable>
       </BoardFrame>
-      <PlayerHand
-        view={view}
-        compact={false}
-        selectedCardId={selectedCardId}
-        onSelectCard={onSelectCard}
-        onPlayCard={onPlayCard}
-      />
-      <TableActions view={view} onCommand={onCommand} />
-      {view.pauseLabel && <span>{view.pauseLabel}</span>}
+      <HandDock>
+        <DockSlot $align="start"><TrumpIndicator view={view} /></DockSlot>
+        <DockSlot $align="center">
+          <PlayerHand
+            view={view}
+            compact={false}
+            selectedCardId={selectedCardId}
+            onSelectCard={onSelectCard}
+            onPlayCard={onPlayCard}
+          />
+        </DockSlot>
+        <DockSlot $align="end"><TableActions view={view} onCommand={onCommand} /></DockSlot>
+      </HandDock>
     </TableLayout>
   );
 }

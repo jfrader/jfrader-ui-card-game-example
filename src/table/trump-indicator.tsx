@@ -34,8 +34,8 @@ export function TrumpIndicator({ view }: { view: TableView }) {
           size="md"
           flipped={flipped}
           front={
-            <TrumpFace>
-              <Icon size={28} strokeWidth={1.75} />
+            <TrumpFace data-red={trump === 'hearts' || trump === 'diamonds'}>
+              <Icon size={36} strokeWidth={1.75} fill={trump ? 'currentColor' : 'none'} />
             </TrumpFace>
           }
           back={<TrumpFace>{copy.table.trump}</TrumpFace>}
