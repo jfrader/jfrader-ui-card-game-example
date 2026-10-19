@@ -1,0 +1,33 @@
+export const config = {
+  appName: 'Fivefold',
+  locale: 'en',
+  storage: {
+    theme: 'fivefold.theme.v1',
+    settings: 'fivefold.settings.v1',
+    stats: 'fivefold.stats.v1',
+    notice: 'fivefold.notice.v1',
+  },
+  timing: {
+    aiDelayMs: 650,
+    turnDurationMs: 30_000,
+    statusTickMs: 1_000,
+    trickAnnouncementMs: 1_400,
+  },
+  breakpoints: {
+    inlineSidebar: 1_100,
+    compactChrome: 600,
+  },
+  layout: {
+    shellMaxInline: 1_360,
+    sidebarInline: 280,
+    desktopTableBlock: 680,
+    tabletTableBlock: 760,
+    phoneTableBlock: 700,
+  },
+  urls: {
+    library: 'https://github.com/jfrader/jfrader-ui',
+    docs: 'https://ui.jfrader.com',
+    boilerplate: 'https://github.com/jfrader/jfrader-ui-boilerplate',
+    source: 'https://github.com/jfrader/jfrader-ui-card-game-example',
+  },
+} as const;
