@@ -1,4 +1,8 @@
-import type { Player, PlayerKey, Rank, Suit } from './types';
+import type { Difficulty, Player, PlayerKey, Rank, Suit } from './types';
+
+export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard'];
+export const isDifficulty = (value: unknown): value is Difficulty =>
+  (DIFFICULTIES as readonly unknown[]).includes(value);
 
 export const TURN_ORDER: readonly PlayerKey[] = ['south', 'west', 'north', 'east'];
 export const SUITS: readonly Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
@@ -9,9 +13,9 @@ export const TRICKS_PER_ROUND = 5;
 export const DECK_SIZE = 52;
 export const PLAYERS: readonly Player[] = [
   { key: 'south', name: 'You', isMe: true, kind: 'human' },
-  { key: 'west', name: 'Nora', isMe: false, kind: 'ai' },
-  { key: 'north', name: 'Eli', isMe: false, kind: 'ai' },
-  { key: 'east', name: 'Wren', isMe: false, kind: 'ai' },
+  { key: 'west', name: 'Ada', isMe: false, kind: 'ai' },
+  { key: 'north', name: 'Milo', isMe: false, kind: 'ai' },
+  { key: 'east', name: 'Iris', isMe: false, kind: 'ai' },
 ];
 
 export function nextSeat(seat: PlayerKey, offset = 1): PlayerKey {

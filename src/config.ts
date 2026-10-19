@@ -5,7 +5,6 @@ export const config = {
     theme: 'fivefold.theme.v1',
     settings: 'fivefold.settings.v1',
     stats: 'fivefold.stats.v1',
-    notice: 'fivefold.notice.v1',
   },
   timing: {
     aiDelayMs: Number.isFinite(Number(import.meta.env.VITE_AI_DELAY_MS))
@@ -13,19 +12,24 @@ export const config = {
       : 650,
     turnDurationMs: 30_000,
     statusTickMs: 1_000,
-    trickAnnouncementMs: 1_400,
+    roundCallMs: 1_400,
+    trumpFlipMs: 260,
   },
   breakpoints: {
     inlineSidebar: 1_100,
     compactChrome: 600,
+    /** Below these widths the phone felt cannot hold four, then two, card columns. */
+    feltTwoColumns: 359,
+    feltOneColumn: 239,
   },
   layout: {
-    shellMaxInline: 1_360,
-    sidebarInline: 280,
-    tableMinBlock: 360,
-    tableMaxBlock: 640,
-    tableChromeBlock: 450,
-    phoneTableBlock: 700,
+    shellMaxInline: 1_440,
+    sidebarInline: 312,
+    topbarBlock: 56,
+    stageMinBlock: 600,
+    stageMaxBlock: 1_000,
+    /** GameCard height divided by width in @jfrader/ui; keeps the dock as tall as a card row when the hand is empty. */
+    gameCardAspect: 1.4,
   },
   urls: {
     library: 'https://github.com/jfrader/jfrader-ui',

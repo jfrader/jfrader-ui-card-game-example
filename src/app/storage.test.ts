@@ -4,11 +4,9 @@ import { config } from '../config';
 import {
   DEFAULT_SETTINGS,
   DEFAULT_STATS,
-  loadNoticeDismissed,
   loadSettings,
   loadStats,
   resetStats,
-  saveNoticeDismissed,
   saveSettings,
   saveStats,
   type StorageLike,
@@ -86,13 +84,6 @@ describe('storage', () => {
     expect(resetStats(storage)).toBe(true);
     expect(loadStats(storage).value).toEqual(DEFAULT_STATS);
     expect(storage.getItem('unrelated')).toBe('keep');
-  });
-
-  it('round-trips the notice dismissal', () => {
-    const storage = new MemoryStorage();
-    expect(loadNoticeDismissed(storage)).toBe(false);
-    expect(saveNoticeDismissed(storage)).toBe(true);
-    expect(loadNoticeDismissed(storage)).toBe(true);
   });
 
   it('keeps the pre-paint theme key in sync with the runtime config', () => {

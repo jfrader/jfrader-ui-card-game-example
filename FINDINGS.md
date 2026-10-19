@@ -9,16 +9,20 @@ here; none of these is an upstream bug report yet.
 | Check | Evidence |
 | --- | --- |
 | `GameHand` card buttons have the right accessible name | Playwright accessibility snapshot of a hand card: `button "Seven of hearts"` with the `GameCard` image named by `GameHandCard.label`. An axe `label-content-name-mismatch` run failed only because the app's card slot added a redundant `aria-label`; removing it (the library default is sufficient) made the audit clean. |
-| `GameTable` with `teamCount={1}`, `seatPlacement="edge"` and four seats is stable at 1440/768 | `data-layout-fit="fitted"`, no page overflow, seats and plays readable. |
-| `FlipGameCard` `flipped` semantics | Source: `flipped` true shows the back; the app labels the reveal explicitly and keeps the accessible name on the nearby `Pill`. |
+| `GameTable` with `teamCount={1}`, `seatPlacement="edge"`, four seats and four `GameTable.Play` cards is stable at 1440×900, 1280×720 and 768×1024 | `data-layout-fit="fitted"`, no page overflow, no seat/play overlap (`tests/responsive.spec.ts`). |
+| `FlipGameCard` `flipped` semantics | Source: `flipped` true shows the back; the trump flip is decorative and the trump name is text in its `Popover` trigger. |
 
 ## Findings
 
 | Component / version | Owner | Friction | Evidence | Proposed change | Status |
 | --- | --- | --- | --- | --- | --- |
 | `person-avatar` / 0.9.1 | Library release | The source tree and README document `@jfrader/ui/person-avatar`, but the published package has no `./person-avatar` export. | `node_modules/@jfrader/ui/package.json` export map; `pnpm typecheck` fails on the subpath import. Fivefold uses `Avatar` for all seats. | Publish the subpath in the next release, or mark it source-only in the README until then. | Observed |
-| `game-seat` / 0.9.1 | Library API + a11y | `handCount` renders a decorative `GameHand.Hidden` with `label=""` and `aria-hidden="true"`, so the public card count is not available to assistive tech. | `game-seat.tsx:62-63` documents "decorative"; `game-seat.tsx:167-168` passes the empty label. Fivefold supplies its own text `hand` instead. | Fixed in `jfrader-ui` PR #395 (`GameSeat handLabel`, GURI-2718 — Add an accessible hand label to GameSeat). Fivefold keeps the text workaround until the next release. | Fixed upstream, pending release |
-| `game-table` / 0.9.1 | Library feature | Four played cards cannot share the felt at 390: each play region is ~106.7×135px, and four of them in a 275×327 surface overlap. The table reports `insufficient-space`; the consumer needs a compact board. | Playwright geometry at 390: play regions 107×135 at four positions; 6 pairwise collisions. At 1440 the region boxes also collide even though the 32px cards do not. | Tracked as GURI-2719 — Give GameTable a compact four-play trick layout. Add a compact/content-driven play footprint or a documented mobile reflow; keep the 32px card floor. | Tracked |
+| `game-seat` / 0.9.1 | Library API + a11y | `handCount` renders a decorative `GameHand.Hidden` with `label=""` and `aria-hidden="true"`, so the public card count is not available to assistive tech. | `game-seat.tsx:62-63` documents "decorative"; `game-seat.tsx:167-168` passes the empty label. Fivefold shows the count as text in the seat's badges instead. | Fixed in `jfrader-ui` PR #395 (`GameSeat handLabel`, GURI-2718 — Add an accessible hand label to GameSeat). Fivefold keeps the text workaround until the next release. | Fixed upstream, pending release |
+| `game-table` / 0.9.1 | Library feature | Four played cards cannot share the felt at phone width. The 107×135 play footprint measured earlier came from `GameCardStack`; plain `md` `GameCard`s in `GameTable.Play` size the regions to the card and fit (`data-layout-fit="fitted"`) at 1440×900, 1280×720 and 768×1024. At 390 the round felt is ~240px tall, so plays drop to the 32px floor and the table reports `insufficient-space`. | Playwright geometry in this repo's `responsive.spec.ts` (fit + zero seat/play overlap from 768 up) and the run-3 probe at 390: plays 32×47, three play/play overlaps. | Narrowed GURI-2719 — Give GameTable a compact four-play trick layout to phone widths: a compact play footprint or a documented column-board recipe. | Tracked, narrowed |
+| `game-table` / 0.9.1 | Library docs | The felt's height is capped at 56% of the table container's block size, so play size depends on how much height the page gives the board, not only its width. A 448px-tall board at 1440×900 could not fit `md` plays; a 670px one could. | `layout-config.ts` `--game-table-max-height: … 56cqb …`; probes at 1440×900 before and after the stage layout. | Add to the free-for-all guide in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: give the board a definite height and keep hands/actions outside it. | Observed |
+| `game-hand` / 0.9.1 | Library API | `disabled` both blocks interaction and passes `dimmed` to every `GameCard` (`opacity: 0.55`), so a hand that is only waiting for other players reads as washed out. There is no way to keep cards legible while not interactive. | `game-hand.tsx` passes `dimmed: disabled`; `game-card.tsx` `dimmedStyle = { opacity: 0.55 }`. Fivefold no longer passes `disabled`; it marks every card unavailable through the `slots.card` per-card recipe (`aria-disabled`, selection rejected by the controller). | Separate "not interactive" from "dimmed" (for example a `dimmed` prop on `GameHand`, defaulting to `disabled`). Needs an issue. | Observed |
+| `game-hand` / 0.9.1 | Library API | The confirmation button is always `Button` `solid neutral`; `slotProps.confirm` is typed as `GameCardPartProps`, so a consumer cannot make "Play card" the screen's accent action without overriding styles. | `game-hand.tsx` renders `Button` with only `slotProps.confirm` spread; `GameHandProps['slotProps']['confirm']`. Fivefold keeps the default and uses the same style for its other in-dock action. | Accept `variant`/`tone`/`size` for the confirm action. Needs an issue. | Observed |
+| `game-score` / 0.9.1 | Library candidate | `GameScore` lists one value per player; a per-round breakdown (players × rounds + total) has no component. | Fivefold's `src/panels/score-table.tsx`, used by the rail, the drawer and both result dialogs. | Consider a table layout for `GameScore` if another example needs it. | Observed |
 | `game-table` / 0.9.1 | Library docs/API | `data-layout-fit` lives on the measured inner surface, not the root, and there is no callback; a consumer needs a MutationObserver to react. | `game-table.tsx` frame/measurement code; `game-table.stories.tsx` queries the surface. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: mirror the attribute on the root or expose `onLayoutFitChange`; document the current location. | Tracked |
 | `game-table` / 0.9.1 | Library docs | The default 6-seat Poker story and the large fixture do not show the common 4-seat free-for-all with `teamCount={1}`, edge placement, or a phone fallback. | `game-table.stories.tsx`; the fixed 680px board with `inside` placement needs ~900px, while `edge` fits at 680. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: add a minimal 4-seat free-for-all example and a "when to switch to a compact board" recipe. | Tracked |
 | `game-hand` / 0.9.1 | Library docs / API discussion | No per-card `disabled`/`dimmed`; legality is whole-hand `disabled` only. The public `slots.card` + `data-hand-card` seam works, but the recipe is undocumented. | `game-hand.tsx` `GameHandCard`; `slots.card` forwards `data-hand-card`; Fivefold uses a module-level context and `aria-disabled`. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: add a story showing one illegal card, `aria-disabled`, and a blocked confirmation. | Tracked |
@@ -31,14 +35,14 @@ here; none of these is an upstream bug report yet.
 
 ## Consumer-side fixes made in this repo (not library defects)
 
-- The skip link, table actions, and hand are outside the measured felt; the table uses
-  `seatPlacement="edge"` and a compact board under 600px. The library was not patched to force this.
+- The hand and its action live in a dock outside the measured felt; round, trick, trump, turn status
+  and Pause are laid over the board's empty corners, so the felt gets the stage's full height. The
+  stage fills the viewport below the topbar. The library was not patched to force this.
+- Each play renders a plain `GameCard` in `GameTable.Play`; an unplayed seat renders a hidden
+  face-down card of the same size so the geometry does not move as cards land.
 - The `GameTable` `insufficient-space` observer was removed because switching the whole layout on
-  and off oscillated. The compact board is a stable branch.
-- The four plays render in one `TrickTray` inside `GameTable.Center` (and in the phone board)
-  instead of `GameTable.Play` + `GameCardStack`: the play region footprint stays ~107px and the
-  regions collide, which is the library feature above, not a consumer CSS bug. Revisit when the
-  compact four-play layout lands.
+  and off oscillated. The phone board (under 600px) is a stable branch: four columns, each a seat
+  with its card in front of it.
 - The result dialog's "Review scores" closes the dialog; it does not start a new game.
 - A redundant `aria-label` on the hand-card slot caused axe `label-content-name-mismatch`; the
   library's `GameCard` label already names the button, so the override was removed.
@@ -47,8 +51,8 @@ here; none of these is an upstream bug report yet.
 
 - **PR #395 — `GameSeat handLabel`** (GURI-2718 — Add an accessible hand label to GameSeat): open in
   jfrader-ui, pending CI/review.
-- **GURI-2719 — Give GameTable a compact four-play trick layout**: the structural play-footprint
-  issue, with the 390/1440 measurements.
+- **GURI-2719 — Give GameTable a compact four-play trick layout**: narrowed to phone widths; plain
+  card plays fit from 768px up.
 - **GURI-2720 — Refresh game component docs and stories from the Fivefold integration**: the
   free-for-all table example, hand legality recipe, flip semantics, rounds mapping, stale `css`
   story text and Breadcrumbs router example.

@@ -1,65 +1,75 @@
+import { useId } from 'react';
 import { GameTable } from '@jfrader/ui/game-table';
-import { useMediaQuery } from '../app/use-media-query';
+import { useCompactLayout } from '../app/use-media-query';
 import type { TableCommand, TableView } from '../contracts';
-import { config } from '../config';
+import type { Difficulty, Stats } from '../engine/types';
 import { copy } from '../content/en';
-import { PlayerSeat } from './player-seat';
+import { CompactBoard } from './compact-board';
+import { RoundStats, TrumpBadge } from './hud';
 import { PlayerHand } from './player-hand';
-import { TrumpIndicator } from './trump-indicator';
-import { RoundStrip } from './round-strip';
-import { MobileBoard } from './mobile-board';
-import { ReadyScreen, type ReadyScreenProps } from './ready-screen';
-import { TableActions, TrickAnnouncement } from './table-actions';
-import { BoardFrame, DockSlot, HandDock, TableLayout } from './table.styles';
-import { TrickTray } from './trick-tray';
+import { ReadyScreen } from './ready-screen';
+import { RoundCall } from './round-call';
+import { TableSeat } from './seat-chip';
+import { TablePlay } from './seat-play';
+import { Board, BoardBar, Dock, Stage } from './table.styles';
+import { TableActions, TurnStatus } from './turn-bar';
 
 export interface GameBoardProps {
   view: TableView;
-  stats: ReadyScreenProps['stats'];
+  stats: Stats;
+  showScores: boolean;
   selectedCardId: string | null;
   onSelectCard: (id: string | null) => void;
   onPlayCard: (id: string) => void;
   onCommand: (command: TableCommand) => void;
+  onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
 export function GameBoard(props: GameBoardProps) {
-  const { view, stats, selectedCardId, onSelectCard, onPlayCard, onCommand } = props;
-  const compact = useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
+  const { view, showScores, selectedCardId, onSelectCard, onPlayCard, onCommand } = props;
+  const compact = useCompactLayout();
+  const statusId = useId();
 
-  if (view.phase === 'ready') return <ReadyScreen view={view} stats={stats} onCommand={onCommand} />;
-  if (compact) return <MobileBoard {...props} />;
+  if (view.phase === 'ready') {
+    return <ReadyScreen view={view} stats={props.stats} onCommand={onCommand} onDifficultyChange={props.onDifficultyChange} />;
+  }
+
+  const hand = (
+    <Dock>
+      <PlayerHand view={view} statusId={statusId} selectedCardId={selectedCardId}
+        onSelectCard={onSelectCard} onPlayCard={onPlayCard} onCommand={onCommand} />
+    </Dock>
+  );
+  const status = <TurnStatus id={statusId} view={view} />;
+  const actions = <TableActions view={view} showScores={showScores} onCommand={onCommand} />;
+
+  if (compact) return <CompactBoard view={view} status={status} actions={actions} hand={hand} />;
 
   return (
-    <TableLayout aria-label={copy.table.regionLabel}>
-      <RoundStrip view={view} />
-      <BoardFrame>
+    <Stage aria-label={copy.table.regionLabel}>
+      <Board>
+        <BoardBar $edge="start">
+          <RoundStats view={view} />
+          <TrumpBadge view={view} />
+        </BoardBar>
         <GameTable
-          players={4}
+          players={view.seats.length}
           seats={view.seats}
           teamCount={1}
           turnDirection="clockwise"
           surface="match"
           seatPlacement="edge"
-          clearance="var(--ui-space-2)"
         >
-          <GameTable.Seat><PlayerSeat view={view} compact={false} /></GameTable.Seat>
-          <GameTable.Center><TrickTray view={view} size="lg" surface="felt" /></GameTable.Center>
-          <GameTable.Floating><TrickAnnouncement view={view} /></GameTable.Floating>
+          <GameTable.Seat><TableSeat view={view} /></GameTable.Seat>
+          <GameTable.Play><TablePlay view={view} /></GameTable.Play>
+          <GameTable.Floating><RoundCall view={view} /></GameTable.Floating>
         </GameTable>
-      </BoardFrame>
-      <HandDock>
-        <DockSlot $align="start"><TrumpIndicator view={view} /></DockSlot>
-        <DockSlot $align="center">
-          <PlayerHand
-            view={view}
-            compact={false}
-            selectedCardId={selectedCardId}
-            onSelectCard={onSelectCard}
-            onPlayCard={onPlayCard}
-          />
-        </DockSlot>
-        <DockSlot $align="end"><TableActions view={view} onCommand={onCommand} /></DockSlot>
-      </HandDock>
-    </TableLayout>
+        <BoardBar $edge="end">
+          {status}
+          {actions}
+        </BoardBar>
+      </Board>
+      {hand}
+    </Stage>
   );
 }

@@ -1,96 +1,122 @@
 import type { CSSProperties } from 'react';
 import { Button, styled } from '@jfrader/ui';
 import { GameCard, type GameCardValue } from '@jfrader/ui/game-card';
-import { MetricCard } from '@jfrader/ui/metric-card';
-import { Pill } from '@jfrader/ui/pill';
-import type { ResultsView, TableCommand, TableView } from '../contracts';
-import { useMediaQuery } from '../app/use-media-query';
-import { config } from '../config';
+import type { TableCommand, TableView } from '../contracts';
+import type { Difficulty, Stats } from '../engine/types';
+import { DifficultyControl } from '../components/difficulty-control';
+import { StatRecord } from '../components/stat-record';
+import { useCompactLayout } from '../app/use-media-query';
 import { copy } from '../content/en';
-
-type Stats = Extract<ResultsView, { kind: 'game' }>['stats'];
+import { phone, reducedMotionOff } from '../styles';
+import { feltMaterial, Stage } from './table.styles';
 
 const FAN: readonly GameCardValue[] = [
   { deck: 'french', suit: 'spades', rank: 'A' },
   { deck: 'french', suit: 'hearts', rank: 'K' },
   { deck: 'french', suit: 'diamonds', rank: 'Q' },
   { deck: 'french', suit: 'clubs', rank: 'J' },
-  { deck: 'french', suit: 'spades', rank: '10' },
+  { deck: 'french', suit: 'hearts', rank: '10' },
 ];
-const FAN_SPREAD_DEG = 9;
+const FAN_SPREAD_DEG = 8;
 
-const Stage = styled.section(({ theme }) => ({
-  display: 'grid', justifyItems: 'center', alignContent: 'center', gap: theme.space[5], minInlineSize: 0,
-  paddingBlock: theme.space[8], paddingInline: theme.space[4], textAlign: 'center', overflow: 'hidden',
-  border: `1px solid ${theme.color.borderSubtle}`, borderRadius: theme.radius.xl, boxShadow: theme.shadow.raised,
-  backgroundColor: theme.color.surfaceInset,
-  backgroundImage: `radial-gradient(ellipse at 50% 30%, color-mix(in oklab, ${theme.color.success} 34%, ${theme.color.surfaceInset}), ${theme.color.surfaceInset} 70%)`,
-  color: theme.color.text,
+const Hero = styled.div(({ theme: t }) => ({
+  ...feltMaterial(t),
+  display: 'grid',
+  justifyItems: 'center',
+  alignContent: 'center',
+  gap: t.space[6],
+  minBlockSize: 0,
+  paddingBlock: t.space[10],
+  paddingInline: t.space[6],
+  textAlign: 'center',
+  overflow: 'clip',
+  boxShadow: `inset 0 0 ${t.space[12]} ${t.color.scrim}`,
+  [phone]: { gap: t.space[5], paddingBlock: t.space[8], paddingInline: t.space[4], borderRadius: t.radius.lg },
 }));
 
-const Fan = styled.div(({ theme }) => ({
-  display: 'flex', justifyContent: 'center', paddingBlockEnd: theme.space[4],
+const Fan = styled.div(({ theme: t }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  paddingBlockEnd: t.space[2],
+  '--fan-card': t.size.gameCardLg,
+  '&[data-size="md"]': { '--fan-card': t.size.gameCardMd },
   '& > *': {
-    marginInline: `calc(${theme.size.gameCardMd} * -0.18)`,
-    transformOrigin: '50% 140%',
+    marginInline: `calc(var(--fan-card) * -0.16)`,
+    transformOrigin: '50% 150%',
     transform: 'rotate(calc((var(--fan-index) - 2) * var(--fan-spread)))',
-    '@media (prefers-reduced-motion: no-preference)': {
-      animation: `fan-in ${theme.motion.duration.cardDeal} ${theme.motion.easeStandard} both`,
-      animationDelay: `calc(var(--fan-index) * ${theme.motion.duration.cardDealStagger})`,
+    boxShadow: t.shadow.overlay,
+    [reducedMotionOff]: {
+      animation: `fan-in ${t.motion.duration.cardDeal} ${t.motion.easeStandard} both`,
+      animationDelay: `calc(var(--fan-index) * ${t.motion.duration.cardDealStagger})`,
     },
   },
-  '@keyframes fan-in': { from: { opacity: 0, transform: 'translateY(24px) rotate(0deg)' } },
+  '@keyframes fan-in': { from: { opacity: 0, transform: `translateY(${t.space[6]}) rotate(0deg)` } },
 }));
 
-const Title = styled.p(({ theme }) => ({
-  margin: 0, fontSize: theme.textSize['3xl'], fontWeight: theme.fontWeight.semibold,
+const Heading = styled.div(({ theme: t }) => ({
+  display: 'grid',
+  gap: t.space[2],
+  justifyItems: 'center',
 }));
 
-const Body = styled.p(({ theme }) => ({
-  margin: 0, maxInlineSize: '44ch', color: theme.color.textMuted, fontSize: theme.textSize.md,
+const Title = styled.p(({ theme: t }) => ({
+  margin: 0,
+  fontSize: t.textSize['3xl'],
+  fontWeight: t.fontWeight.semibold,
+  lineHeight: t.lineHeight.tight,
+  letterSpacing: '-0.02em',
 }));
 
-const Actions = styled.div(({ theme }) => ({
-  display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: theme.space[3],
+const Body = styled.p(({ theme: t }) => ({
+  margin: 0,
+  maxInlineSize: '42ch',
+  fontSize: t.textSize.md,
+  lineHeight: t.lineHeight.base,
+  textWrap: 'balance',
 }));
 
-const Metrics = styled.div(({ theme }) => ({
-  display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: theme.space[3],
-  inlineSize: '100%', maxInlineSize: '36rem', minInlineSize: 0,
+const Actions = styled.div(({ theme: t }) => ({
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  gap: t.space[3],
+}));
+
+const Record = styled.div(({ theme: t }) => ({
+  paddingBlockStart: t.space[4],
+  borderBlockStart: `1px solid ${t.color.borderStrong}`,
 }));
 
 export interface ReadyScreenProps {
   view: TableView;
   stats: Stats;
   onCommand: (command: TableCommand) => void;
+  onDifficultyChange: (difficulty: Difficulty) => void;
 }
 
-export function ReadyScreen({ view, stats, onCommand }: ReadyScreenProps) {
-  const compact = useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
-  const winRate = stats.gamesPlayed ? stats.gamesWon / stats.gamesPlayed : 0;
+export function ReadyScreen({ view, stats, onCommand, onDifficultyChange }: ReadyScreenProps) {
+  const compact = useCompactLayout();
+  const cardSize = compact ? 'md' : 'lg';
   return (
     <Stage aria-label={copy.table.regionLabel}>
-      <Fan aria-hidden="true">
-        {FAN.map((value, index) => (
-          <GameCard key={`${value.suit}-${value.rank}`} size={compact ? 'md' : 'lg'} label={`${value.rank} ${value.suit}`} value={value}
-            style={{ '--fan-index': index, '--fan-spread': `${FAN_SPREAD_DEG}deg` } as CSSProperties} />
-        ))}
-      </Fan>
-      <Title>{copy.table.readyTitle}</Title>
-      <Body>{copy.table.readyBody}</Body>
-      <Pill>{copy.settings[view.settings.difficulty]}</Pill>
-      <Actions>
-        <Button type="button" variant="solid" tone="accent" size="lg" onClick={() => onCommand('start')}>{copy.table.start}</Button>
-        <Button type="button" variant="outline" size="lg" onClick={() => onCommand('rules')}>{copy.table.rules}</Button>
-      </Actions>
-      {stats.gamesPlayed > 0 && (
-        <Metrics>
-          <MetricCard label={copy.stats.gamesPlayed} value={stats.gamesPlayed} locale={config.locale} />
-          <MetricCard label={copy.stats.gamesWon} value={stats.gamesWon} locale={config.locale} />
-          <MetricCard label={copy.stats.winRate} value={winRate} locale={config.locale}
-            formatOptions={{ style: 'percent', maximumFractionDigits: 0 }} />
-        </Metrics>
-      )}
+      <Hero>
+        <Fan aria-hidden="true" data-size={cardSize}>
+          {FAN.map((value, index) => (
+            <GameCard key={`${value.suit}-${value.rank}`} size={cardSize} label={`${value.rank} ${value.suit}`} value={value}
+              style={{ '--fan-index': index, '--fan-spread': `${FAN_SPREAD_DEG}deg` } as CSSProperties} />
+          ))}
+        </Fan>
+        <Heading>
+          <Title>{copy.table.readyTitle}</Title>
+          <Body>{copy.table.readyBody}</Body>
+        </Heading>
+        <DifficultyControl value={view.settings.difficulty} onValueChange={onDifficultyChange} />
+        <Actions>
+          <Button type="button" variant="solid" tone="accent" size="lg" onClick={() => onCommand('start')}>{copy.table.start}</Button>
+          <Button type="button" variant="solid" size="lg" onClick={() => onCommand('rules')}>{copy.table.howToPlay}</Button>
+        </Actions>
+        {stats.gamesPlayed > 0 && <Record><StatRecord stats={stats} surface="felt" /></Record>}
+      </Hero>
     </Stage>
   );
 }

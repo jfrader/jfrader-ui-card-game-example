@@ -1,6 +1,18 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Alert, Button, Stack } from '@jfrader/ui';
+import { Alert, Button, styled } from '@jfrader/ui';
 import { copy } from '../content/en';
+
+const Page = styled.div(({ theme: t }) => ({
+  display: 'grid',
+  placeContent: 'center',
+  justifyItems: 'start',
+  gap: t.space[4],
+  minBlockSize: '100dvh',
+  paddingInline: t.space[4],
+  backgroundColor: t.color.bg,
+  color: t.color.text,
+  '& > *': { maxInlineSize: '40rem' },
+}));
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -24,12 +36,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <Stack gap="md" align="start">
+      <Page>
         <Alert tone="danger" title={copy.errors.renderTitle}>
           {copy.errors.renderBody}
         </Alert>
-        <Button onClick={() => window.location.reload()}>{copy.errors.reload}</Button>
-      </Stack>
+        <Button type="button" variant="solid" tone="accent" onClick={() => window.location.reload()}>{copy.errors.reload}</Button>
+      </Page>
     );
   }
 }

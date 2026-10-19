@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { config } from '../config';
 
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(
@@ -14,4 +15,9 @@ export function useMediaQuery(query: string): boolean {
   }, [query]);
 
   return matches;
+}
+
+/** True at phone widths, where the table, drawers and ready screen switch to their compact form. */
+export function useCompactLayout(): boolean {
+  return useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
 }

@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { Alert, Skeleton, Stack, styled } from '@jfrader/ui';
-import { AnnouncementBar } from '@jfrader/ui/announcement-bar';
+import { Skeleton, Stack, styled } from '@jfrader/ui';
 import { Drawer } from '@jfrader/ui/drawer';
 import { ErrorBoundary } from './app/error-boundary';
 import { useGameController, type GameController } from './app/use-game-controller';
@@ -12,9 +11,11 @@ import { copy } from './content/en';
 import { NewGameDialog } from './panels/new-game-dialog';
 import { ResultsDialog } from './panels/results-dialog';
 import { RulesDialog } from './panels/rules-dialog';
-import { ScoreHistory } from './panels/score-history';
+import { Scoreboard } from './panels/scoreboard';
 import { SettingsDrawer } from './panels/settings-drawer';
+import { useSheetSide } from './panels/sheet-side';
 import { NotFoundPage } from './pages/not-found';
+import { VisuallyHidden } from './styles';
 import { GameBoard } from './table/game-board';
 import { useTheme } from './theme';
 
@@ -22,150 +23,68 @@ const RulesPage = lazy(() =>
   import('./pages/rules').then((module) => ({ default: module.RulesPage })),
 );
 
-const GameArea = styled.div<{ $inline: boolean }>(({ theme, $inline }) => ({
+const GameArea = styled.div<{ $inline: boolean }>(({ theme: t, $inline }) => ({
   display: 'grid',
   gridTemplateColumns: $inline ? `minmax(0, 1fr) ${config.layout.sidebarInline}px` : 'minmax(0, 1fr)',
-  gap: theme.space[6],
-  alignItems: 'start',
+  gap: t.space[4],
   minInlineSize: 0,
 }));
 
-const BoardColumn = styled.div({
+const Rail = styled.aside(({ theme: t }) => ({
   minInlineSize: 0,
-});
-
-const SideColumn = styled.aside(({ theme }) => ({
-  position: 'sticky',
-  insetBlockStart: theme.space[4],
-  minInlineSize: 0,
+  minBlockSize: 0,
+  overflowY: 'auto',
+  padding: t.space[4],
+  border: `1px solid ${t.color.border}`,
+  borderRadius: t.radius.lg,
+  backgroundColor: t.color.surface,
   '&:focus': { outline: 'none' },
 }));
 
-const Notice = styled.div(({ theme }) => ({
-  marginBlockEnd: theme.space[4],
-}));
-
-const PageTitle = styled.h1({
-  position: 'absolute',
-  inlineSize: 1,
-  blockSize: 1,
-  padding: 0,
-  margin: -1,
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-  whiteSpace: 'nowrap',
-  border: 0,
-});
-
-function errorMessage(error: GameController['error'], ledSuit: GameController['view']['ledSuit']): string {
-  switch (error) {
-    case 'must-follow-suit':
-      return copy.errors.mustFollowSuit(ledSuit ? copy.suits[ledSuit] : 'the led suit');
-    case 'wrong-player':
-      return copy.errors.wrongTurn;
-    case 'wrong-phase':
-      return copy.errors.wrongPhase;
-    case 'stale-action':
-      return copy.errors.stale;
-    case 'unknown-card':
-      return copy.errors.unknownCard;
-    case 'storage':
-      return copy.errors.storage;
-    default:
-      return copy.errors.wrongPhase;
-  }
-}
-
-function TableRoute({
-  controller,
-  inlineSidebar,
-}: {
-  controller: GameController;
-  inlineSidebar: boolean;
-}) {
-  const compact = useMediaQuery(`(max-width: ${config.breakpoints.compactChrome}px)`);
+function TableRoute({ controller, inlineSidebar }: { controller: GameController; inlineSidebar: boolean }) {
+  const side = useSheetSide();
   useEffect(() => {
     if (!inlineSidebar || !controller.dialogs.scores) return;
-    const panel = document.getElementById('score-history');
-    panel?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-    panel?.focus({ preventScroll: true });
+    document.getElementById('score-rail')?.focus();
     controller.closeDialog('scores');
   }, [inlineSidebar, controller.dialogs.scores, controller.closeDialog]);
 
   return (
     <>
-      <PageTitle>{copy.app.name}</PageTitle>
-      {!compact && !controller.noticeDismissed && controller.view.phase === 'ready' && (
-        <Notice>
-          <AnnouncementBar
-            open
-            onOpenChange={(open) => {
-              if (!open) controller.dismissNotice();
-            }}
-            messages={[
-              {
-                id: 'welcome',
-                message: copy.announcement.message,
-                action: {
-                  label: copy.announcement.action,
-                  onClick: () => controller.openDialog('rules'),
-                },
-              },
-            ]}
-            dismissible
-            autoPlay={false}
-            tone="info"
-            variant="subtle"
-          />
-        </Notice>
-      )}
-
-      {controller.error && (
-        <Notice>
-          <Alert
-            tone="warning"
-            title={copy.errors.title}
-            onDismiss={controller.clearError}
-            dismissLabel={copy.common.close}
-          >
-            {errorMessage(controller.error, controller.view.ledSuit)}
-          </Alert>
-        </Notice>
-      )}
-
+      <VisuallyHidden as="h1">{copy.app.name}</VisuallyHidden>
       <GameArea $inline={inlineSidebar}>
-        <BoardColumn>
-          <GameBoard
-            view={controller.view}
-            stats={controller.stats}
-            selectedCardId={controller.selectedCardId}
-            onSelectCard={controller.selectCard}
-            onPlayCard={controller.playCard}
-            onCommand={controller.handleCommand}
-          />
-        </BoardColumn>
+        <GameBoard
+          view={controller.view}
+          stats={controller.stats}
+          showScores={!inlineSidebar}
+          selectedCardId={controller.selectedCardId}
+          onSelectCard={controller.selectCard}
+          onPlayCard={controller.playCard}
+          onCommand={controller.handleCommand}
+          onDifficultyChange={(difficulty) => controller.updateSettings({ ...controller.settings, difficulty })}
+        />
         {inlineSidebar && (
-          <SideColumn id="score-history" tabIndex={-1} aria-label={copy.a11y.scoreRegion}>
-            <ScoreHistory view={controller.scoreHistory} now={controller.now} />
-          </SideColumn>
+          <Rail id="score-rail" tabIndex={-1} aria-label={copy.a11y.scoreRegion}>
+            <Scoreboard view={controller.scoreHistory} now={controller.now} />
+          </Rail>
         )}
       </GameArea>
 
       {!inlineSidebar && (
         <Drawer
+          side={side}
+          draggable={side === 'bottom'}
           open={controller.dialogs.scores}
-          onOpenChange={(open) => {
-            if (!open) controller.closeDialog('scores');
-          }}
+          onOpenChange={(open) => { if (!open) controller.closeDialog('scores'); }}
         >
           <Drawer.Content>
             <Drawer.Panel>
               <Drawer.Header>
-                <Drawer.Title>{copy.panels.scores}</Drawer.Title>
+                <Drawer.Title>{copy.scores.title}</Drawer.Title>
                 <Drawer.Close>{copy.common.close}</Drawer.Close>
               </Drawer.Header>
               <Drawer.Body>
-                <ScoreHistory view={controller.scoreHistory} now={controller.now} />
+                <Scoreboard view={controller.scoreHistory} now={controller.now} />
               </Drawer.Body>
             </Drawer.Panel>
           </Drawer.Content>
@@ -216,10 +135,7 @@ export function App() {
         onCommand={controller.handleShellCommand}
       >
         <Routes>
-          <Route
-            path="/"
-            element={<TableRoute controller={controller} inlineSidebar={inlineSidebar} />}
-          />
+          <Route path="/" element={<TableRoute controller={controller} inlineSidebar={inlineSidebar} />} />
           <Route
             path="/rules"
             element={
@@ -228,8 +144,8 @@ export function App() {
               </Suspense>
             }
           />
-          <Route path="*" element={<NotFoundPage />} />
           <Route path="/table" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AppShell>
 

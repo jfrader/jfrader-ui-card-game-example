@@ -31,14 +31,12 @@ for (const colorScheme of palettes) {
 
     test('rules and settings overlays are accessible', async ({ page }) => {
       await page.goto('/');
-      await page.getByRole('button', { name: 'Game menu' }).click();
-      await page.getByRole('menuitem', { name: 'Rules' }).click();
+      await page.getByRole('button', { name: 'How to play' }).click();
       await page.waitForTimeout(300);
       expect(await seriousViolations(page)).toEqual([]);
       await page.keyboard.press('Escape');
 
-      await page.getByRole('button', { name: 'Game menu' }).click();
-      await page.getByRole('menuitem', { name: 'Settings' }).click();
+      await page.getByRole('button', { name: 'Settings' }).click();
       await page.waitForTimeout(300);
       expect(await seriousViolations(page)).toEqual([]);
     });

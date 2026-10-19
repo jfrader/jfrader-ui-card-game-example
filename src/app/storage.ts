@@ -1,4 +1,5 @@
 import { config } from '../config';
+import { isDifficulty } from '../engine';
 import type { Settings, Stats } from '../engine/types';
 
 export interface StorageLike {
@@ -60,7 +61,7 @@ function isCount(value: unknown): value is number {
 export function isSettings(value: unknown): value is Settings {
   if (!isRecord(value)) return false;
   return (
-    (value.difficulty === 'easy' || value.difficulty === 'normal' || value.difficulty === 'hard') &&
+    isDifficulty(value.difficulty) &&
     isBoolean(value.showLegalHints) &&
     isBoolean(value.turnTimer) &&
     isBoolean(value.autoSortHand)
@@ -115,23 +116,4 @@ export function saveStats(stats: Stats, storage: StorageLike | null = defaultSto
 
 export function resetStats(storage: StorageLike | null = defaultStorage()): boolean {
   return saveStats(DEFAULT_STATS, storage);
-}
-
-export function loadNoticeDismissed(storage: StorageLike | null = defaultStorage()): boolean {
-  if (!storage) return false;
-  try {
-    return storage.getItem(config.storage.notice) === 'dismissed';
-  } catch {
-    return false;
-  }
-}
-
-export function saveNoticeDismissed(storage: StorageLike | null = defaultStorage()): boolean {
-  if (!storage) return false;
-  try {
-    storage.setItem(config.storage.notice, 'dismissed');
-    return true;
-  } catch {
-    return false;
-  }
 }

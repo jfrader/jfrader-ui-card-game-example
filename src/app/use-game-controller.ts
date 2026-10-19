@@ -11,19 +11,32 @@ import {
   lowestLegalCard,
   scoreGame,
 } from '../engine';
-import type { GameAction, GameState, PlayerKey, RuleError, Settings, Stats } from '../engine/types';
+import type { GameAction, GameState, PlayerKey, RuleError, Settings, Stats, Suit } from '../engine/types';
 import type { ResultsView, ScoreHistoryView, TableCommand, TableView } from '../contracts';
 import { toResultsView, toScoreHistoryView, toTableView } from './presentation';
 import {
   DEFAULT_STATS,
-  loadNoticeDismissed,
   loadSettings,
   loadStats,
   resetStats as persistResetStats,
-  saveNoticeDismissed,
   saveSettings,
   saveStats,
 } from './storage';
+
+function ruleErrorMessage(error: RuleError, ledSuit: Suit | null): string {
+  switch (error) {
+    case 'must-follow-suit':
+      return ledSuit ? copy.errors.mustFollowSuit(copy.suits[ledSuit]) : copy.errors.wrongPhase;
+    case 'wrong-player':
+      return copy.errors.wrongTurn;
+    case 'stale-action':
+      return copy.errors.stale;
+    case 'unknown-card':
+      return copy.errors.unknownCard;
+    case 'wrong-phase':
+      return copy.errors.wrongPhase;
+  }
+}
 
 export type PauseReason = 'manual' | 'modal' | 'route' | 'hidden';
 
@@ -41,14 +54,9 @@ export interface GameController {
   readonly view: TableView;
   readonly scoreHistory: ScoreHistoryView;
   readonly results: ResultsView | null;
-  readonly error: RuleError | 'storage' | null;
   readonly selectedCardId: string | null;
   readonly settings: Settings;
   readonly stats: Stats;
-  readonly noticeDismissed: boolean;
-  readonly paused: boolean;
-  readonly pauseLabel: string | null;
-  readonly deadline: number | null;
   readonly now: number;
   readonly dialogs: Record<DialogKey, boolean>;
   readonly canResetStats: boolean;
@@ -62,32 +70,38 @@ export interface GameController {
   handleShellCommand: (command: 'rules' | 'settings' | 'new-game') => void;
   updateSettings: (next: Settings) => void;
   resetStats: () => Promise<void>;
-  dismissNotice: () => void;
-  clearError: () => void;
   openDialog: (key: DialogKey) => void;
   closeDialog: (key: DialogKey) => void;
   setRoutePaused: (paused: boolean) => void;
-  pause: () => void;
-  resume: () => void;
 }
 
 export function useGameController(): GameController {
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const [game, setGame] = useState<GameState | null>(null);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [settings, setSettingsState] = useState<Settings>(() => loadSettings().value);
   const [stats, setStats] = useState<Stats>(() => loadStats().value);
-  const [noticeDismissed, setNoticeDismissed] = useState(() => loadNoticeDismissed());
   const [pauseReasons, setPauseReasons] = useState<ReadonlySet<PauseReason>>(() => new Set());
   const [deadline, setDeadlineState] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
-  const [error, setError] = useState<RuleError | 'storage' | null>(null);
   const [dialogs, setDialogs] = useState<Record<DialogKey, boolean>>({ ...EMPTY_DIALOGS });
 
   const storageChecked = useRef(false);
   const deadlineRef = useRef<number | null>(null);
   const remainingRef = useRef<number | null>(null);
   const turnRef = useRef<string | null>(null);
+  const errorToastRef = useRef<string | null>(null);
+
+  const clearRuleError = useCallback(() => {
+    if (errorToastRef.current) dismiss(errorToastRef.current);
+    errorToastRef.current = null;
+  }, [dismiss]);
+
+  const reportRuleError = useCallback((error: RuleError) => {
+    clearRuleError();
+    const ledSuit = game?.round.currentTrick.plays[0]?.card.suit ?? null;
+    errorToastRef.current = toast({ title: ruleErrorMessage(error, ledSuit), tone: 'warning' });
+  }, [clearRuleError, game, toast]);
 
   const setDeadline = useCallback((value: number | null) => {
     deadlineRef.current = value;
@@ -204,13 +218,13 @@ export function useGameController(): GameController {
       if (result.ok) {
         setGame(result.state);
         setSelectedCardId(null);
-        setError(null);
+        if (playerKey === 'south') clearRuleError();
         return true;
       }
-      setError(result.error);
+      if (playerKey === 'south') reportRuleError(result.error);
       return false;
     },
-    [game],
+    [clearRuleError, game, reportRuleError],
   );
 
   useEffect(() => {
@@ -278,9 +292,9 @@ export function useGameController(): GameController {
     setDeadline(null);
     remainingRef.current = null;
     turnRef.current = null;
-    setError(null);
+    clearRuleError();
     setDialogs({ ...EMPTY_DIALOGS });
-  }, [setDeadline]);
+  }, [clearRuleError, setDeadline]);
 
   const requestNewGame = useCallback(() => {
     if (game && game.phase !== 'gameComplete') {
@@ -309,12 +323,12 @@ export function useGameController(): GameController {
     if (result.ok) {
       setGame(result.state);
       setSelectedCardId(null);
-      setError(null);
+      clearRuleError();
       setDialogs((previous) => ({ ...previous, results: false }));
     } else {
-      setError(result.error);
+      reportRuleError(result.error);
     }
-  }, [game, startGame]);
+  }, [clearRuleError, game, reportRuleError, startGame]);
 
   const selectCard = useCallback(
     (id: string | null) => {
@@ -324,31 +338,31 @@ export function useGameController(): GameController {
         return;
       }
       if (currentPlayer(game) !== 'south') {
-        setError('wrong-player');
+        reportRuleError('wrong-player');
         return;
       }
       const legal = legalMoves(game, 'south').some((card) => card.id === id);
       if (!legal) {
         const inHand = game.round.hands.south.some((card) => card.id === id);
-        setError(inHand ? 'must-follow-suit' : 'unknown-card');
+        reportRuleError(inHand ? 'must-follow-suit' : 'unknown-card');
         return;
       }
       setSelectedCardId(id);
-      setError(null);
+      clearRuleError();
     },
-    [game, paused],
+    [clearRuleError, game, paused, reportRuleError],
   );
 
   const playCard = useCallback(
     (cardId: string) => {
       if (!game) return;
       if (currentPlayer(game) !== 'south') {
-        setError('wrong-player');
+        reportRuleError('wrong-player');
         return;
       }
       playCardInternal('south', cardId, false);
     },
-    [game, playCardInternal],
+    [game, playCardInternal, reportRuleError],
   );
 
   const openDialog = useCallback((key: DialogKey) => {
@@ -419,23 +433,9 @@ export function useGameController(): GameController {
     setStats(DEFAULT_STATS);
   }, [game, toast]);
 
-  const dismissNotice = useCallback(() => {
-    setNoticeDismissed(true);
-    if (!saveNoticeDismissed()) {
-      toast({ title: copy.toast.storageWarning, tone: 'warning' });
-    }
-  }, [toast]);
-
   const view = useMemo(
-    () =>
-      toTableView(game, settings, {
-        selectedCardId,
-        paused,
-        pauseLabel,
-        deadline,
-        now,
-      }),
-    [game, settings, selectedCardId, paused, pauseLabel, deadline, now],
+    () => toTableView(game, settings, { paused, pauseLabel, deadline, now }),
+    [game, settings, paused, pauseLabel, deadline, now],
   );
 
   const scoreHistory = useMemo(() => toScoreHistoryView(game), [game]);
@@ -446,14 +446,9 @@ export function useGameController(): GameController {
     view,
     scoreHistory,
     results,
-    error,
     selectedCardId,
     settings,
     stats,
-    noticeDismissed,
-    paused,
-    pauseLabel,
-    deadline,
     now,
     dialogs,
     canResetStats,
@@ -467,12 +462,8 @@ export function useGameController(): GameController {
     handleShellCommand,
     updateSettings,
     resetStats,
-    dismissNotice,
-    clearError: () => setError(null),
     openDialog,
     closeDialog,
     setRoutePaused,
-    pause: () => addReason('manual'),
-    resume,
   };
 }

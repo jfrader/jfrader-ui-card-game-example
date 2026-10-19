@@ -4,7 +4,7 @@ test('ready screen exposes one page heading and starts a match', async ({ page }
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Fivefold' })).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Start game' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Read the rules' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'How to play' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Start game' }).click();
   await expect(page.locator('[data-hand-card]')).toHaveCount(5);
@@ -23,8 +23,27 @@ test('a human can select and play a legal card through a completed trick', async
   await expect(page.getByRole('button', { name: 'Play card' })).toBeEnabled();
   await page.getByRole('button', { name: 'Play card' }).click();
 
-  await expect(page.getByText(/wins? the trick\./).first()).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText(/takes? the trick/).first()).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole('button', { name: /Next trick|Round results|Final results/ })).toBeVisible();
+});
+
+test('your hand stays at full strength when it is not your turn', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Start game' }).click();
+  const legal = page.locator('[data-hand-card]:not([aria-disabled="true"])').first();
+  await expect(legal).toBeVisible({ timeout: 8_000 });
+  await legal.click();
+  await page.getByRole('button', { name: 'Play card' }).click();
+  await expect(page.getByRole('button', { name: 'Next trick' })).toBeVisible({ timeout: 10_000 });
+
+  const cards = page.locator('[data-hand-card]');
+  await expect(cards).toHaveCount(4);
+  const states = await cards.evaluateAll((buttons) => buttons.map((button) => ({
+    unavailable: button.getAttribute('aria-disabled'),
+    opacity: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).opacity,
+    filter: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).filter,
+  })));
+  expect(states).toEqual(Array.from({ length: 4 }, () => ({ unavailable: 'true', opacity: '1', filter: 'none' })));
 });
 
 test('a full match reaches the result dialog and records local stats', async ({ page }) => {

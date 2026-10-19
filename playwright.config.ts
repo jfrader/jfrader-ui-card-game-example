@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = 4173;
+// Not Vite's preview default (4173), which other local projects often hold.
+const port = 4319;
 
 export default defineConfig({
   testDir: './tests',
@@ -24,7 +25,8 @@ export default defineConfig({
   webServer: {
     command: `pnpm dev --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !process.env.CI,
+    // A server already on the port may be another app; fail instead of testing it.
+    reuseExistingServer: false,
     timeout: 120_000,
     env: { VITE_AI_DELAY_MS: '30' },
   },

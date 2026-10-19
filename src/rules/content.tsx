@@ -14,7 +14,7 @@ export function RulesContent({ compact = false }: { compact?: boolean }) {
   return <Details>
     <p>{copy.rules.intro}</p>
     <h2>{copy.rules.setupTitle}</h2><p>{copy.rules.setupBody}</p>
-    <p>Turn order is South (You) → West (Nora) → North (Eli) → East (Wren) → South. “Left of the dealer” means the next seat in this order. That seat leads the first trick; later tricks are led by the previous winner.</p>
+    <p>Turn order is South (You) → West (Ada) → North (Milo) → East (Iris) → South. “Left of the dealer” means the next seat in this order. That seat leads the first trick; later tricks are led by the previous winner.</p>
     <p>Each round uses a freshly shuffled 52-card French deck without jokers. Deal one card at a time, starting left of the dealer, for five passes. Each player receives five cards. The other 32 cards remain face down and are not used. Cards can recur in later rounds, never within a round.</p>
     <h2>{copy.rules.playTitle}</h2><p>{copy.rules.playBody}</p>
     <p>Play continues in the same cyclic order from the leader, with one card per player. There is no obligation to trump, overtrump or beat the current winning card. Any card can lead; trump does not need to be “broken.”</p>
@@ -25,10 +25,10 @@ export function RulesContent({ compact = false }: { compact?: boolean }) {
     <Example><Stack gap="sm"><strong>{copy.rules.trumpTitle}</strong><Flex gap="md" wrap><GameCard value={{ deck: 'french', suit: 'clubs', rank: 'A' }} label="Ace of clubs, led suit" face="print" size="md" /><GameCard value={{ deck: 'french', suit: 'hearts', rank: '2' }} label="Two of hearts, trump" face="print" size="md" /></Flex><p>{examples.trump}</p></Stack></Example>
     <h2>{copy.rules.scoringTitle}</h2><p>{copy.rules.scoringBody}</p>
     <p>The fourth card resolves the trick and awards its winner one point immediately. All four cards stay visible until you choose Next trick. After the fifth trick choose Round results, or Final results in round five. There are exactly 25 points in a match, with no bonuses or penalties.</p>
-    <p>Round results show round and total scores and the next trump. Choose Deal round to continue. A sole top score wins the match; all joint leaders are named in a draw. A round marked Round lead or Joint round lead means you had the highest round score, alone or tied. It awards no extra points.</p>
+    <p>Round results show round and total scores and the next trump. Choose Deal round to continue. A sole top score wins the match; all joint leaders are named in a draw. Under Your rounds, Led means you had the highest round score, alone or tied. It awards no extra points.</p>
     <h2>{copy.rules.controlsTitle}</h2>
     <p>Use <Kbd>Tab</Kbd> and <Kbd>Shift</Kbd> + <Kbd>Tab</Kbd> to move through card buttons and controls. <Kbd>Enter</Kbd> or <Kbd>Space</Kbd> selects or clears a card. Activate Play card to commit it. <Kbd>Escape</Kbd> closes menus and dialogs without playing a card.</p>
-    <p>In the table action bar, use arrow keys, <Kbd>Home</Kbd> and <Kbd>End</Kbd> to move between actions. Pause and Resume stop and restart play.</p>
+    <p>In the table actions, use arrow keys, <Kbd>Home</Kbd> and <Kbd>End</Kbd> to move between actions. Pause and Resume stop and restart play.</p>
     {!compact && <>
       <h2>{copy.settings.title}</h2>
       <p>Legal-card hints dim cards you cannot play; turning hints off does not change the rules. Auto-sort changes only the order shown in your hand. Difficulty applies to the next scheduled opponent turn.</p>

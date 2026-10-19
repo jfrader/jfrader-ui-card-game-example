@@ -1,6 +1,6 @@
 # Fivefold
 
-Fivefold is a small, polished, genuinely playable four-seat trick-taking game and a public reference application for composing `@jfrader/ui`. Play five short rounds against Nora, Eli and Wren, follow suit, use the rotating trump to win tricks, and finish with the highest score. The table, not a component catalogue, is the product: every included component supports playing, understanding or reviewing the game. Ship a standalone MIT-licensed React application with no account, server or paid service.
+Fivefold is a small, polished, genuinely playable four-seat trick-taking game and a public reference application for composing `@jfrader/ui`. Play five short rounds against Ada, Milo and Iris, follow suit, use the rotating trump to win tricks, and finish with the highest score. The table, not a component catalogue, is the product: every included component supports playing, understanding or reviewing the game. Ship a standalone MIT-licensed React application with no account, server or paid service.
 
 ## Goals and non-goals
 
@@ -14,7 +14,7 @@ Fivefold is a small, polished, genuinely playable four-seat trick-taking game an
 
 ## Game rules
 
-1. Seats and turn order are fixed: South = You (`south`, human), West = Nora (`west`), North = Eli (`north`), East = Wren (`east`). The cyclic order is South → West → North → East → South. “Left of dealer” means the next seat in this order; include this definition in the rules rather than relying on spatial terminology.
+1. Seats and turn order are fixed: South = You (`south`, human), West = Ada (`west`), North = Milo (`north`), East = Iris (`east`). Names avoid the initials N, E, S and W, which seat avatars would otherwise show at the wrong compass points. The cyclic order is South → West → North → East → South. “Left of dealer” means the next seat in this order; include this definition in the rules rather than relying on spatial terminology.
 2. You deal round 1. Dealers for rounds 1–5 are South, West, North, East, South. The first leaders are respectively West, North, East, South, West. After the first trick of a round, its winner leads the next trick. Play always continues in the same cyclic order from that leader.
 3. Use a French deck of 52 unique cards, no jokers. Rank order is 2 < 3 < 4 < 5 < 6 < 7 < 8 < 9 < 10 < J < Q < K < A. Ace is always high. Suits have no ranking for trick resolution.
 4. Independently shuffle a complete deck for each round. Deal one card at a time, starting left of the dealer and continuing in turn order for five passes. Each seat receives five cards; the remaining 32 are unused, inaccessible and face down. Never carry leftover cards into the next round. Cards may recur between rounds, never within a round.
@@ -23,7 +23,7 @@ Fivefold is a small, polished, genuinely playable four-seat trick-taking game an
 7. Each trick has exactly one card from each seat, in cyclic order. If any trump was played, the highest trump wins; otherwise the highest card in the led suit wins. Off-suit non-trumps cannot win. No equal-card tie is possible with a valid deck. In no-trump, only led-suit cards can win.
 8. Award one point immediately when the fourth card resolves the trick. Keep all four cards visible until the human activates “Next trick”; AI does not dismiss this review state. After trick 5, the button reads “Round results” (or “Final results” in round 5). A round therefore awards exactly five points, a game exactly 25. No bonuses or penalties.
 9. Round results show each player's round points and cumulative points, plus the next trump. “Deal round N” advances rounds 1–4. After round 5, highest total wins; two or more joint highest totals make the match a draw, regardless of whether You are among them. A sole AI winner means a human loss; a sole South winner means a human win. List every joint leader on a draw.
-10. Round-strip semantics are explicitly human-relative: `won` means South was joint or sole highest in that completed round, `lost` means below its highest score, `pending` means unfinished or future. Text distinguishes “Joint round lead” from “Round lead”; this is not a bonus or a game win.
+10. Round-strip semantics are explicitly human-relative: `won` means South was joint or sole highest in that completed round, `lost` means below its highest score, `pending` means unfinished or future. The round chips under Your rounds read “Led” or “Behind”; the round result names a sole or joint lead. This is not a bonus or a game win.
 11. AI cards are never exposed before play, including accessible names, DOM attributes, logs or result panels. Counts are public. This is presentation privacy, not anti-cheat: a local app cannot hide its memory from its owner.
 12. Optional timing is 30 seconds per active turn, off by default. On expiry play the lowest legal card, with the same deterministic comparator used by normal AI. AI normally plays sooner. Timer events never bypass rule validation. There are no timers during trick review, round results or final results.
 13. Pause freezes all AI and turn timers. Opening a modal, leaving `/`, hiding the document or pressing Pause adds a pause reason; resume only when all reasons clear. Returning from a hidden tab requires explicit Resume. No catch-up plays. Preserve remaining time rather than resetting it; disabling the timer removes the deadline, enabling starts a full duration on the next turn.
@@ -34,25 +34,25 @@ Fivefold is a small, polished, genuinely playable four-seat trick-taking game an
 
 | Route/state | Experience |
 | --- | --- |
-| `/`, ready | Table-shaped composition with named seats, empty trick space, “Start game”, difficulty summary and local games/wins metrics. No invented loading delay or AI network status. |
-| `/`, playing | Table is primary; selected card and explicit Play card control in the human hand; turn name, round/trick, trump and scores remain available. |
-| `/`, trickComplete | Four revealed cards, named winner, one-point feedback, persistent Next trick action. |
-| `/`, roundComplete | Dialog with round and total scores, next trump and Deal round N. Closing it leaves a “View round results” action; it does not deal automatically. |
-| `/`, gameComplete | GameResult with winner/draw, final GameScore, local stats, Play again and Review scores. Result can be dismissed and reopened. |
+| `/`, ready | The stage shows a felt hero: card fan, title, one-line rules, difficulty control, Start game and How to play, and local played/won/win rate after the first match. No invented loading delay or AI network status. |
+| `/`, playing | One stage fills the viewport: round/trick and trump in the board's top corners, turn status and Pause at the bottom, each play in front of its seat, the hand and Play card in the dock. |
+| `/`, trickComplete | Four revealed cards; the winner's card and seat are ringed and labelled; Next trick takes Play card's place in the dock. |
+| `/`, roundComplete | Dialog with the score table, your lead state, next trump and Deal round N. Closing it leaves Round results in the dock; it does not deal automatically. |
+| `/`, gameComplete | GameResult with winner/draw, the final score table, local stats, Play again and Review scores. Result can be dismissed and reopened from the dock. |
 | `/rules` | Shareable full rules page with Breadcrumbs, Prose, examples of following suit and trump, keyboard instructions and Return to table. Reuses the same rules content as the quick-rules dialog. |
 | unmatched route | EmptyState “Page not found” and router link to `/`. No full reload for navigation. |
 
-Global AppShell contains skip link, compact Topbar (Fivefold wordmark/home link, Rules link, ThemeSwitch, game menu), main landmark and Footer (MIT/source link from configured site metadata). Keep active game/controller above route outlet so visiting rules does not discard a hand. Use BrowserRouter; document static-host SPA fallback for direct `/rules` navigation. Route changes update title and focus the page heading/main, without automatically moving focus during turns.
+Global AppShell contains skip link, Topbar (Fivefold mark and home link, Table and Rules links, New game and Settings commands, ThemeSwitch), main landmark and Footer (MIT/source link from configured site metadata). Keep active game/controller above route outlet so visiting rules does not discard a hand. Use BrowserRouter; document static-host SPA fallback for direct `/rules` navigation. Route changes update title and focus the page heading/main, without automatically moving focus during turns.
 
-First visit: nonblocking, dismissible AnnouncementBar: “Five rounds. Follow suit. Most tricks wins.” with Rules action. Persist dismissal. Start is always explicit. No onboarding tour.
+First visit: the ready screen carries the one-line rules and How to play. Start is always explicit. No onboarding tour or first-run banner.
 
 Settings Drawer uses difficulty SegmentedControl and switches for legal-card hints, timer and auto-sort. Defaults: normal, hints on, timer off, auto-sort on. It also contains local stats and a confirmed Reset stats ActionButton. Apply settings immediately with the timing exceptions above; a failed persistence write leaves usable in-memory settings and a single warning Toast.
 
-Quick-rules Dialog opens from the table without route navigation. Separate score/history Drawer below desktop; desktop uses an inline side panel with Tabs for Scores and History. Never mount duplicate interactive panel instances. Menu holds Settings, Rules, New game and local Stats (opens settings); Pause/Resume is directly available through GameActions.
+Quick-rules Dialog opens from the ready screen without route navigation; the Rules link opens the full page and pauses the match. Below 1100px Scores opens a Drawer (from the bottom on phones); at 1100px and up an inline rail beside the stage holds Tabs for Scores and Log. Never mount duplicate interactive panel instances. Pause/Resume and (below 1100px) Scores are GameActions in the board's bottom corner.
 
-Empty/loading/errors: history EmptyState before the first play; real Suspense fallback with Skeleton for lazy `/rules` only; storage Alert/Toast on failed reads or writes; recoverable invalid-play Alert near the hand; top-level render error boundary with Alert and Reload button. Do not pretend local dealing or AI requires a spinner. Keep the loading fallback out of the live table and preserve the shell.
+Empty/loading/errors: log EmptyState before the first play; real Suspense fallback with Skeleton for lazy `/rules` only; a warning Toast on failed storage writes and on an illegal or out-of-turn card (one at a time, cleared by your next valid move); top-level render error boundary with Alert and Reload button. Do not pretend local dealing or AI requires a spinner. Keep the loading fallback out of the live table and preserve the shell.
 
-Mobile keeps all primary actions reachable below the board, using vertical page scrolling when needed. Scores/history move to a drawer; menus and dialogs remain above table clipping. No hover-only instructions. There is no orientation lock.
+Mobile (under 600px) uses a column board: four columns, each a seat with its card in front of it, then the status row and the hand with its action. Below 360px the columns go two by two. Scores and settings open as bottom sheets; dialogs remain above table clipping. No hover-only instructions. There is no orientation lock.
 
 ## Component coverage
 
@@ -60,52 +60,45 @@ Imports below name the published entry point. Compound parts share their family'
 
 | Component | Import path | Where / why | Key props or composition | Role |
 | --- | --- | --- | --- | --- |
-| GameTable | `@jfrader/ui/game-table` | Responsive four-seat board | `players={4}`, `seats`, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"`, region parts | Core |
-| GameSeat | `@jfrader/ui/game-seat` | Names, dealer/turn badges, score and hidden counts | `name`, `avatar`, `badges`, `points`, `handCount`, optional `turn` | Core |
-| GameHand | `@jfrader/ui/game-hand` | Human selection and confirm; Hidden for AI | `cards`, `playLabel`, `value`, `onValueChange`, `onPlayIntent`, `disabled`, `slots.card`; Hidden `count`, `label` | Core |
-| GameCard | `@jfrader/ui/game-card` | Printed played cards and rules examples | `value`, `label`, `face="print"`, `size`, `dimmed` | Core |
-| GameCardStack | `@jfrader/ui/game-card-stack` | Current trick pile at each play position | `piles`, `maxCards={1}`, `placement="grid"`, controlled inspection | Core |
-| GameActions | `@jfrader/ui/game-actions` | Pause, continue and panel actions | `actions`, `label`, `size`, `orientation` | Core |
-| GameScore | `@jfrader/ui/game-score` | Live, round and final scoreboard | `label`, `rows` with `key`, `label`, `value`, `stage` | Core |
-| GameRounds | `@jfrader/ui/game-rounds` | Five-round progress/outcomes | `label`, `rounds`, `outcomeLabels` | Core |
+| GameTable | `@jfrader/ui/game-table` | Four-seat board from 600px up; seats on the felt edge, plays in front of them | `players={4}`, `seats`, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"`, `seatPlacement="edge"`; Seat, Play, Floating parts | Core |
+| GameSeat | `@jfrader/ui/game-seat` | Seat chip: name, dealer or turn badge, card count, total points, turn timer ring | `name`, `avatar`, `badges`, `points`, optional `turn` | Core |
+| GameHand | `@jfrader/ui/game-hand` | Human selection and confirm | `cards`, `playLabel`, `value`, `onValueChange`, `onPlayIntent`, per-card availability through `slots.card` (no whole-hand `disabled`) | Core |
+| GameCard | `@jfrader/ui/game-card` | Played cards, the trump flip back, the ready fan and rules examples | `value`, `label`, `face`, `size` | Core |
+| GameActions | `@jfrader/ui/game-actions` | Pause/Resume and, below 1100px, Scores | `actions`, `label`, `size`, `variant` | Core |
+| GameRounds | `@jfrader/ui/game-rounds` | Your rounds: led or behind per round | `label`, `rounds`, `outcomeLabels` | Core |
 | GameResult | `@jfrader/ui/game-result` | Match conclusion | `outcome`, `title`, `summary`, `actions`, `celebration` | Core |
-| GameMarks | `@jfrader/ui/game-marks` | Tricks won this round per player | `label`, `count`, `mark`, `maxPerRow={5}`, `layout="rows"` | Core |
-| FlipGameCard | `@jfrader/ui/flip-game-card` | Reveal the next round's trump indicator | custom `front` and `back`, `flipped`, `size="sm"` | Core |
+| FlipGameCard | `@jfrader/ui/flip-game-card` | Trump reveal in the HUD at each new round | custom `front` and `back`, `flipped`, `size="sm"` | Core |
+| CallOverlay | `@jfrader/ui/call-overlay` | Round start call on the empty felt | `label`, controlled `open`, `onOpenChange`, `tone` | Core |
+| Countdown | `@jfrader/ui/countdown` | Seconds left on your turn when the timer is on | `target`, `variant="compact"`, `units={['seconds']}`, `label={null}`, `aria-label`, `announceCompletion={false}` | Core |
 | DeckProvider | `@jfrader/ui/deck` | Resolve French artwork for all cards | `default="french"`, `backLabel="Face-down card"` | Core provider |
 | Dialog | `@jfrader/ui/dialog` | Rules, results and destructive confirmation | `open`, `onOpenChange`; Content → Panel → Title/Description, Close | Support |
-| Drawer | `@jfrader/ui/drawer` | Settings and compact scores/history | `open`, `onOpenChange`; Content/Panel/Header/Body/Footer/Title/Close | Support |
-| Toast | `@jfrader/ui/toast` | Storage warning and successful reset | Provider `viewport="default"`; `useToast().toast({title, description, tone})` | Support |
-| Alert | `@jfrader/ui/alert` | Persistence or invalid-play recovery | `tone`, `title`, `onDismiss`, `dismissLabel` | Support |
-| Tabs | `@jfrader/ui/tabs` | Scores / History panel | `label`, `value`, `onValueChange`; List/Tab/Panel | Support |
-| Menu | `@jfrader/ui/menu` | Secondary commands in Topbar | Trigger/Content/Item/Separator | Support |
-| Tooltip | `@jfrader/ui/tooltip` | Icon-only theme/menu affordance where needed | Trigger/Content; never sole accessible name | Support |
+| Drawer | `@jfrader/ui/drawer` | Settings and, below 1100px, scores; from the bottom on phones | `open`, `onOpenChange`, `side`, `draggable`; Content/Panel/Header/Body/Footer/Title/Close | Support |
+| Toast | `@jfrader/ui/toast` | Illegal or out-of-turn card; storage warnings | Provider `viewport="default"`; `useToast().toast({title, tone})`, `dismiss` | Support |
+| Alert | `@jfrader/ui/alert` | Render error boundary | `tone`, `title` | Support |
+| Tabs | `@jfrader/ui/tabs` | Scores / Log | `value`, `onValueChange`; List/Tab/Panel | Support |
 | Popover | `@jfrader/ui/popover` | Trump badge explains current trump/no-trump | `triggerLabel`, `label`, `content` | Support |
-| AnnouncementBar | `@jfrader/ui/announcement-bar` | Dismissible first-run rule summary | `messages`, controlled `open`, `dismissible`, `autoPlay={false}` | Support |
-| CallOverlay | `@jfrader/ui/call-overlay` | Brief trick-winner announcement | `label`, controlled `open`, `onOpenChange`, `tone` | Core |
-| Countdown | `@jfrader/ui/countdown` | Optional active turn countdown | `target`, `variant="compact"`, `units={['seconds']}`, `label`, `announceCompletion={false}` | Core |
-| Timeline | `@jfrader/ui/timeline` | Public play/trick history | `events`, `now`, `maxHeight`, `scrollToNew` | Support |
-| MetricCard | `@jfrader/ui/metric-card` | Games played and won in ready/settings/result | `label`, numeric `value`, `formatOptions` | Support |
-| SegmentedControl | `@jfrader/ui/segmented-control` | Difficulty | `options`, `value`, `onValueChange`, `label` | Support |
-| Switch | `@jfrader/ui/switch` | Hints, timer and sort | `label`, `checked`, `onCheckedChange` | Support |
-| Progress | `@jfrader/ui/progress` | Completed tricks in current round | `value`, `max={5}`, `label`, `getValueLabel` | Core |
-| Skeleton | `@jfrader/ui/skeleton` | Actual lazy rules fallback | `width`, `height`, `radius` | Support |
+| Pill | `@jfrader/ui/pill` | Seat turn and trick-winner badges; round lead in the round result | `tone`, children | Core |
+| Timeline | `@jfrader/ui/timeline` | Public play/trick log | `events`, `now`, `maxHeight`, `scrollToNew` | Support |
+| SegmentedControl | `@jfrader/ui/segmented-control` | Difficulty on the ready screen and in settings | `options`, `value`, `onValueChange`, `label` | Support |
+| Switch | `@jfrader/ui/switch` | Hints, timer and sort | `label`, `description`, `checked`, `onCheckedChange` | Support |
+| ScrollArea | `@jfrader/ui/scroll-area` | Hand fan overflow on narrow screens and high zoom | `orientation="horizontal"`, `scrollbars="native"`, `fade={0}` | Core |
+| Skeleton | `@jfrader/ui/skeleton` | Actual lazy rules fallback | `width`, `height` | Support |
 | Kbd | `@jfrader/ui/kbd` | Rules keyboard reference | native children: Tab, Enter, Space, Escape | Support |
-| ScrollArea | `@jfrader/ui/scroll-area` | Hand overflow/history | `orientation`, `fade`, `scrollbars`, `maxBlockSize` | Core/support |
-| EmptyState | `@jfrader/ui/empty-state` | No history; unknown route | `title`, `description`, `action`, `headingLevel` | Support |
-| Breadcrumbs | `@jfrader/ui/breadcrumbs` | Rules navigation hierarchy | `items`, `label`; router-backed links via verified customization or ordinary link interception | Support |
+| EmptyState | `@jfrader/ui/empty-state` | Empty log; unknown route | `title`, `description`, `action`, `headingLevel` | Support |
+| Breadcrumbs | `@jfrader/ui/breadcrumbs` | Rules navigation hierarchy | compound items with router links | Support |
 | ActionButton | `@jfrader/ui/action-button` | Confirmed local-stat reset | `label`, `pendingLabel`, `successLabel`, `errorLabel`, `onAction` | Support |
-| Avatar | `@jfrader/ui/avatar` | Human and AI seat identities; initials keep every seat readable | `name`, `size`, `status` | Core |
+| Avatar | `@jfrader/ui/avatar` | Seat identity; hosts the turn timer ring | `name`, `size` | Core |
 | ThemeSwitch | `@jfrader/ui/theme-switch` | Global palette selection | `label`, `iconOnly`, `value`, `onValueChange` | Support |
-| Container | `@jfrader/ui` | Shell width bounds | `size="xl"`, `paddingInline` | Support |
-| Flex | `@jfrader/ui` | Topbar/action rows | children; token-based styling | Support |
-| Stack | `@jfrader/ui` | Settings and result groups | children; token-based styling | Support |
-| Card | `@jfrader/ui` | Score panel and rule examples | compound content or children | Support |
-| Divider | `@jfrader/ui` | Settings sections and Footer | native/declared props only | Support |
+| Container | `@jfrader/ui` | Shell and topbar width bounds | `size="xl"`, `paddingInline` | Support |
+| Flex | `@jfrader/ui` | Rules example rows and footer links | children; token-based styling | Support |
+| Stack | `@jfrader/ui` | Rules examples and the lazy fallback | children; token-based styling | Support |
+| Card | `@jfrader/ui` | Rule examples | children | Support |
+| Divider | `@jfrader/ui` | Footer | native/declared props only | Support |
 | Prose | `@jfrader/ui` | Rules text | semantic heading/list children | Support |
-| Button | `@jfrader/ui` | Start, close, deal, retry | children, `onClick`, `type`, declared visual props | Core/support |
+| Button | `@jfrader/ui` | Start, How to play, topbar commands, Next trick/results, deal, play again, done, reload | children, `onClick`, `type`, `variant`, `tone`, `size`, `startIcon` | Core/support |
 | ThemeProvider | `@jfrader/ui` | Typed styled theme context | children; no palette prop assumed | Support provider |
 
-Deliberately omitted: PersonAvatar (exists in the source tree and README, but is absent from the published `@jfrader/ui@0.9.1` export map; use Avatar and record the package gap), UserMenu (no user/account), chat widgets (no chat), network/presence widgets (local opponents never go offline), CardFlights (not needed to teach selection/play; avoids a second animation subsystem), rewards/store/payment components (no economy), form libraries and data grids (no corresponding workflow). Do not add them to reach a quota. GameSeat `offline` and `chat` are unused; `turned` is not a turn flag. Do not count library internals toward the coverage target.
+Deliberately omitted: PersonAvatar (exists in the source tree and README, but is absent from the published `@jfrader/ui@0.9.1` export map; use Avatar and record the package gap), UserMenu (no user/account), chat widgets (no chat), network/presence widgets (local opponents never go offline), CardFlights (not needed to teach selection/play; avoids a second animation subsystem), rewards/store/payment components (no economy), form libraries and data grids (no corresponding workflow). Retired in the run-3 redesign: GameCardStack (its fixed play footprint collides on the felt; plain GameCards in `GameTable.Play` fit), GameScore (totals only; the per-round score table is app code), GameMarks (repeated per-round rows; the table carries the same numbers), MetricCard (one compact stats row is used everywhere), Menu and Tooltip (the topbar shows its commands), AnnouncementBar (the ready screen carries the rules line), Progress (the HUD shows Trick n/5). Do not add them to reach a quota. GameSeat `offline` and `chat` are unused; `turned` is not a turn flag. Do not count library internals toward the coverage target.
 
 ## Architecture
 
@@ -127,7 +120,7 @@ No additional runtime dependency, state library, backend, auth or analytics. Tes
 
 ### Persistence
 
-Use versioned keys: `fivefold.settings.v1`, `fivefold.stats.v1`, `fivefold.notice.v1`; palette key `fivefold.theme.v1` is duplicated deliberately in pre-paint bootstrap and `theme.ts`, with a test asserting equality. Store settings/stats as validated JSON, theme as `light`/`dark`, notice as `dismissed`. Invalid, absent, unavailable or corrupt data falls back independently; never clear unrelated keys. Stats are local to this browser. No match/deck/hand persistence.
+Use versioned keys: `fivefold.settings.v1`, `fivefold.stats.v1`; palette key `fivefold.theme.v1` is duplicated deliberately in pre-paint bootstrap and `theme.ts`, with a test asserting equality. Store settings/stats as validated JSON, theme as `light`/`dark`. Invalid, absent, unavailable or corrupt data falls back independently; never clear unrelated keys. Stats are local to this browser. No match/deck/hand persistence.
 
 Stats increment only upon the single transition into `gameComplete`: games played +1; games won +1 only for a sole South victory. Draws are played but not won. Store `lastCountedGameId` with counters and guard effects against StrictMode duplicates. Reset is permitted only in ready/gameComplete to avoid counting the current completion again. Storage failure must not stop play. Cross-tab write reconciliation is out of scope; document that last writer wins.
 
@@ -138,8 +131,8 @@ Paths are relative to the repository root. Ownership is exclusive, including tes
 | Owner | Exact files |
 | --- | --- |
 | Engine writer | `src/engine/constants.ts`, `src/engine/deck.ts`, `src/engine/rules.ts`, `src/engine/ai.ts`, `src/engine/reducer.ts`, `src/engine/selectors.ts`, `src/engine/index.ts`, `src/engine/deck.test.ts`, `src/engine/rules.test.ts`, `src/engine/ai.test.ts`, `src/engine/reducer.test.ts` |
-| Table UI writer | `src/table/game-board.tsx`, `src/table/player-seat.tsx`, `src/table/seat-pile.tsx`, `src/table/player-hand.tsx`, `src/table/trump-indicator.tsx`, `src/table/round-strip.tsx`, `src/table/table.styles.ts` |
-| Shell/panels/rules writer | `src/components/app-shell.tsx`, `src/components/topbar.tsx`, `src/components/footer.tsx`, `src/panels/score-history.tsx`, `src/panels/settings-drawer.tsx`, `src/panels/rules-dialog.tsx`, `src/panels/results-dialog.tsx`, `src/panels/new-game-dialog.tsx`, `src/pages/rules.tsx`, `src/pages/not-found.tsx`, `src/rules/content.tsx` |
+| Table UI writer | `src/table/game-board.tsx`, `src/table/compact-board.tsx`, `src/table/ready-screen.tsx`, `src/table/hud.tsx`, `src/table/turn-bar.tsx`, `src/table/seat-chip.tsx`, `src/table/seat-play.tsx`, `src/table/round-call.tsx`, `src/table/player-hand.tsx`, `src/table/table.styles.ts` |
+| Shell/panels/rules writer | `src/components/app-shell.tsx`, `src/components/topbar.tsx`, `src/components/footer.tsx`, `src/components/stat-record.tsx`, `src/components/suit-icon.tsx`, `src/components/difficulty-control.tsx`, `src/styles.ts`, `src/panels/score-table.tsx`, `src/panels/scoreboard.tsx`, `src/panels/sheet-side.ts`, `src/panels/dialog.styles.ts`, `src/panels/celebration.tsx`, `src/panels/settings-drawer.tsx`, `src/panels/rules-dialog.tsx`, `src/panels/results-dialog.tsx`, `src/panels/new-game-dialog.tsx`, `src/pages/rules.tsx`, `src/pages/not-found.tsx`, `src/rules/content.tsx` |
 | Primary integration | `package.json`, `pnpm-lock.yaml`, `index.html`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `.gitignore`, `LICENSE`, `README.md`, `src/main.tsx`, `src/app.tsx`, `src/theme.ts`, `src/config.ts`, `src/content/en.ts`, `src/contracts.ts`, `src/engine/types.ts` (frozen), `src/app/use-game-controller.ts`, `src/app/use-media-query.ts`, `src/app/presentation.ts`, `src/app/storage.ts`, `src/app/storage.test.ts`, `src/app/error-boundary.tsx`, `tests/game.spec.ts`, `tests/accessibility.spec.ts`, `tests/responsive.spec.ts`, `tests/fixtures.ts` |
 
 `SPEC.md` remains the approved contract; changes require primary coordination. There is no separate scaffold ownership for the three writers.
@@ -331,38 +324,39 @@ AI acts only in playing with its own active seat and no pause reason. Controller
 
 Root provider: `<DeckProvider default="french" backLabel="Face-down card">` wraps the app's card-bearing content, including portals/rules. It supplies art, not shuffle/rules. Every card value explicitly uses `deck: 'french'` so standalone examples are safe.
 
-Use a sized BoardFrame containing `GameTable` with `players={4}`, seats ordered South/West/North/East, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"`, `seatPlacement="edge"`, and a small token-based `clearance`. Source geometry puts index 0 south and index 1 west; clockwise preserves supplied order. Do not rely on default direction (it is counterclockwise) or default team count (2). `edge` fits the 680px board with full seats; `inside` needed roughly 900px for the same composition.
+From 600px up, a `Stage` fills the viewport below the topbar. Its `Board` holds `GameTable` with `players={4}`, seats ordered South/West/North/East, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"` and `seatPlacement="edge"`. Source geometry puts index 0 south and index 1 west; clockwise preserves supplied order. Do not rely on default direction (it is counterclockwise) or default team count (2).
 
-The hand, round strip and table actions are outside the measured felt: a dock/footer inside the table leaves only ~380px of surface at a 680px board, which pushes the seat/play floors into `insufficient-space`. The felt keeps seats, plays, center and floating feedback; the page scrolls when the viewport is shorter than the table plus the hand.
+The felt's height is capped at 56% of the table container's block size, so the board must get the stage's height: the hand and its action sit in a dock below the board, and the HUD (round, trick, trump, turn status, Pause) is laid over the board's empty corners outside the felt ellipse. A 448px-tall board at 1440×900 could not fit `md` plays; the stage's board fits them at 1440×900, 1280×720 and 768×1024.
 
 ```tsx
-<RoundStrip view={view} />
-<BoardFrame>
-  <GameTable players={4} seats={view.seats} teamCount={1}
-    turnDirection="clockwise" surface="match" seatPlacement="edge">
-    <GameTable.Seat><PlayerSeat /></GameTable.Seat>
-    <GameTable.Play><SeatPile /></GameTable.Play>
-    <GameTable.Center><TrumpIndicator /></GameTable.Center>
-    <GameTable.Floating><TrickAnnouncement /></GameTable.Floating>
-  </GameTable>
-</BoardFrame>
-<PlayerHand compact={false} />
-<TableActions />
+<Stage>
+  <Board>
+    <BoardBar $edge="start"><RoundStats /><TrumpBadge /></BoardBar>
+    <GameTable players={4} seats={view.seats} teamCount={1}
+      turnDirection="clockwise" surface="match" seatPlacement="edge">
+      <GameTable.Seat><TableSeat /></GameTable.Seat>
+      <GameTable.Play><TablePlay /></GameTable.Play>
+      <GameTable.Floating><RoundCall /></GameTable.Floating>
+    </GameTable>
+    <BoardBar $edge="end"><TurnStatus /><TableActions /></BoardBar>
+  </Board>
+  <Dock><PlayerHand /></Dock>
+</Stage>
 ```
 
-`TableActions` and `TrickAnnouncement` live in `src/table/table-actions.tsx`; the mobile branch lives in `src/table/mobile-board.tsx`. No opaque wrapper goes between GameTable and a region part. Seat and Play each repeat once per place; their children read `useGameTableSeat<SeatView>()` and null-check player. Never manually duplicate a second set of four regions on top of this repetition. GameTable has no active-turn prop or keyboard model.
+The phone branch lives in `src/table/compact-board.tsx` and reuses the same pieces (`RoundStats`, `TrumpBadge`, `SeatChip`, `PlayedCard`, `TurnStatus`, `TableActions`, `PlayerHand`). No opaque wrapper goes between GameTable and a region part. Seat and Play each repeat once per place; their children read `useGameTableSeat<SeatView>()` and null-check player. Never manually duplicate a second set of four regions on top of this repetition. GameTable has no active-turn prop or keyboard model.
 
-Seat: GameSeat `name`, `Avatar` for every seat (the published 0.9.1 package has no `person-avatar` subpath), text badges “Dealer” and “Your turn”/“Playing”, `points` as formatted total, and a text count for opponents. Do not use `handCount`: its hidden fan is decorative and contributes to seat height; the app supplies `hand` text instead. Active seat styling is app-owned `data-active`; omit `turned` and offline. `turn` is supplied only for a running timed active seat (`deadline`, `durationMs: 30000`, sampled `now`); remove it during pause.
+Seat: `SeatChip` restyles GameSeat into a horizontal chip (a stacked one on phones): `Avatar` for every seat (the published 0.9.1 package has no `person-avatar` subpath), `badges` with “Your turn”/“Playing” or “Wins trick”, otherwise “Dealer” and the card count as text, and `points` as the total with a visually hidden unit. Do not use `handCount`: its hidden fan is decorative and contributes to seat height. Active and winner states are `data-state` with a ring, plus the badge text. `turn` is supplied only for your running timed turn (`deadline`, `durationMs: 30000`, sampled `now`); remove it during pause.
 
-SeatPile: read that seat's public play, build a single-element piles array (`playerKey`, `label`, `revealed: true`, zero or one `cards` entry with stable ID/value/label/order). Use one GameCardStack in each repeated GameTable.Play with `cardWidth={theme.size.gameCardSm}`. The play region footprint is owned by GameTable and stays ~107px even with the smaller stack; four of them collide at 390 (see FINDINGS). Use edge placement and the mobile board below. Clear piles only on continue, not when winner feedback fades.
+Play: `PlayedCard` renders a plain `md` GameCard named “Name played Card”, entering from its seat's side; an unplayed seat renders a hidden face-down card of the same size so the geometry does not move as cards land. The trick winner's card is ringed and raised in place. Clear plays only on continue.
 
-Hand: `cards` maps only human cards; `value` is selectedCardId; `onValueChange` accepts only legal IDs or null; `onPlayIntent` delegates ID to controller. `disabled` when not human turn, paused or not playing. Always validate again on confirmation. Clear selection after play, new turn, new round and new game; preserve selection through sort/hint/theme changes if it remains legal.
+Hand: `cards` maps only human cards; `value` is selectedCardId; `onValueChange` passes the request to the controller, which rejects illegal or out-of-turn cards with a toast; `onPlayIntent` delegates the ID to the controller. Do not pass `disabled`: it dims every card. Mark unavailable cards through `slots.card` (`aria-disabled`, `aria-describedby` to the turn status); with hints on, illegal cards darken and drop on your turn only. Always validate again on confirmation. Clear selection after play, new turn, new round and new game; preserve selection through sort/hint/theme changes if it remains legal.
 
 **Verified API gap and supported adapter:** GameHand has no per-card `disabled`/`dimmed` field or card render callback. Use its public `slots.card` replacement, declared at module scope. It receives native button props including `data-hand-card`. Read a small hand-render context of legal IDs, labels and hint setting, forward ref/className/style/children and every existing handler, add `aria-label` from the card label, `aria-disabled` and an accessible illegal reason. Apply token-based dimming to the wrapper only when hints are on; never hide illegal cards. Do not replace GameHand's internal GameCard, reach into private imports or invent `cards[].disabled`. Legal guards remain active when hints are off. Illegal buttons remain discoverable by keyboard. On blocked intent announce “Follow [suit].” from the engine-derived led-suit view; this feedback may instead be provided as the card's description. Do not dim the entire hand merely because one card is illegal.
 
-Header: the compact RoundStrip above the felt carries round/trick labels and Progress; the full GameRounds strip is desktop/tablet only. Center: small trump indicator + Popover explaining current trump. FlipGameCard custom front/back represents the trump rule, not a card removed from the deck; for no-trump its front says “No trump”. Source semantics: `flipped={true}` shows back, false shows front. New round briefly reveals back → front, with no blocking delay; reduced motion shows front immediately. Do not display a fake ace that could be mistaken for a dealt card.
+HUD: round and trick (`n/5`) in the board's top-start corner and the trump badge in the top-end corner, laid over the board outside the felt ellipse. The trump badge is a Popover trigger with a decorative FlipGameCard: a suit glyph on the front, the deck back on the back; no-trump shows a crossed circle. Source semantics: `flipped={true}` shows back, false shows front. A new round briefly shows back → front, with no blocking delay; reduced motion shows the front immediately. Do not display a fake ace that could be mistaken for a dealt card.
 
-Footer: TableActions below the hand for Pause/Resume, Next trick/results, Rules and compact Scores. No redundant second Play button; GameHand owns explicit confirmation. Floating: centered noninteractive CallOverlay with winner text, controlled independently from game phase. It is transient; winner remains readable outside it. GameScore/GameMarks live in score/results panels, GameResult at match end. GameRounds never invents an unsupported `draw` outcome.
+Bottom corners: turn status (title, detail, and the Countdown chip when the timer runs) and GameActions for Pause/Resume and compact Scores. Dock: the hand and its one action; Next trick or results replaces Play card in the same place. No redundant second Play button; GameHand owns explicit confirmation. Plays: each `GameTable.Play` holds a plain GameCard in front of its seat; the trick winner's card is ringed and raised and its seat shows a badge. Floating: a noninteractive CallOverlay announces each new round on the empty felt. GameResult closes the match; GameRounds never invents an unsupported `draw` outcome.
 
 ## Responsive layout
 
@@ -370,9 +364,9 @@ Sizing constants live in config/table.styles. All grid children have `minInlineS
 
 | Viewport | Required arrangement |
 | --- | --- |
-| 1440×900 | Shell bounded to approximately 1360px; two-column game area `minmax(0, 1fr) 280px`, gap from tokens. BoardFrame 680px block size; full `GameTable` with edge seats and 32px played cards. Scores/history inline; hand and actions below the felt, so the page may scroll. |
-| 768×1024 | Single-column board, approximately 760px block size, full seats, hand and actions below the felt. Scores/history in a modal drawer via the Scores action. |
-| 390×844 | `MobileBoard`, not `GameTable`: three opponent `GameSeat`s, a four-card trick row of `GameCard`s, the human seat, the hand and the actions. No felt; the page scrolls. Scores/history in the drawer. |
+| 1440×900 | Shell bounded to 1440px; game area `minmax(0, 1fr) 312px`. One stage fills the viewport below the topbar: board with HUD corners, then the dock. `GameTable` fits `md` plays (`data-layout-fit="fitted"`), as it does at 1280×720. Score rail inline at stage height. |
+| 768×1024 | Single column; the same stage, fitted with `md` plays. Scores in a drawer from the end edge via the Scores action. |
+| 390×844 | Compact board, not `GameTable`: HUD row, four felt columns (seat chip above its card), status row, then the hand with its action. Two by two below 360px. Scores and settings as bottom sheets. |
 
 Use breakpoint 1100px for the inline sidebar and 600px for the mobile board, as named constants. Hand scroll belongs inside its region, not the page; focus scrolls selected buttons into view. Do not shrink interactive targets below 24×24 CSS px; aim for 44px controls. Library small hand exposes 32px selection strips, so ensure adequate vertical target area and nonoverlapping focus outlines.
 
@@ -412,7 +406,7 @@ Browser scenarios:
 5. Optional timer expiry chooses lowest legal, manual/timeout race accepts only one, Pause freezes remaining time, Resume preserves it, modal/route/visibility pauses prevent AI and expiry.
 6. Restart confirm/cancel; old callbacks cannot affect new game. Abandon does not count as played.
 7. `/rules` direct load and back-to-table preserve paused state; not-found navigation; rules lazy fallback uses real deferred loading.
-8. Settings/theme/notice persistence, malformed JSON, invalid enum/counters, unavailable storage and reset success/failure. A reset confirmation is keyboard operable.
+8. Settings/theme persistence, malformed JSON, invalid enum/counters, unavailable storage and reset success/failure. A reset confirmation is keyboard operable.
 9. Keyboard-only complete trick, roving actions, illegal button behavior, dialog focus containment/return, menu Escape and skip link.
 10. Light/dark, reduced motion, forced colors and the three target viewports; open every overlay, full five-card hand, last trick/result states and emergency insufficient-space path. Assert page `scrollWidth <= clientWidth`, visible action/focus bounds, no seat/stack collision and no clipped dialogs.
 11. Capture evidence for ready, playing, trick winner, settings and result at 1440×900, 768×1024 and 390×844; inspect actual screenshots, not just screenshot existence. Cover a 320px width/200% zoom stress case as fallback QA.

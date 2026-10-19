@@ -2,10 +2,13 @@ import { copy } from '../content/en';
 import {
   currentPlayer,
   legalMoves,
+  PLAYERS,
+  ROUND_COUNT,
   roundOutcomes,
   roundScores,
   scoreGame,
   sortHand,
+  TRICKS_PER_ROUND,
   TRUMPS,
 } from '../engine';
 import type { Card, GameState, PlayerKey, Settings, Stats, Suit } from '../engine/types';
@@ -13,11 +16,11 @@ import type {
   CardView,
   ResultsView,
   ScoreHistoryView,
+  ScoreTableView,
   SeatView,
+  TableStatus,
   TableView,
 } from '../contracts';
-
-const READY_ORDER: readonly PlayerKey[] = ['south', 'west', 'north', 'east'];
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -28,7 +31,7 @@ export function cardLabel(card: Card): string {
 }
 
 export function trumpLabel(trump: Suit | null): string {
-  return trump ? `${capitalize(copy.suits[trump])}` : copy.table.noTrump;
+  return trump ? copy.suitTitles[trump] : copy.table.noTrump;
 }
 
 export function cardView(card: Card, legal: boolean): CardView {
@@ -60,32 +63,75 @@ function seatViews(state: GameState, active: PlayerKey | null): readonly SeatVie
 }
 
 function readySeats(): readonly SeatView[] {
-  return READY_ORDER.map((key) => ({
-    key,
-    name: copy.seats[key],
-    isMe: key === 'south',
+  return PLAYERS.map((player) => ({
+    key: player.key,
+    name: player.name,
+    isMe: player.isMe,
     handCount: 0,
     totalPoints: 0,
     roundPoints: 0,
-    dealer: key === 'south',
+    dealer: player.isMe,
     active: false,
   }));
 }
 
-function readyRounds(): TableView['rounds'] {
-  return Array.from({ length: 5 }, (_, index) => ({
-    key: `round-${index + 1}`,
-    label: copy.table.round(index + 1),
-    outcome: 'pending' as const,
-  }));
-}
-
 export interface TableUiState {
-  readonly selectedCardId: string | null;
   readonly paused: boolean;
   readonly pauseLabel: string | null;
   readonly deadline: number | null;
   readonly now: number;
+}
+
+function trickWinnerText(state: GameState, winner: PlayerKey | null): string {
+  if (!winner) return '';
+  return winner === 'south' ? copy.status.youTake : copy.status.takes(playerName(state, winner));
+}
+
+function tableStatus(state: GameState, ui: TableUiState, active: PlayerKey | null, winner: PlayerKey | null): TableStatus {
+  const ledSuit = state.round.currentTrick.plays[0]?.card.suit ?? null;
+  switch (state.phase) {
+    case 'playing':
+      if (ui.paused) return { tone: 'paused', title: copy.status.paused, detail: ui.pauseLabel ?? '' };
+      if (active === 'south') {
+        return {
+          tone: 'turn',
+          title: copy.table.yourTurn,
+          detail: ledSuit ? copy.status.follow(copy.suits[ledSuit]) : copy.status.lead,
+        };
+      }
+      return {
+        tone: 'waiting',
+        title: copy.status.waiting(active ? playerName(state, active) : ''),
+        detail: copy.status.waitingDetail,
+      };
+    case 'trickComplete':
+      return {
+        tone: 'resolved',
+        title: trickWinnerText(state, winner),
+        detail: copy.status.tricksPlayed(state.round.completedTricks.length, TRICKS_PER_ROUND),
+      };
+    case 'roundComplete':
+      return { tone: 'resolved', title: copy.status.roundOver(state.round.number), detail: trickWinnerText(state, winner) };
+    case 'gameComplete':
+      return { tone: 'resolved', title: copy.status.matchOver, detail: trickWinnerText(state, winner) };
+  }
+}
+
+function advanceFor(state: GameState): Pick<TableView, 'advance' | 'advanceLabel'> {
+  const finalRound = state.round.number >= ROUND_COUNT;
+  const resultsLabel = finalRound ? copy.table.finalResults : copy.table.roundResults;
+  switch (state.phase) {
+    case 'trickComplete':
+      return {
+        advance: 'continue',
+        advanceLabel: state.round.completedTricks.length < TRICKS_PER_ROUND ? copy.table.nextTrick : resultsLabel,
+      };
+    case 'roundComplete':
+    case 'gameComplete':
+      return { advance: 'results', advanceLabel: resultsLabel };
+    case 'playing':
+      return { advance: null, advanceLabel: null };
+  }
 }
 
 export function toTableView(
@@ -100,16 +146,19 @@ export function toTableView(
       hand: [],
       plays: [],
       roundNumber: 1,
+      roundCount: ROUND_COUNT,
       trickNumber: 1,
+      trickCount: TRICKS_PER_ROUND,
       completedTricks: 0,
-      trump: 'hearts',
+      trump: TRUMPS[0] ?? null,
       ledSuit: null,
-      rounds: readyRounds(),
+      winnerKey: null,
+      status: { tone: 'waiting', title: '', detail: '' },
+      advance: null,
+      advanceLabel: null,
       paused: ui.paused,
-      pauseLabel: ui.pauseLabel,
       deadline: null,
       now: ui.now,
-      winnerLabel: null,
       canPlay: false,
       settings,
     };
@@ -123,82 +172,89 @@ export function toTableView(
   const hand = settings.autoSortHand
     ? sortHand(state.round.hands.south)
     : state.round.hands.south;
-  const plays = state.round.currentTrick.plays.map((play, order) => ({
-    playerKey: play.playerKey,
-    card: cardView(play.card, false),
-    order,
-  }));
-  const winner =
-    state.phase === 'trickComplete' ||
-    state.phase === 'roundComplete' ||
-    state.phase === 'gameComplete'
-      ? state.round.currentTrick.winner
-      : null;
+  const winner = state.phase === 'playing' ? null : state.round.currentTrick.winner;
 
   return {
     phase: state.phase,
     seats: seatViews(state, active),
     hand: hand.map((card) => cardView(card, legalIds.has(card.id))),
-    plays,
+    plays: state.round.currentTrick.plays.map((play, order) => ({
+      playerKey: play.playerKey,
+      card: cardView(play.card, false),
+      order,
+    })),
     roundNumber: state.round.number,
+    roundCount: ROUND_COUNT,
     trickNumber: state.round.currentTrick.number,
+    trickCount: TRICKS_PER_ROUND,
     completedTricks: state.round.completedTricks.length,
     trump: state.round.trump,
     ledSuit: state.round.currentTrick.plays[0]?.card.suit ?? null,
-    rounds: roundOutcomes(state).map((outcome, index) => ({
-      key: `round-${index + 1}`,
-      label: copy.table.round(index + 1),
-      outcome,
-    })),
+    winnerKey: winner,
+    status: tableStatus(state, ui, active, winner),
+    ...advanceFor(state),
     paused: ui.paused,
-    pauseLabel: ui.pauseLabel,
     deadline: ui.deadline,
     now: ui.now,
-    winnerLabel: winner ? copy.table.trickWon(playerName(state, winner), winner === 'south') : null,
     canPlay,
     settings,
   };
 }
 
-function totalsRows(state: GameState): ScoreHistoryView['totals'] {
-  const totals = scoreGame(state).totals;
-  return state.players.map((player) => ({
-    key: player.key,
-    label: player.name,
-    value: totals[player.key],
-    stage: copy.table.round(state.round.number),
-  }));
+function roundState(state: GameState, number: number): ScoreTableView['rounds'][number]['state'] {
+  if (state.completedRounds.some((round) => round.number === number)) return 'done';
+  if (state.round.number !== number) return 'upcoming';
+  return state.phase === 'roundComplete' || state.phase === 'gameComplete' ? 'done' : 'current';
 }
 
-function scoreLine(state: GameState, scores: Readonly<Record<PlayerKey, number>>): string {
-  return state.players.map((player) => `${player.name}: ${scores[player.key]}`).join(' · ');
-}
-
-export function emptyScoreHistory(): ScoreHistoryView {
+export function toScoreTable(state: GameState | null): ScoreTableView {
+  const trumps = Array.from({ length: ROUND_COUNT }, (_, index) => TRUMPS[index] ?? null);
+  if (!state) {
+    return {
+      players: PLAYERS.map((player) => ({ key: player.key, name: player.name, isMe: player.isMe, total: 0, leader: false })),
+      rounds: trumps.map((trump, index) => ({ number: index + 1, state: 'upcoming', trump, scores: {} })),
+    };
+  }
+  const { totals } = scoreGame(state);
+  const top = Math.max(...Object.values(totals));
+  const played = [...state.completedRounds, state.round];
   return {
-    totals: READY_ORDER.map((key) => ({
-      key,
-      label: copy.seats[key],
-      value: 0,
+    players: state.players.map((player) => ({
+      key: player.key,
+      name: player.name,
+      isMe: player.isMe,
+      total: totals[player.key],
+      leader: top > 0 && totals[player.key] === top,
     })),
-    rounds: [],
-    events: [],
+    rounds: trumps.map((trump, index) => {
+      const number = index + 1;
+      const round = played.find((item) => item.number === number);
+      return {
+        number,
+        state: roundState(state, number),
+        trump,
+        scores: round ? roundScores(round) : {},
+      };
+    }),
   };
 }
 
 export function toScoreHistoryView(state: GameState | null): ScoreHistoryView {
-  if (!state) return emptyScoreHistory();
-  const rounds = [...state.completedRounds, state.round].map((round) => ({
-    roundNumber: round.number,
-    scores: roundScores(round),
+  const outcomes = state ? roundOutcomes(state) : Array.from({ length: ROUND_COUNT }, () => 'pending' as const);
+  const roundLeads = outcomes.map((outcome, index) => ({
+    key: `round-${index + 1}`,
+    label: copy.table.round(index + 1),
+    outcome,
   }));
+  if (!state) return { table: toScoreTable(null), roundLeads, events: [] };
+
   const events = state.log.map((event) => {
     switch (event.kind) {
       case 'round-start':
         return {
           id: event.id,
           at: event.at,
-          title: `${copy.table.round(event.roundNumber)} — ${trumpLabel(event.trump)}`,
+          title: copy.timeline.roundStart(event.roundNumber, trumpLabel(event.trump)),
           detail: `${copy.table.dealer}: ${playerName(state, event.dealer)}`,
         };
       case 'card-played':
@@ -206,23 +262,23 @@ export function toScoreHistoryView(state: GameState | null): ScoreHistoryView {
           id: event.id,
           at: event.at,
           actor: playerName(state, event.playerKey),
-          title: `${playerName(state, event.playerKey)} played ${cardLabel(event.card)}`,
-          detail: event.automatic ? copy.table.playing : undefined,
+          title: copy.timeline.played(playerName(state, event.playerKey), cardLabel(event.card)),
+          detail: event.automatic && event.playerKey === 'south' ? copy.timeline.autoPlayed : undefined,
         };
       case 'trick-won':
         return {
           id: event.id,
           at: event.at,
           actor: playerName(state, event.playerKey),
-          title: copy.table.trickWon(playerName(state, event.playerKey), event.playerKey === 'south'),
-          detail: `${copy.table.trick(event.trickNumber)}`,
+          title: trickWinnerText(state, event.playerKey),
+          detail: copy.table.trickOf(event.trickNumber, TRICKS_PER_ROUND),
         };
       case 'round-end':
         return {
           id: event.id,
           at: event.at,
-          title: `${copy.table.round(event.roundNumber)} complete`,
-          detail: scoreLine(state, event.scores),
+          title: copy.timeline.roundEnd(event.roundNumber),
+          detail: state.players.map((player) => `${player.name} ${event.scores[player.key]}`).join(' · '),
         };
       case 'game-end':
         return {
@@ -234,11 +290,7 @@ export function toScoreHistoryView(state: GameState | null): ScoreHistoryView {
     }
   });
 
-  return {
-    totals: totalsRows(state),
-    rounds,
-    events,
-  };
+  return { table: toScoreTable(state), roundLeads, events };
 }
 
 export function toResultsView(
@@ -246,28 +298,28 @@ export function toResultsView(
   stats: Stats,
 ): ResultsView | null {
   if (!state) return null;
-  const score = scoreGame(state);
   if (state.phase === 'roundComplete') {
-    const round = roundScores(state.round);
-    const rows = state.players.map((player) => ({
-      key: player.key,
-      label: player.name,
-      value: round[player.key],
-    }));
+    const scores = roundScores(state.round);
+    const top = Math.max(...Object.values(scores));
+    const leaders = Object.values(scores).filter((value) => value === top).length;
     return {
       kind: 'round',
       roundNumber: state.round.number,
-      rows,
-      totals: totalsRows(state),
+      roundCount: ROUND_COUNT,
+      yourTricks: scores.south,
+      lead: scores.south < top ? 'behind' : leaders > 1 ? 'joint' : 'sole',
+      table: toScoreTable(state),
       nextTrump: TRUMPS[state.round.number] ?? null,
     };
   }
   if (state.phase === 'gameComplete') {
+    const score = scoreGame(state);
     return {
       kind: 'game',
       outcome: score.outcome,
       winnerNames: score.winners.map((key) => playerName(state, key)),
-      rows: totalsRows(state),
+      yourPoints: score.totals.south,
+      table: toScoreTable(state),
       stats,
     };
   }
