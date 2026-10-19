@@ -55,6 +55,7 @@ src/rules/       Shared rules prose and examples
 The engine is deterministic given a seed or an injected five-deck fixture. The controller owns
 timing, pause reasons, selection, AI scheduling and persistence; renderers only map view models to
 props. App-owned styles use `styled` from `@jfrader/ui` with theme callbacks — no CSS modules.
+`vite.config.ts` dedupes React and Emotion so pnpm resolves one instance of each.
 
 ## Built with `@jfrader/ui`
 
