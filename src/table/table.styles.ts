@@ -64,7 +64,20 @@ export const TrickCell = styled.div(({ theme }) => ({
   '[data-surface="felt"] > &': { color: theme.color.text, fontSize: theme.textSize.sm, fontWeight: theme.fontWeight.medium },
 }));
 
-export const EmptySlot = styled.div<{ $size: string }>(({ theme, $size }) => ({
+export const PlayEnter = styled.div(({ theme }) => ({
+  '@media (prefers-reduced-motion: no-preference)': {
+    animation: `play-enter ${theme.motion.duration.cardPlay} ${theme.motion.easeStandard} both`,
+  },
+  '&[data-from="south"]': { '--enter-y': theme.space[8] },
+  '&[data-from="north"]': { '--enter-y': `calc(-1 * ${theme.space[8]})` },
+  '&[data-from="west"]': { '--enter-x': `calc(-1 * ${theme.space[8]})` },
+  '&[data-from="east"]': { '--enter-x': theme.space[8] },
+  '@keyframes play-enter': {
+    from: { opacity: 0, transform: 'translate(var(--enter-x, 0), var(--enter-y, 0)) scale(0.9)' },
+  },
+}));
+
+export const EmptySlot =styled.div<{ $size: string }>(({ theme, $size }) => ({
   inlineSize: $size, blockSize: `calc(${$size} * 1.4)`, maxInlineSize: '100%',
   border: `1px dashed ${theme.color.borderControl}`, borderRadius: `calc(${$size} / 8)`,
 }));
@@ -98,7 +111,7 @@ export const HandRegion = styled.section(({ theme }) => ({
 
 export const HandScrollContent = styled.div(({ theme }) => ({
   inlineSize: 'max-content', minInlineSize: '100%', boxSizing: 'border-box',
-  padding: theme.space[3], display: 'flex', justifyContent: 'center',
+  paddingBlock: theme.space[3], paddingInline: theme.space[1], display: 'flex', justifyContent: 'center',
 }));
 
 export const HandCardButton = styled.button(({ theme }) => ({
@@ -115,6 +128,6 @@ export const TrumpFace = styled.div(({ theme }) => ({
 }));
 
 export const AnnouncementFrame = styled.div(({ theme }) => ({
-  position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
-  pointerEvents: 'none', padding: theme.space[4],
+  position: 'absolute', inset: 0, display: 'grid', placeItems: 'start center',
+  pointerEvents: 'none', padding: theme.space[2],
 }));

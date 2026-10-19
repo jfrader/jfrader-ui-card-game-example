@@ -1,4 +1,5 @@
 import { GameRounds } from '@jfrader/ui/game-rounds';
+import { Pill } from '@jfrader/ui/pill';
 import { Progress } from '@jfrader/ui/progress';
 import type { TableView } from '../contracts';
 import { copy } from '../content/en';
@@ -9,7 +10,11 @@ export function RoundStrip({ view, compact = false }: { view: TableView; compact
     getValueLabel={copy.table.progressLabel} />;
   if (compact) {
     return <Strip>
-      <Inline><strong>{copy.table.round(view.roundNumber)}</strong><span>{copy.table.trick(view.trickNumber)}</span></Inline>
+      <Inline>
+        <strong>{copy.table.round(view.roundNumber)}</strong>
+        <span>{copy.table.trick(view.trickNumber)}</span>
+        <Pill tone="accent">{view.trump ? copy.table.trumpIs(copy.suits[view.trump]) : copy.table.noTrump}</Pill>
+      </Inline>
       {progress}
     </Strip>;
   }

@@ -51,7 +51,7 @@ export function PlayerHand({ view, compact, selectedCardId, onSelectCard, onPlay
                 ? copy.table.followSuit(copy.suits[view.ledSuit])
                 : copy.hand.selectInstruction
               : copy.table.waitingForAi;
-  const hand = <HandScrollContent><GameHand cards={view.hand} size={compact ? 'sm' : 'md'}
+  const hand = <HandScrollContent><GameHand cards={view.hand} size="md"
     value={selectedCardId} onValueChange={onSelectCard} onPlayIntent={(card) => onPlayCard(card.id)}
     playLabel={copy.hand.playLabel} disabled={!view.canPlay} slots={handSlots} /></HandScrollContent>;
   return <HandRegion aria-labelledby={headingId}>

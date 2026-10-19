@@ -7,6 +7,12 @@ import { config } from '../config';
 import { copy } from '../content/en';
 import { SeatFrame } from './table.styles';
 
+export function seatSummary(seat: Pick<SeatView, 'isMe' | 'totalPoints' | 'handCount'>): string {
+  return [copy.table.points(seat.totalPoints), seat.isMe ? null : copy.table.cards(seat.handCount)]
+    .filter(Boolean)
+    .join(' · ');
+}
+
 export function PlayerSeat({ view, compact }: { view: TableView; compact: boolean }) {
   const { player } = useGameTableSeat<SeatView>();
   if (!player) return null;
@@ -20,7 +26,7 @@ export function PlayerSeat({ view, compact }: { view: TableView; compact: boolea
         {player.dealer && <Pill>{copy.table.dealer}</Pill>}
         {player.active && <Pill tone="accent">{player.isMe ? copy.table.yourTurn : copy.table.playing}</Pill>}
       </>}
-      points={<span>{[copy.table.points(player.totalPoints), player.isMe ? null : copy.table.cards(player.handCount)].filter(Boolean).join(' · ')}</span>}
+      points={<span>{seatSummary(player)}</span>}
       turn={turn} />
   </SeatFrame>;
 }

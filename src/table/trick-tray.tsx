@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { theme } from '@jfrader/ui';
 import { GameCard } from '@jfrader/ui/game-card';
 import type { TableView } from '../contracts';
-import { EmptySlot, TrickCell, TrickGrid } from './table.styles';
+import { EmptySlot, PlayEnter, TrickCell, TrickGrid } from './table.styles';
 
 const CARD_SIZE = { md: theme.size.gameCardMd, lg: theme.size.gameCardLg } as const;
 
@@ -22,7 +22,9 @@ export function TrickTray({ view, size, surface, children }: TrickTrayProps) {
           <TrickCell key={seat.key}>
             <span>{seat.name}</span>
             {play ? (
-              <GameCard size={size} label={`${seat.name} · ${play.card.label}`} value={play.card.value} />
+              <PlayEnter data-from={seat.key}>
+                <GameCard size={size} label={`${seat.name} · ${play.card.label}`} value={play.card.value} />
+              </PlayEnter>
             ) : (
               <EmptySlot $size={CARD_SIZE[size]} aria-hidden="true" />
             )}

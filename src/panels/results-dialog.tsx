@@ -7,6 +7,7 @@ import { MetricCard } from '@jfrader/ui/metric-card';
 import type { ResultsView } from '../contracts';
 import { copy } from '../content/en';
 import { config } from '../config';
+import { Celebration } from './celebration';
 
 const Metrics = styled.div(({ theme }) => ({ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: theme.space[3] }));
 
@@ -29,7 +30,7 @@ export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame 
       <p>{copy.results.nextTrump}: {view.nextTrump ? copy.suits[view.nextTrump] : copy.table.noTrump}</p>
       <Button type="button" onClick={continueGame}>{copy.results.dealRound(view.roundNumber + 1)}</Button>
     </> : <>
-      <GameResult outcome={view.outcome} title={copy.results[view.outcome]} summary={<Stack gap="sm"><span>{copy.results.finalSummary(humanPoints)}</span><span>{copy.results.winnerNames(new Intl.ListFormat(config.locale, { style: 'long', type: 'conjunction' }).format(view.winnerNames))}</span></Stack>} actions={<Flex gap="sm" wrap><Button type="button" onClick={() => { onOpenChange(false); onNewGame(); }}>{copy.results.playAgain}</Button><Button type="button" onClick={() => onOpenChange(false)}>{copy.results.reviewScores}</Button></Flex>} />
+      <GameResult outcome={view.outcome} celebration={view.outcome === 'won' ? <Celebration /> : undefined} title={copy.results[view.outcome]} summary={<Stack gap="sm"><span>{copy.results.finalSummary(humanPoints)}</span><span>{copy.results.winnerNames(new Intl.ListFormat(config.locale, { style: 'long', type: 'conjunction' }).format(view.winnerNames))}</span></Stack>} actions={<Flex gap="sm" wrap><Button type="button" onClick={() => { onOpenChange(false); onNewGame(); }}>{copy.results.playAgain}</Button><Button type="button" onClick={() => onOpenChange(false)}>{copy.results.reviewScores}</Button></Flex>} />
       <GameScore label={copy.panels.totalColumn} rows={view.rows} locale={config.locale} />
       <Metrics><MetricCard label={copy.stats.gamesPlayed} value={view.stats.gamesPlayed} locale={config.locale} /><MetricCard label={copy.stats.gamesWon} value={view.stats.gamesWon} locale={config.locale} /></Metrics>
     </>}

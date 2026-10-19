@@ -32,6 +32,7 @@ export const copy = {
     round: (n: number) => `Round ${n}`,
     trick: (n: number) => `Trick ${n}`,
     trump: 'Trump',
+    trumpIs: (suit: string) => `Trump: ${suit}`,
     noTrump: 'No trump',
     dealer: 'Dealer',
     you: 'You',
@@ -57,8 +58,8 @@ export const copy = {
     followSuit: (suit: string) => `Follow ${suit} or play any card.`,
     trickWon: (name: string, isYou = false) =>
       isYou ? 'You win the trick.' : `${name} wins the trick.`,
-    roundLead: 'Round lead',
-    jointRoundLead: 'Joint round lead',
+    roundLead: 'Ahead',
+    jointRoundLead: 'Tied ahead',
     progressLabel: (done: number, total: number) => `${done} of ${total} tricks`,
     noCards: 'No cards left',
     waitingForAi: 'Waiting for the table',

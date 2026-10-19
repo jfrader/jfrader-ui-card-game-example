@@ -6,6 +6,7 @@ import type { GameBoardProps } from './game-board';
 import type { SeatView } from '../contracts';
 import { copy } from '../content/en';
 import { PlayerHand } from './player-hand';
+import { seatSummary } from './player-seat';
 import { RoundStrip } from './round-strip';
 import { TableActions, TrickAnnouncement } from './table-actions';
 import { TableLayout } from './table.styles';
@@ -57,8 +58,7 @@ function MobileSeat({ seat }: { seat: SeatView }) {
             {seat.active && <Pill tone="accent">{seat.isMe ? copy.table.yourTurn : copy.table.playing}</Pill>}
           </>
         }
-        points={<span>{copy.table.points(seat.totalPoints)}</span>}
-        hand={seat.isMe ? undefined : <span>{copy.table.cards(seat.handCount)}</span>}
+        points={<span>{seatSummary(seat)}</span>}
       />
     </MobileSeatFrame>
   );
