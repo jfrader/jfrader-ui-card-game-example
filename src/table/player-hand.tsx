@@ -54,7 +54,7 @@ export function PlayerHand({ view, compact, selectedCardId, onSelectCard, onPlay
   const hand = <HandScrollContent><GameHand cards={view.hand} size="md"
     value={selectedCardId} onValueChange={onSelectCard} onPlayIntent={(card) => onPlayCard(card.id)}
     playLabel={copy.hand.playLabel} disabled={!view.canPlay} slots={handSlots} /></HandScrollContent>;
-  return <HandRegion aria-labelledby={headingId}>
+  return <HandRegion aria-labelledby={headingId} data-compact={compact}>
     <h2 id={headingId} tabIndex={-1}>{copy.hand.regionLabel}</h2>
     <p id={reasonId}>{instruction}</p>
     <HandRenderContext value={{ legal: new Set(view.hand.filter((card) => card.legal).map((card) => card.id)), showHints: view.settings.showLegalHints, reasonId }}>

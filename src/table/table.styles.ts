@@ -107,6 +107,7 @@ export const HandRegion = styled.section(({ theme }) => ({
   minInlineSize: 0, inlineSize: '100%', textAlign: 'center',
   '& h2': { fontSize: theme.textSize.sm, margin: 0 },
   '& p': { fontSize: theme.textSize.sm, marginBlock: theme.space[1] },
+  '&[data-compact="true"]': { inlineSize: 'auto', marginInline: `calc(-1 * ${theme.space[4]})` },
 }));
 
 export const HandScrollContent = styled.div(({ theme }) => ({
