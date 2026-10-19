@@ -8,7 +8,9 @@ export const config = {
     notice: 'fivefold.notice.v1',
   },
   timing: {
-    aiDelayMs: 650,
+    aiDelayMs: Number.isFinite(Number(import.meta.env.VITE_AI_DELAY_MS))
+      ? Number(import.meta.env.VITE_AI_DELAY_MS)
+      : 650,
     turnDurationMs: 30_000,
     statusTickMs: 1_000,
     trickAnnouncementMs: 1_400,

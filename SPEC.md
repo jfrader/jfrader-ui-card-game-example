@@ -137,10 +137,10 @@ Paths are relative to the repository root. Ownership is exclusive, including tes
 
 | Owner | Exact files |
 | --- | --- |
-| Engine writer | `src/engine/types.ts`, `src/engine/constants.ts`, `src/engine/deck.ts`, `src/engine/rules.ts`, `src/engine/ai.ts`, `src/engine/reducer.ts`, `src/engine/selectors.ts`, `src/engine/index.ts`, `src/engine/deck.test.ts`, `src/engine/rules.test.ts`, `src/engine/ai.test.ts`, `src/engine/reducer.test.ts` |
+| Engine writer | `src/engine/constants.ts`, `src/engine/deck.ts`, `src/engine/rules.ts`, `src/engine/ai.ts`, `src/engine/reducer.ts`, `src/engine/selectors.ts`, `src/engine/index.ts`, `src/engine/deck.test.ts`, `src/engine/rules.test.ts`, `src/engine/ai.test.ts`, `src/engine/reducer.test.ts` |
 | Table UI writer | `src/table/game-board.tsx`, `src/table/player-seat.tsx`, `src/table/seat-pile.tsx`, `src/table/player-hand.tsx`, `src/table/trump-indicator.tsx`, `src/table/round-strip.tsx`, `src/table/table.styles.ts` |
 | Shell/panels/rules writer | `src/components/app-shell.tsx`, `src/components/topbar.tsx`, `src/components/footer.tsx`, `src/panels/score-history.tsx`, `src/panels/settings-drawer.tsx`, `src/panels/rules-dialog.tsx`, `src/panels/results-dialog.tsx`, `src/panels/new-game-dialog.tsx`, `src/pages/rules.tsx`, `src/pages/not-found.tsx`, `src/rules/content.tsx` |
-| Primary integration | `package.json`, `pnpm-lock.yaml`, `index.html`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `.gitignore`, `LICENSE`, `README.md`, `src/main.tsx`, `src/app.tsx`, `src/theme.ts`, `src/config.ts`, `src/content/en.ts`, `src/contracts.ts`, `src/app/use-game-controller.ts`, `src/app/presentation.ts`, `src/app/storage.ts`, `src/app/storage.test.ts`, `src/app/error-boundary.tsx`, `tests/game.spec.ts`, `tests/accessibility.spec.ts`, `tests/responsive.spec.ts`, `tests/fixtures.ts` |
+| Primary integration | `package.json`, `pnpm-lock.yaml`, `index.html`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `.gitignore`, `LICENSE`, `README.md`, `src/main.tsx`, `src/app.tsx`, `src/theme.ts`, `src/config.ts`, `src/content/en.ts`, `src/contracts.ts`, `src/engine/types.ts` (frozen), `src/app/use-game-controller.ts`, `src/app/use-media-query.ts`, `src/app/presentation.ts`, `src/app/storage.ts`, `src/app/storage.test.ts`, `src/app/error-boundary.tsx`, `tests/game.spec.ts`, `tests/accessibility.spec.ts`, `tests/responsive.spec.ts`, `tests/fixtures.ts` |
 
 `SPEC.md` remains the approved contract; changes require primary coordination. There is no separate scaffold ownership for the three writers.
 
@@ -319,7 +319,7 @@ Within a round: remaining hands + cards in completed tricks + unresolved current
 
 ## AI
 
-AI acts only in playing with its own active seat and no pause reason. Controller schedules one named `AI_DELAY_MS = 650` callback per turn, with current game ID/revision captured. This is a thinking pause, not a simulated server. Cancellation on settings change, pause, route change, new game or unmount is mandatory.
+AI acts only in playing with its own active seat and no pause reason. Controller schedules one named `AI_DELAY_MS = 650` callback per turn, with current game ID/revision captured. This is a thinking pause, not a simulated server. Cancellation on settings change, pause, route change, new game or unmount is mandatory. A watchdog fires at `AI_DELAY_MS + 1200` and plays `lowestLegalCard` if the main callback was lost or its card was rejected; `settled` prevents a double play. The E2E knob `VITE_AI_DELAY_MS` only exists for the Playwright web server.
 
 - **Easy:** uniformly choose an index from deterministically sampled, lowest-comparator-sorted legal cards. Seed formula is defined above.
 - **Normal:** lowest legal card, with rank-first comparator. “Follow suit” is enforced by legalMoves, not a second AI rule.
@@ -331,36 +331,38 @@ AI acts only in playing with its own active seat and no pause reason. Controller
 
 Root provider: `<DeckProvider default="french" backLabel="Face-down card">` wraps the app's card-bearing content, including portals/rules. It supplies art, not shuffle/rules. Every card value explicitly uses `deck: 'french'` so standalone examples are safe.
 
-Use a sized BoardFrame containing `GameTable` with `players={4}`, seats ordered South/West/North/East, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"`, `seatPlacement="inside"`, and a small token-based `clearance`. Source geometry puts index 0 south and index 1 west; clockwise preserves supplied order. Do not rely on default direction (it is counterclockwise) or default team count (2).
+Use a sized BoardFrame containing `GameTable` with `players={4}`, seats ordered South/West/North/East, `teamCount={1}`, `turnDirection="clockwise"`, `surface="match"`, `seatPlacement="edge"`, and a small token-based `clearance`. Source geometry puts index 0 south and index 1 west; clockwise preserves supplied order. Do not rely on default direction (it is counterclockwise) or default team count (2). `edge` fits the 680px board with full seats; `inside` needed roughly 900px for the same composition.
 
-Direct child structure (children of each region may be ordinary app components):
+The hand, round strip and table actions are outside the measured felt: a dock/footer inside the table leaves only ~380px of surface at a 680px board, which pushes the seat/play floors into `insufficient-space`. The felt keeps seats, plays, center and floating feedback; the page scrolls when the viewport is shorter than the table plus the hand.
 
 ```tsx
-<GameTable players={4} seats={view.seats} teamCount={1}
-  turnDirection="clockwise" surface="match" seatPlacement="inside">
-  <GameTable.Header><RoundStrip /></GameTable.Header>
-  <GameTable.Seat><PlayerSeat /></GameTable.Seat>
-  <GameTable.Play><SeatPile /></GameTable.Play>
-  <GameTable.Center><TrumpIndicator /></GameTable.Center>
-  <GameTable.Dock><PlayerHand /></GameTable.Dock>
-  <GameTable.Footer><TableActions /></GameTable.Footer>
-  <GameTable.Floating><TrickAnnouncement /></GameTable.Floating>
-</GameTable>
+<RoundStrip view={view} />
+<BoardFrame>
+  <GameTable players={4} seats={view.seats} teamCount={1}
+    turnDirection="clockwise" surface="match" seatPlacement="edge">
+    <GameTable.Seat><PlayerSeat /></GameTable.Seat>
+    <GameTable.Play><SeatPile /></GameTable.Play>
+    <GameTable.Center><TrumpIndicator /></GameTable.Center>
+    <GameTable.Floating><TrickAnnouncement /></GameTable.Floating>
+  </GameTable>
+</BoardFrame>
+<PlayerHand compact={false} />
+<TableActions />
 ```
 
-TableActions/TrickAnnouncement may be private functions in game-board.tsx, not new ownership files. No opaque wrapper goes between GameTable and a region part. Seat and Play each repeat once per place; their children read `useGameTableSeat<SeatView>()` and null-check player. Never manually duplicate a second set of four regions on top of this repetition. `GameTable.SeatChrome` may be nested inside a Seat to position compact badges, not used as another direct region. GameTable has no active-turn prop or keyboard model.
+`TableActions` and `TrickAnnouncement` live in `src/table/table-actions.tsx`; the mobile branch lives in `src/table/mobile-board.tsx`. No opaque wrapper goes between GameTable and a region part. Seat and Play each repeat once per place; their children read `useGameTableSeat<SeatView>()` and null-check player. Never manually duplicate a second set of four regions on top of this repetition. GameTable has no active-turn prop or keyboard model.
 
-Seat: GameSeat `name`, human Avatar/AI PersonAvatar, text badges “Dealer” and “Your turn”/“Playing”, `points` as formatted total. Use `handCount` for opponents with an explicit public “N cards” label; source's default Hidden rendering is decorative, so supply an accessible count in seat text. Where an explicit `GameHand.Hidden` is used, pass only count/label/playerKey, never card values; do not render it twice alongside handCount. Human seat shows count/points but the actual hand lives only in Dock. Active seat styling is app-owned `data-active`; omit `turned` and offline. `turn` is supplied only for a running timed active seat (`deadline`, `durationMs: 30000`, sampled `now`); remove it during pause.
+Seat: GameSeat `name`, `Avatar` for every seat (the published 0.9.1 package has no `person-avatar` subpath), text badges “Dealer” and “Your turn”/“Playing”, `points` as formatted total, and a text count for opponents. Do not use `handCount`: its hidden fan is decorative and contributes to seat height; the app supplies `hand` text instead. Active seat styling is app-owned `data-active`; omit `turned` and offline. `turn` is supplied only for a running timed active seat (`deadline`, `durationMs: 30000`, sampled `now`); remove it during pause.
 
-SeatPile: read that seat's public play, build a single-element piles array (`playerKey`, `label`, `revealed: true`, zero or one `cards` entry with stable ID/value/label/order). Use one GameCardStack in each repeated GameTable.Play. Provide a wrapper with explicit card-sized inline/block size inherited from table card variables; the stack root is 100% × 100%, so it cannot size an empty parent. Use grid placement for this local one-pile stack; do not apply seat geometry a second time. Controlled inspection is optional for one card, but keep keyboard inspection functional if enabled. Clear piles only on continue, not when winner feedback fades.
+SeatPile: read that seat's public play, build a single-element piles array (`playerKey`, `label`, `revealed: true`, zero or one `cards` entry with stable ID/value/label/order). Use one GameCardStack in each repeated GameTable.Play with `cardWidth={theme.size.gameCardSm}`. The play region footprint is owned by GameTable and stays ~107px even with the smaller stack; four of them collide at 390 (see FINDINGS). Use edge placement and the mobile board below. Clear piles only on continue, not when winner feedback fades.
 
 Hand: `cards` maps only human cards; `value` is selectedCardId; `onValueChange` accepts only legal IDs or null; `onPlayIntent` delegates ID to controller. `disabled` when not human turn, paused or not playing. Always validate again on confirmation. Clear selection after play, new turn, new round and new game; preserve selection through sort/hint/theme changes if it remains legal.
 
-**Verified API gap and supported adapter:** GameHand has no per-card `disabled`/`dimmed` field or card render callback. Use its public `slots.card` replacement, declared at module scope. It receives native button props including `data-hand-card`. Read a small hand-render context of legal IDs/hint setting, forward ref/className/style/children and every existing handler, add `aria-disabled` and an accessible illegal reason, and intercept activation with preventDefault for illegal IDs. Apply token-based dimming to the wrapper only when hints are on; never hide illegal cards. Do not replace GameHand's internal GameCard, reach into private imports or invent `cards[].disabled`. Legal guards remain active when hints are off. Illegal buttons remain discoverable by keyboard. On blocked intent announce “Follow [suit].” from the engine-derived led-suit view; this feedback may instead be provided as the card's description. Do not dim the entire hand merely because one card is illegal.
+**Verified API gap and supported adapter:** GameHand has no per-card `disabled`/`dimmed` field or card render callback. Use its public `slots.card` replacement, declared at module scope. It receives native button props including `data-hand-card`. Read a small hand-render context of legal IDs, labels and hint setting, forward ref/className/style/children and every existing handler, add `aria-label` from the card label, `aria-disabled` and an accessible illegal reason. Apply token-based dimming to the wrapper only when hints are on; never hide illegal cards. Do not replace GameHand's internal GameCard, reach into private imports or invent `cards[].disabled`. Legal guards remain active when hints are off. Illegal buttons remain discoverable by keyboard. On blocked intent announce “Follow [suit].” from the engine-derived led-suit view; this feedback may instead be provided as the card's description. Do not dim the entire hand merely because one card is illegal.
 
-Header: round/trick labels, GameRounds and compact Progress. Center: small trump indicator + Popover explaining current trump. FlipGameCard custom front/back represents the trump rule, not a card removed from the deck; for no-trump its front says “No trump”. Source semantics: `flipped={true}` shows back, false shows front. New round briefly reveals back → front, with no blocking delay; reduced motion shows front immediately. Do not display a fake ace that could be mistaken for a dealt card.
+Header: the compact RoundStrip above the felt carries round/trick labels and Progress; the full GameRounds strip is desktop/tablet only. Center: small trump indicator + Popover explaining current trump. FlipGameCard custom front/back represents the trump rule, not a card removed from the deck; for no-trump its front says “No trump”. Source semantics: `flipped={true}` shows back, false shows front. New round briefly reveals back → front, with no blocking delay; reduced motion shows front immediately. Do not display a fake ace that could be mistaken for a dealt card.
 
-Footer: GameActions for Pause/Resume, Next trick/results, Rules and compact Scores. No redundant second Play button; GameHand owns explicit confirmation. Floating: centered noninteractive CallOverlay with winner text, controlled independently from game phase. It is transient; winner remains readable outside it. GameScore/GameMarks live in score/results panels, GameResult at match end. GameRounds never invents an unsupported `draw` outcome.
+Footer: TableActions below the hand for Pause/Resume, Next trick/results, Rules and compact Scores. No redundant second Play button; GameHand owns explicit confirmation. Floating: centered noninteractive CallOverlay with winner text, controlled independently from game phase. It is transient; winner remains readable outside it. GameScore/GameMarks live in score/results panels, GameResult at match end. GameRounds never invents an unsupported `draw` outcome.
 
 ## Responsive layout
 
@@ -368,13 +370,13 @@ Sizing constants live in config/table.styles. All grid children have `minInlineS
 
 | Viewport | Required arrangement |
 | --- | --- |
-| 1440×900 | Shell bounded to approximately 1360px; two-column game area `minmax(0, 1fr) 280px`, gap from tokens. BoardFrame at least 680px block size; shell top/footer remain compact. Scores/history inline. Human hand medium, AI avatars/names/backs visible. |
-| 768×1024 | Single-column board, approximately 760px block size, medium/small hand as measured. Scores/history in modal drawer via direct action. Four seat names/counts visible; avoid large seat badges or secondary chrome. |
-| 390×844 | Single column with compact topbar, narrow padding, 700px minimum BoardFrame and vertical page scrolling. Small hand cards inside a horizontal ScrollArea with adequate focus/selection padding. Compact seats show name, count, score and active/dealer text; suppress decorative avatar/hidden-back fan if needed, never names or counts. Rules/settings/results outside the board in viewport-bound overlays. |
+| 1440×900 | Shell bounded to approximately 1360px; two-column game area `minmax(0, 1fr) 280px`, gap from tokens. BoardFrame 680px block size; full `GameTable` with edge seats and 32px played cards. Scores/history inline; hand and actions below the felt, so the page may scroll. |
+| 768×1024 | Single-column board, approximately 760px block size, full seats, hand and actions below the felt. Scores/history in a modal drawer via the Scores action. |
+| 390×844 | `MobileBoard`, not `GameTable`: three opponent `GameSeat`s, a four-card trick row of `GameCard`s, the human seat, the hand and the actions. No felt; the page scrolls. Scores/history in the drawer. |
 
-Use breakpoint 1100px for inline sidebar and 600px for compact chrome, as named constants. Hand scroll belongs inside its region, not the page; focus scrolls selected buttons into view. Do not shrink interactive targets below 24×24 CSS px; aim for 44px controls. Library small hand exposes 32px selection strips, so ensure adequate vertical target area and nonoverlapping focus outlines.
+Use breakpoint 1100px for the inline sidebar and 600px for the mobile board, as named constants. Hand scroll belongs inside its region, not the page; focus scrolls selected buttons into view. Do not shrink interactive targets below 24×24 CSS px; aim for 44px controls. Library small hand exposes 32px selection strips, so ensure adequate vertical target area and nonoverlapping focus outlines.
 
-Observe the table surface's documented `data-layout-fit` attribute with a scoped MutationObserver/ref and cleanup (the attribute is on the measured inner surface, not necessarily root). `measuring` is a normal transient state; reserve space, no blocking spinner. `insufficient-space` is not success: first use compact seats and move header/action strips outside the measured table while preserving normal page order; move the hand to an external sized dock in this emergency layout. Grow BoardFrame vertically (e.g. 900px) and permit page scroll. Re-measure; do not scale the whole UI below the library's card floor. If still insufficient, retain the board as a visual summary and expose the full human hand, legal actions and public trick as a stacked accessible fallback outside it, with no duplicate interactive IDs. A small persistent “Compact table” label identifies fallback. Never clip the only Play button or ask the player to rotate the phone to continue. Geometry tests must detect collisions rather than trusting the attribute alone.
+Do not switch the whole composition on and off from `data-layout-fit`: that oscillates between felt and fallback as the content changes the measurement. Use the stable `<600px` mobile board branch. At `>=600px`, `data-layout-fit="insufficient-space"` is possible with four play regions even when the rendered 32px cards are readable; do not hide content or claim a fitted table. Use edge placement, text hand counts, and the mobile board as the final fallback. Record the library-side gap in FINDINGS rather than scaling the whole UI below the card floor.
 
 ## Accessibility
 

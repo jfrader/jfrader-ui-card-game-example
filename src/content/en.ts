@@ -26,6 +26,9 @@ export const copy = {
   },
   table: {
     regionLabel: 'Fivefold game table',
+    actionsLabel: 'Table actions',
+    roundsLabel: 'Rounds',
+    roundBehind: 'Behind',
     round: (n: number) => `Round ${n}`,
     trick: (n: number) => `Trick ${n}`,
     trump: 'Trump',
@@ -52,7 +55,8 @@ export const copy = {
     paused: 'Paused',
     selectCard: 'Select a card, then play it.',
     followSuit: (suit: string) => `Follow ${suit} or play any card.`,
-    trickWon: (name: string) => `${name} wins the trick.`,
+    trickWon: (name: string, isYou = false) =>
+      isYou ? 'You win the trick.' : `${name} wins the trick.`,
     roundLead: 'Round lead',
     jointRoundLead: 'Joint round lead',
     progressLabel: (done: number, total: number) => `${done} of ${total} tricks`,
@@ -188,6 +192,7 @@ export const copy = {
     dismiss: 'Dismiss',
   },
   errors: {
+    title: 'Move not available',
     mustFollowSuit: (suit: string) => `You must follow ${suit}.`,
     unknownCard: 'That card is not in your hand.',
     wrongTurn: 'Wait for your turn.',
@@ -203,6 +208,7 @@ export const copy = {
   a11y: {
     skipToContent: 'Skip to content',
     main: 'Main content',
+    theme: 'Theme',
     tableRegion: 'Fivefold game table',
     handRegion: 'Your hand',
     scoreRegion: 'Scores',
@@ -246,5 +252,9 @@ export const copy = {
     title: 'Page not found',
     description: 'That page does not exist.',
     action: 'Back to the table',
+  },
+  dialogs: {
+    newGameConfirm:
+      'End this match and deal a new game? The unfinished match will not count toward your stats.',
   },
 } as const;

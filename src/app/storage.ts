@@ -35,13 +35,13 @@ function defaultStorage(): StorageLike | null {
   }
 }
 
-function readJson(storage: StorageLike | null, key: string): unknown {
-  if (!storage) return null;
+function readStored(storage: StorageLike | null, key: string): { present: boolean; value: unknown } {
+  if (!storage) return { present: false, value: null };
   try {
     const raw = storage.getItem(key);
-    return raw === null ? null : (JSON.parse(raw) as unknown);
+    return raw === null ? { present: false, value: null } : { present: true, value: JSON.parse(raw) as unknown };
   } catch {
-    return null;
+    return { present: true, value: null };
   }
 }
 
@@ -79,10 +79,10 @@ export function isStats(value: unknown): value is Stats {
 
 export function loadSettings(storage: StorageLike | null = defaultStorage()): LoadResult<Settings> {
   if (!storage) return { value: DEFAULT_SETTINGS, error: 'unavailable' };
-  const raw = readJson(storage, config.storage.settings);
-  if (raw === null) return { value: DEFAULT_SETTINGS, error: null };
-  return isSettings(raw)
-    ? { value: raw, error: null }
+  const stored = readStored(storage, config.storage.settings);
+  if (!stored.present) return { value: DEFAULT_SETTINGS, error: null };
+  return isSettings(stored.value)
+    ? { value: stored.value, error: null }
     : { value: DEFAULT_SETTINGS, error: 'invalid' };
 }
 
@@ -98,9 +98,9 @@ export function saveSettings(settings: Settings, storage: StorageLike | null = d
 
 export function loadStats(storage: StorageLike | null = defaultStorage()): LoadResult<Stats> {
   if (!storage) return { value: DEFAULT_STATS, error: 'unavailable' };
-  const raw = readJson(storage, config.storage.stats);
-  if (raw === null) return { value: DEFAULT_STATS, error: null };
-  return isStats(raw) ? { value: raw, error: null } : { value: DEFAULT_STATS, error: 'invalid' };
+  const stored = readStored(storage, config.storage.stats);
+  if (!stored.present) return { value: DEFAULT_STATS, error: null };
+  return isStats(stored.value) ? { value: stored.value, error: null } : { value: DEFAULT_STATS, error: 'invalid' };
 }
 
 export function saveStats(stats: Stats, storage: StorageLike | null = defaultStorage()): boolean {
