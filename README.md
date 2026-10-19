@@ -74,6 +74,15 @@ Layout and styling: `Container`, `Flex`, `Stack`, `Card`, `Divider`, `Prose`, `B
 The full composition contract is in [SPEC.md](SPEC.md). Published-package gaps found while building
 this example are recorded in [FINDINGS.md](FINDINGS.md).
 
+## Library feedback
+
+Every integration gap is classified in [FINDINGS.md](FINDINGS.md): library API, library docs, or
+consumer layout. The `GameSeat` accessible hand count is fixed in
+[jfrader-ui PR #395](https://github.com/jfrader/jfrader-ui/pull/395); the `GameTable` compact
+four-play mode is tracked in GURI-2719 — Give GameTable a compact four-play trick layout, and the
+docs/story refresh in GURI-2720 — Refresh game component docs and stories from the Fivefold
+integration.
+
 ## Testing
 
 `pnpm test` runs the pure engine and storage suites (38 tests). `pnpm test:e2e` drives the real UI in
