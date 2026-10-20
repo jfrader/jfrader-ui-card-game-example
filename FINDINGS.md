@@ -1,8 +1,15 @@
 # Library feedback
 
-Findings from building Fivefold against the published `@jfrader/ui@0.9.1`. Each row records whether
-the fix belongs in the library, in the consumer, or in documentation. "Observed" means reproduced
-here; none of these is an upstream bug report yet.
+Findings from building Fivefold against the published `@jfrader/ui@0.9.1` (verified 2026-10-20). Each
+row records whether the fix belongs in the library, in the consumer, or in documentation. "Observed"
+means reproduced here; none of these is an upstream bug report yet.
+
+The game stays on the published 0.9.1 package. Library `master` contains unreleased game work:
+Wave 2 (`GURI-2787` — Games: control hand, pile and seat state axes) adds per-card
+`disabled`/`dimmed`, `GameHand.Confirm` button props, pile disclosure and `remainingMs`; Wave 3
+(`GURI-2793` — Games: size GameTable from its container) removes the private caps and fits four
+plays at 390. The docs curation (`GURI-2814`) is also on master. Re-run this file after the next
+library release and prune entries that no longer reproduce.
 
 ## Verified as correct
 
@@ -23,7 +30,7 @@ here; none of these is an upstream bug report yet.
 | `game-hand` / 0.9.1 | Library API | `disabled` both blocks interaction and passes `dimmed` to every `GameCard` (`opacity: 0.55`), so a hand that is only waiting for other players reads as washed out. There is no way to keep cards legible while not interactive. | `game-hand.tsx` passes `dimmed: disabled`; `game-card.tsx` `dimmedStyle = { opacity: 0.55 }`. Fivefold no longer passes `disabled`; it marks every card unavailable through the `slots.card` per-card recipe (`aria-disabled`, selection rejected by the controller). | Separate "not interactive" from "dimmed" (for example a `dimmed` prop on `GameHand`, defaulting to `disabled`). Needs an issue. | Observed |
 | `game-hand` / 0.9.1 | Library API | The confirmation button is always `Button` `solid neutral`; `slotProps.confirm` is typed as `GameCardPartProps`, so a consumer cannot make "Play card" the screen's accent action without overriding styles. | `game-hand.tsx` renders `Button` with only `slotProps.confirm` spread; `GameHandProps['slotProps']['confirm']`. Fivefold keeps the default and uses the same style for its other in-dock action. | Accept `variant`/`tone`/`size` for the confirm action. Needs an issue. | Observed |
 | `game-score` / 0.9.1 | Library candidate | `GameScore` lists one value per player; a per-round breakdown (players × rounds + total) has no component. | Fivefold's `src/game/panels/score-table.tsx`, used by the rail, the drawer and both result dialogs. | Consider a table layout for `GameScore` if another example needs it. | Observed |
-| `game-table` / 0.9.1 | Library docs/API | `data-layout-fit` lives on the measured inner surface, not the root, and there is no callback; a consumer needs a MutationObserver to react. | `game-table.tsx` frame/measurement code; `game-table.stories.tsx` queries the surface. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: mirror the attribute on the root or expose `onLayoutFitChange`; document the current location. | Tracked |
+| `game-table` / 0.9.1 | Library docs/API | `data-layout-fit` is present on both the measured root and the inner surface; there is no callback, so a consumer that needs to react still polls or observes. | `game-table.tsx` frame/measurement code; this repo's `tests/responsive.spec.ts:39` reads the root copy. | Document both locations and consider `onLayoutFitChange`; tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration. | Tracked |
 | `game-table` / 0.9.1 | Library docs | The default 6-seat Poker story and the large fixture do not show the common 4-seat free-for-all with `teamCount={1}`, edge placement, or a phone fallback. | `game-table.stories.tsx`; the fixed 680px board with `inside` placement needs ~900px, while `edge` fits at 680. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: add a minimal 4-seat free-for-all example and a "when to switch to a compact board" recipe. | Tracked |
 | `game-hand` / 0.9.1 | Library docs / API discussion | No per-card `disabled`/`dimmed`; legality is whole-hand `disabled` only. The public `slots.card` + `data-hand-card` seam works, but the recipe is undocumented. | `game-hand.tsx` `GameHandCard`; `slots.card` forwards `data-hand-card`; Fivefold uses a module-level context and `aria-disabled`. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: add a story showing one illegal card, `aria-disabled`, and a blocked confirmation. | Tracked |
 | `game-table` / 0.9.1 | Library docs | The `GameSeat` `handCount` fan can dominate seat height and push the table into `insufficient-space`; there is no note that the count can be text instead. | Fivefold's first 1440 composition was insufficient with the fan; replacing it with a text count and using edge placement fitted the same 680px board. | Tracked in GURI-2720 — Refresh game component docs and stories from the Fivefold integration: document the text-count alternative in the seat composition guide. | Tracked |

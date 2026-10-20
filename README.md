@@ -98,6 +98,18 @@ library API, library docs, or consumer layout. The `GameSeat` hand-count fix is 
 [jfrader-ui PR #395](https://github.com/jfrader/jfrader-ui/pull/395) for the next library release;
 the other library follow-ups are tracked in the jfrader-ui project.
 
+## Deployment
+
+The live demo is a Render static site built from `master`:
+
+- Build command: `pnpm install --frozen-lockfile && pnpm build`
+- Publish path: `dist`
+- Custom domain: `https://fivefold.jfrader.com`
+
+The build writes `dist/404.html` as the SPA fallback. Render serves that fallback for unknown paths,
+which loads the app but returns HTTP 404; add a Render **Rewrite** from `/*` to `/index.html` in the
+service's Redirects/Rewrites settings to serve direct routes such as `/rules` with 200.
+
 ## Testing
 
 `pnpm test` covers the engine and storage (37 tests). `pnpm test:e2e` plays a full match, checks four

@@ -37,7 +37,15 @@ export function usePauseState(anyDialog: boolean): PauseState {
   }, []);
 
   const pause = useCallback(() => addReason('manual'), [addReason]);
-  const resume = useCallback(() => setReasons(new Set()), []);
+  const resume = useCallback(() => {
+    setReasons((previous) => {
+      if (!previous.has('manual') && !previous.has('hidden')) return previous;
+      const next = new Set(previous);
+      next.delete('manual');
+      next.delete('hidden');
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (anyDialog) addReason('modal');

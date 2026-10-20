@@ -91,4 +91,14 @@ test('a full match reaches the result dialog and records local stats', async ({ 
   const stats = await page.evaluate(() => localStorage.getItem('fivefold.stats.v1'));
   expect(stats).not.toBeNull();
   expect(JSON.parse(stats ?? '{}').gamesPlayed).toBe(1);
+
+  // Resetting during the completed-match screen must not re-count that same game.
+  await page.getByRole('button', { name: 'Review scores' }).click();
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Reset stats' }).click();
+  const confirmReset = page.getByRole('dialog', { name: 'Reset stats' });
+  await confirmReset.getByRole('button', { name: 'Reset stats' }).click();
+  await page.waitForTimeout(500);
+  const resetStats = await page.evaluate(() => localStorage.getItem('fivefold.stats.v1'));
+  expect(JSON.parse(resetStats ?? '{}').gamesPlayed).toBe(0);
 });
