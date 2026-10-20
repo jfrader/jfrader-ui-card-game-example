@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Fivefold is a four-seat trick-taking card game built with @jfrader/ui." />
     <title>Fivefold</title>
+    <style>
+      /* Keep the page gutter reserved when Drawer/Dialog lock scrolling. */
+      html { scrollbar-gutter: stable; }
+    </style>
     <script>
       // Apply the saved palette before first paint so the page never flashes the wrong theme.
       (() => {

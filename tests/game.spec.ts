@@ -16,6 +16,9 @@ test('ready screen exposes one page heading and starts a match', async ({ page }
 test('a human can select and play a legal card through a completed trick', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Start game' }).click();
+  const surface = page.locator('[data-ui~="game-table-surface"]');
+  await expect(surface).toBeVisible();
+  const initialSurface = await surface.evaluate((el) => el.getBoundingClientRect().width);
 
   const legal = page.locator('[data-hand-card]:not([aria-disabled="true"])').first();
   await expect(legal).toBeVisible({ timeout: 8_000 });
@@ -25,6 +28,26 @@ test('a human can select and play a legal card through a completed trick', async
 
   await expect(page.getByText(/takes? the trick/).first()).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole('button', { name: /Next trick|Round results|Final results/ })).toBeVisible();
+  const settledSurface = await surface.evaluate((el) => el.getBoundingClientRect().width);
+  expect(settledSurface).toBeCloseTo(initialSurface, 0);
+});
+
+test('settings reserves the page gutter and keeps the stage width stable', async ({ page }) => {
+  await page.goto('/');
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).scrollbarGutter)).toBe('stable');
+  await page.getByRole('button', { name: 'Start game' }).click();
+  const stage = page.locator('section[aria-label]').first();
+  const before = await stage.boundingBox();
+
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  const open = await stage.boundingBox();
+  expect(open?.width).toBeCloseTo(before?.width ?? 0, 1);
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+  const closed = await stage.boundingBox();
+  expect(closed?.width).toBeCloseTo(before?.width ?? 0, 1);
 });
 
 test('your hand stays at full strength when it is not your turn', async ({ page }) => {
