@@ -2,7 +2,7 @@
   "name": "jfrader-ui-card-game-example",
   "private": true,
   "version": "0.1.0",
-  "description": "Fivefold: a four-seat trick-taking card game built with @jfrader/ui",
+  "description": "Fivefold: an example card game built with @jfrader/ui",
   "license": "MIT",
   "repository": {
     "type": "git",
