@@ -16,6 +16,12 @@ const Chip = styled(GameSeat)(({ theme: t }) => ({
   columnGap: t.space[2],
   rowGap: 0,
   minInlineSize: 0,
+  // Keep the measured seat footprint stable while active/winner pills, points and card
+  // counts change. GameTable reserves felt space from this box; a content-sized chip makes
+  // the whole table breathe on every play.
+  inlineSize: 'clamp(8.25rem, 24vw, 10.5rem)',
+  blockSize: '3.75rem',
+  overflow: 'hidden',
   paddingBlock: t.space[2],
   paddingInlineStart: t.space[2],
   paddingInlineEnd: t.space[3],
@@ -28,6 +34,8 @@ const Chip = styled(GameSeat)(({ theme: t }) => ({
     gridArea: 'name',
     fontSize: t.textSize.sm,
     lineHeight: t.lineHeight.tight,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   '& [data-ui~="game-seat-badges"]': {
@@ -36,6 +44,7 @@ const Chip = styled(GameSeat)(({ theme: t }) => ({
     flexWrap: 'nowrap',
     color: t.color.textMuted,
     fontSize: t.textSize.xs,
+    overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
   '& [data-ui~="game-seat-points"]': {
@@ -51,6 +60,7 @@ const Chip = styled(GameSeat)(({ theme: t }) => ({
     gridTemplateAreas: '"avatar avatar" "name points" "badges badges"',
     rowGap: t.space[1],
     inlineSize: '100%',
+    blockSize: '6rem',
     padding: t.space[2],
     borderRadius: t.radius.md,
     '& [data-ui~="game-seat-avatar"]': { gridArea: 'avatar', justifySelf: 'center' },

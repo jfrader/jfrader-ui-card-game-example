@@ -42,6 +42,7 @@ library release and prune entries that no longer reproduce.
 
 ## Consumer-side fixes made in this repo (not library defects)
 
+- Seat chips reserve a fixed 168×60 row footprint (100%×96 stacked) so GameTable's content-fit reserve does not move the felt when active/winner pills, points and card counts change. The page also reserves `scrollbar-gutter: stable`; `@jfrader/ui@0.9.1` still locks the document without compensating for the scrollbar, so opening Settings reflows the page. Library master already pads the scrollbar in `useScrollLock`; the CSS stays until the next release.
 - The hand and its action live in a dock outside the measured felt; round, trick, trump, turn status
   and Pause are laid over the board's empty corners, so the felt gets the stage's full height. The
   stage fills the viewport below the topbar. The library was not patched to force this.

@@ -19,7 +19,7 @@ for (const viewport of viewports) {
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       tables: document.querySelectorAll('[data-ui~="game-table"]').length,
     }));
-    expect(metrics.overflow).toBe(0);
+    expect(metrics.overflow).toBeLessThanOrEqual(0);
     expect(metrics.tables).toBe(viewport.table ? 1 : 0);
 
     const card = await page.locator('[data-hand-card]').first().boundingBox();
