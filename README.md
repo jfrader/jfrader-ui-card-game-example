@@ -1,12 +1,14 @@
 # Fivefold
 
-A four-seat trick-taking card game and a reference application for composing
-[`@jfrader/ui`](https://github.com/jfrader/jfrader-ui). Five rounds, five cards, five tricks: follow
-suit, use the rotating trump and finish with the most points. The table is the product; every
-component in it supports playing or understanding the game.
+[![CI](https://github.com/jfrader/jfrader-ui-card-game-example/actions/workflows/ci.yml/badge.svg)](https://github.com/jfrader/jfrader-ui-card-game-example/actions/workflows/ci.yml)
 
-> Part of the `@jfrader/ui` examples: the [starter boilerplate](https://github.com/jfrader/jfrader-ui-boilerplate)
-> and the [component library](https://github.com/jfrader/jfrader-ui).
+A four-seat trick-taking card game and a reference application for composing
+[`@jfrader/ui`](https://github.com/jfrader/jfrader-ui) ([documentation](https://ui.jfrader.com)).
+Five rounds, five cards, five tricks: follow suit, use the rotating trump and finish with the most
+points. The table is the product; every component in it supports playing or understanding the game.
+
+> Part of the `@jfrader/ui` examples: the [starter boilerplate](https://github.com/jfrader/jfrader-ui-boilerplate),
+> the [component library](https://github.com/jfrader/jfrader-ui) and its [docs](https://ui.jfrader.com).
 
 | Desktop | Phone |
 | --- | --- |
@@ -27,6 +29,8 @@ legal card when it expires. Settings and stats live in this browser only.
 ## Run
 
 ```sh
+git clone https://github.com/jfrader/jfrader-ui-card-game-example.git
+cd jfrader-ui-card-game-example
 pnpm install
 pnpm dev
 ```
