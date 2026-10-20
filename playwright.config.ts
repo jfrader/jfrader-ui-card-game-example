@@ -23,7 +23,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm dev --port ${port} --strictPort`,
+    command: `pnpm dev --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}`,
     // A server already on the port may be another app; fail instead of testing it.
     reuseExistingServer: false,
