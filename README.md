@@ -94,9 +94,9 @@ beside the stage.
 ## Library notes
 
 The integration gaps found while building this example are classified in [FINDINGS.md](FINDINGS.md):
-library API, library docs, or consumer layout. The `GameSeat` hand-count fix is in
-[jfrader-ui PR #395](https://github.com/jfrader/jfrader-ui/pull/395); the other library follow-ups
-are tracked in the jfrader-ui project.
+library API, library docs, or consumer layout. The `GameSeat` hand-count fix is open in
+[jfrader-ui PR #395](https://github.com/jfrader/jfrader-ui/pull/395) for the next library release;
+the other library follow-ups are tracked in the jfrader-ui project.
 
 ## Testing
 
