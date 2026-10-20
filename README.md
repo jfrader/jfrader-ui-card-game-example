@@ -10,6 +10,8 @@ app.
 > More `@jfrader/ui` examples: the [starter template](https://github.com/jfrader/jfrader-ui-boilerplate)
 > and the [component library](https://github.com/jfrader/jfrader-ui).
 
+[Play the live demo](https://fivefold-vlp8.onrender.com).
+
 | Desktop | Phone |
 | --- | --- |
 | ![Fivefold table on desktop](docs/screenshot.png) | ![Fivefold compact board on a phone](docs/screenshot-phone.png) |
