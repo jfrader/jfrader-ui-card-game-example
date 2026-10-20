@@ -2,10 +2,10 @@ import { ListOrdered, Pause, Play } from 'lucide-react';
 import { styled } from '@jfrader/ui';
 import { Countdown } from '@jfrader/ui/countdown';
 import { GameActions, type GameActionItem } from '@jfrader/ui/game-actions';
-import type { TableCommand, TableView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { forcedColors, phone, visuallyHidden } from '../styles';
+import type { TableCommand, TableView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { forcedColors, phone, visuallyHidden } from '../../ui/styles';
 
 const Status = styled.div(({ theme: t }) => ({
   display: 'grid',

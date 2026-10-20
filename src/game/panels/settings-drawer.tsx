@@ -4,12 +4,12 @@ import { ActionButton } from '@jfrader/ui/action-button';
 import { Dialog } from '@jfrader/ui/dialog';
 import { Drawer } from '@jfrader/ui/drawer';
 import { Switch } from '@jfrader/ui/switch';
-import { DifficultyControl } from '../components/difficulty-control';
-import { StatRecord } from '../components/stat-record';
-import type { TableView } from '../contracts';
-import type { Stats } from '../engine/types';
-import { copy } from '../content/en';
-import { eyebrow } from '../styles';
+import { DifficultyControl } from '../../ui/difficulty-control';
+import { StatRecord } from '../../ui/stat-record';
+import type { TableView } from '../../contracts';
+import type { Stats } from '../../engine/types';
+import { copy } from '../../content/en';
+import { eyebrow } from '../../ui/styles';
 import { DialogActions, DialogHeader, DialogLayout } from './dialog.styles';
 import { useSheetSide } from './sheet-side';
 

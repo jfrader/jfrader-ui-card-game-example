@@ -2,10 +2,10 @@ import { createContext, useContext, useId, useMemo, type ComponentProps } from '
 import { Button, styled } from '@jfrader/ui';
 import { GameHand, type GameHandSlots } from '@jfrader/ui/game-hand';
 import { ScrollArea } from '@jfrader/ui/scroll-area';
-import type { TableCommand, TableView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { phone, reducedMotionOff, VisuallyHidden } from '../styles';
+import type { TableCommand, TableView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { phone, reducedMotionOff, VisuallyHidden } from '../../ui/styles';
 
 interface HandState {
   readonly available: ReadonlySet<string>;

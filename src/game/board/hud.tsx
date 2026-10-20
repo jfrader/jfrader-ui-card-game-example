@@ -3,13 +3,13 @@ import { styled } from '@jfrader/ui';
 import { FlipGameCard } from '@jfrader/ui/flip-game-card';
 import { GameCard } from '@jfrader/ui/game-card';
 import { Popover } from '@jfrader/ui/popover';
-import type { TableView } from '../contracts';
-import type { Suit } from '../engine/types';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { trumpLabel } from '../app/presentation';
-import { Eyebrow } from '../styles';
-import { SuitIcon } from '../components/suit-icon';
+import type { TableView } from '../../contracts';
+import type { Suit } from '../../engine/types';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { trumpLabel } from '../../app/presentation';
+import { Eyebrow } from '../../ui/styles';
+import { SuitIcon } from '../../ui/suit-icon';
 
 const RED_SUITS: readonly Suit[] = ['hearts', 'diamonds'];
 

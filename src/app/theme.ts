@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { config } from './config';
+import { config } from '../config';
 
 export type Theme = 'light' | 'dark';
 

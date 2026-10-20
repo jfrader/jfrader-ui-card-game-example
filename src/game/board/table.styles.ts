@@ -1,6 +1,6 @@
 import { styled } from '@jfrader/ui';
-import { config } from '../config';
-import { phone, type Theme } from '../styles';
+import { config } from '../../config';
+import { phone, type Theme } from '../../ui/styles';
 
 const mix = (color: string, base: string, percent: number) =>
   `color-mix(in oklab, ${color} ${percent}%, ${base})`;

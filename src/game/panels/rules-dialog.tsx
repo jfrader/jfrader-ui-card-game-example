@@ -1,6 +1,6 @@
 import { Dialog } from '@jfrader/ui/dialog';
-import { copy } from '../content/en';
-import { RulesContent } from '../rules/content';
+import { copy } from '../../content/en';
+import { RulesContent } from '../../rules/content';
 import { DialogLayout, DialogTitleRow } from './dialog.styles';
 
 export function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {

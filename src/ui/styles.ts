@@ -1,5 +1,5 @@
 import { styled, type theme } from '@jfrader/ui';
-import { config } from './config';
+import { config } from '../config';
 
 export type Theme = typeof theme;
 

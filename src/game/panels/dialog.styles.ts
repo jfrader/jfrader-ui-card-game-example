@@ -1,5 +1,5 @@
 import { styled } from '@jfrader/ui';
-import { phone } from '../styles';
+import { phone } from '../../ui/styles';
 
 /** One rhythm for every dialog: header, sections, then an action row. */
 export const DialogLayout = styled.div(({ theme: t }) => ({

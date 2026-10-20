@@ -43,21 +43,22 @@ pnpm dev
 ## Architecture
 
 ```
-src/engine/      Pure rules, deck, AI, reducer and selectors (no React, DOM, clock or storage)
-src/app/         Controller, presentation mapping, persistence and the error boundary
-src/table/       The stage: GameTable with seats and plays, HUD, turn status, hand dock, phone board, ready screen
-src/panels/      Score table and scoreboard, settings, rules and result dialogs
-src/components/  App shell, topbar and small shared pieces (stats, suit icon, difficulty)
-src/pages/       Rules and not-found routes
-src/content/     UI copy and accessible labels
-src/rules/       Shared rules prose and examples
-src/styles.ts    Shared style keys: breakpoints, reduced motion, forced colors, visually hidden, eyebrow
+src/engine/        Pure rules, deck, AI, reducer and selectors (no React, DOM, clock or storage)
+src/app/           Controller, presentation, persistence, theme, pause/AI hooks, error boundary
+src/game/board/    GameTable stage: seats, plays, HUD, hand dock, turn bar, ready and phone board
+src/game/panels/   Score table, scoreboard, settings, rules, results and new-game dialogs
+src/shell/         AppShell, topbar and footer
+src/ui/            Shared styles, suit icon, stat record and difficulty control
+src/pages/         Rules and not-found routes
+src/content/       UI copy and accessible labels
+src/rules/         Shared rules prose and examples
 ```
 
 The engine is deterministic given a seed or an injected five-deck fixture. The controller owns
 timing, pause reasons, selection, AI scheduling and persistence; renderers only map view models to
 props. App-owned styles use `styled` from `@jfrader/ui` with theme callbacks — no CSS modules.
-`vite.config.ts` dedupes React and Emotion so pnpm resolves one instance of each.
+`vite.config.ts` dedupes React and Emotion and splits React, UI, icon and app code into cacheable
+chunks.
 
 ## Layout
 
@@ -82,7 +83,7 @@ Data and controls: `Timeline`, `SegmentedControl`, `Switch`, `EmptyState`, `Brea
 Layout and styling: `Container`, `Flex`, `Stack`, `Card`, `Divider`, `Prose`, `Button`, `styled`,
 `ThemeProvider`.
 
-The per-round score table is app code (`src/panels/score-table.tsx`): `GameScore` lists totals only.
+The per-round score table is app code (`src/game/panels/score-table.tsx`): `GameScore` lists totals only.
 
 The full composition contract is in [SPEC.md](SPEC.md). Published-package gaps found while building
 this example are recorded in [FINDINGS.md](FINDINGS.md).

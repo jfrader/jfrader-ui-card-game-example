@@ -12,6 +12,7 @@ export const config = {
       : 650,
     turnDurationMs: 30_000,
     statusTickMs: 1_000,
+    idleTickMs: 30_000,
     roundCallMs: 1_400,
     trumpFlipMs: 260,
   },

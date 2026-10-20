@@ -1,13 +1,13 @@
 import type { CSSProperties } from 'react';
 import { Button, styled } from '@jfrader/ui';
 import { GameCard, type GameCardValue } from '@jfrader/ui/game-card';
-import type { TableCommand, TableView } from '../contracts';
-import type { Difficulty, Stats } from '../engine/types';
-import { DifficultyControl } from '../components/difficulty-control';
-import { StatRecord } from '../components/stat-record';
-import { useCompactLayout } from '../app/use-media-query';
-import { copy } from '../content/en';
-import { phone, reducedMotionOff } from '../styles';
+import type { TableCommand, TableView } from '../../contracts';
+import type { Difficulty, Stats } from '../../engine/types';
+import { DifficultyControl } from '../../ui/difficulty-control';
+import { StatRecord } from '../../ui/stat-record';
+import { useCompactLayout } from '../../app/use-media-query';
+import { copy } from '../../content/en';
+import { phone, reducedMotionOff } from '../../ui/styles';
 import { feltMaterial, Stage } from './table.styles';
 
 const FAN: readonly GameCardValue[] = [

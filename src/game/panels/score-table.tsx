@@ -1,10 +1,10 @@
 import { Crown } from 'lucide-react';
 import { styled } from '@jfrader/ui';
-import { SuitIcon } from '../components/suit-icon';
-import type { ScoreTableView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { VisuallyHidden } from '../styles';
+import { SuitIcon } from '../../ui/suit-icon';
+import type { ScoreTableView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { VisuallyHidden } from '../../ui/styles';
 
 const Table = styled.table(({ theme: t }) => ({
   inlineSize: '100%',
@@ -61,8 +61,9 @@ const Leader = styled(Crown)(({ theme: t }) => ({
   verticalAlign: 'baseline',
 }));
 
+const NUMBERS = new Intl.NumberFormat(config.locale);
+
 export function ScoreTable({ view }: { view: ScoreTableView }) {
-  const numbers = new Intl.NumberFormat(config.locale);
   return (
     <Table>
       <VisuallyHidden as="caption">{copy.scores.caption}</VisuallyHidden>
@@ -91,10 +92,10 @@ export function ScoreTable({ view }: { view: ScoreTableView }) {
               <td key={round.number} data-state={round.state}>
                 {round.state === 'upcoming'
                   ? <><span aria-hidden="true">–</span><VisuallyHidden>{copy.scores.upcoming}</VisuallyHidden></>
-                  : numbers.format(round.scores[player.key] ?? 0)}
+                  : NUMBERS.format(round.scores[player.key] ?? 0)}
               </td>
             ))}
-            <td data-total="">{numbers.format(player.total)}</td>
+            <td data-total="">{NUMBERS.format(player.total)}</td>
           </tr>
         ))}
       </tbody>

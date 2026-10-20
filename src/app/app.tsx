@@ -2,25 +2,25 @@ import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Skeleton, Stack, styled } from '@jfrader/ui';
 import { Drawer } from '@jfrader/ui/drawer';
-import { ErrorBoundary } from './app/error-boundary';
-import { useGameController, type GameController } from './app/use-game-controller';
-import { useMediaQuery } from './app/use-media-query';
-import { AppShell } from './components/app-shell';
-import { config } from './config';
-import { copy } from './content/en';
-import { NewGameDialog } from './panels/new-game-dialog';
-import { ResultsDialog } from './panels/results-dialog';
-import { RulesDialog } from './panels/rules-dialog';
-import { Scoreboard } from './panels/scoreboard';
-import { SettingsDrawer } from './panels/settings-drawer';
-import { useSheetSide } from './panels/sheet-side';
-import { NotFoundPage } from './pages/not-found';
-import { VisuallyHidden } from './styles';
-import { GameBoard } from './table/game-board';
+import { ErrorBoundary } from './error-boundary';
+import { useGameController, type GameController } from './use-game-controller';
+import { useMediaQuery } from './use-media-query';
+import { AppShell } from '../shell/app-shell';
+import { config } from '../config';
+import { copy } from '../content/en';
+import { NewGameDialog } from '../game/panels/new-game-dialog';
+import { ResultsDialog } from '../game/panels/results-dialog';
+import { RulesDialog } from '../game/panels/rules-dialog';
+import { Scoreboard } from '../game/panels/scoreboard';
+import { SettingsDrawer } from '../game/panels/settings-drawer';
+import { useSheetSide } from '../game/panels/sheet-side';
+import { NotFoundPage } from '../pages/not-found';
+import { VisuallyHidden } from '../ui/styles';
+import { GameBoard } from '../game/board/game-board';
 import { useTheme } from './theme';
 
 const RulesPage = lazy(() =>
-  import('./pages/rules').then((module) => ({ default: module.RulesPage })),
+  import('../pages/rules').then((module) => ({ default: module.RulesPage })),
 );
 
 const GameArea = styled.div<{ $inline: boolean }>(({ theme: t, $inline }) => ({

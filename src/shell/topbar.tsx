@@ -5,7 +5,7 @@ import { Link, NavLink } from 'react-router-dom';
 import type { ShellCommand } from '../contracts';
 import { config } from '../config';
 import { copy } from '../content/en';
-import { forcedColors, phone, visuallyHidden } from '../styles';
+import { forcedColors, phone, visuallyHidden } from '../ui/styles';
 
 const Header = styled.header(({ theme: t }) => ({
   borderBlockEnd: `1px solid ${t.color.border}`,

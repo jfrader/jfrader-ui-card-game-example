@@ -1,6 +1,6 @@
 import { Button } from '@jfrader/ui';
 import { Dialog } from '@jfrader/ui/dialog';
-import { copy } from '../content/en';
+import { copy } from '../../content/en';
 import { DialogActions, DialogHeader, DialogLayout } from './dialog.styles';
 
 export function NewGameDialog({ open, onOpenChange, onConfirm }: {

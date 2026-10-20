@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { styled } from '@jfrader/ui';
-import type { TableView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
+import type { TableView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
 import { RoundStats, TrumpBadge } from './hud';
 import { RoundCall } from './round-call';
 import { SeatChip } from './seat-chip';

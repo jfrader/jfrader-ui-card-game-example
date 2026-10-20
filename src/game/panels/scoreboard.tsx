@@ -4,10 +4,10 @@ import { EmptyState } from '@jfrader/ui/empty-state';
 import { GameRounds } from '@jfrader/ui/game-rounds';
 import { Tabs } from '@jfrader/ui/tabs';
 import { Timeline } from '@jfrader/ui/timeline';
-import type { ScoreHistoryView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { eyebrow, visuallyHidden, VisuallyHidden } from '../styles';
+import type { ScoreHistoryView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { eyebrow, visuallyHidden, VisuallyHidden } from '../../ui/styles';
 import { ScoreTable } from './score-table';
 
 const Content = styled.div(({ theme: t }) => ({

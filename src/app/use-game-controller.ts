@@ -3,7 +3,6 @@ import { useToast } from '@jfrader/ui/toast';
 import { config } from '../config';
 import { copy } from '../content/en';
 import {
-  chooseAiCard,
   createGame,
   currentPlayer,
   gameReducer,
@@ -14,6 +13,8 @@ import {
 import type { GameAction, GameState, PlayerKey, RuleError, Settings, Stats, Suit } from '../engine/types';
 import type { ResultsView, ScoreHistoryView, TableCommand, TableView } from '../contracts';
 import { toResultsView, toScoreHistoryView, toTableView } from './presentation';
+import { useAiTurn } from './use-ai-turn';
+import { usePauseState } from './use-pause-state';
 import {
   DEFAULT_STATS,
   loadSettings,
@@ -37,8 +38,6 @@ function ruleErrorMessage(error: RuleError, ledSuit: Suit | null): string {
       return copy.errors.wrongPhase;
   }
 }
-
-export type PauseReason = 'manual' | 'modal' | 'route' | 'hidden';
 
 export type DialogKey = 'rules' | 'settings' | 'newGame' | 'results' | 'scores';
 
@@ -81,10 +80,11 @@ export function useGameController(): GameController {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [settings, setSettingsState] = useState<Settings>(() => loadSettings().value);
   const [stats, setStats] = useState<Stats>(() => loadStats().value);
-  const [pauseReasons, setPauseReasons] = useState<ReadonlySet<PauseReason>>(() => new Set());
   const [deadline, setDeadlineState] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [dialogs, setDialogs] = useState<Record<DialogKey, boolean>>({ ...EMPTY_DIALOGS });
+  const anyDialog = Object.values(dialogs).some(Boolean);
+  const { paused, pauseLabel, pause, resume, setRoutePaused } = usePauseState(anyDialog);
 
   const storageChecked = useRef(false);
   const deadlineRef = useRef<number | null>(null);
@@ -109,9 +109,11 @@ export function useGameController(): GameController {
   }, []);
 
   useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), config.timing.statusTickMs);
+    const tickMs = deadline === null ? config.timing.idleTickMs : config.timing.statusTickMs;
+    setNow(Date.now());
+    const id = window.setInterval(() => setNow(Date.now()), tickMs);
     return () => window.clearInterval(id);
-  }, []);
+  }, [deadline]);
 
   useEffect(() => {
     if (storageChecked.current) return;
@@ -122,60 +124,6 @@ export function useGameController(): GameController {
       toast({ title: copy.toast.storageWarning, tone: 'warning' });
     }
   }, [toast]);
-
-  const addReason = useCallback((reason: PauseReason) => {
-    setPauseReasons((previous) => {
-      if (previous.has(reason)) return previous;
-      const next = new Set(previous);
-      next.add(reason);
-      return next;
-    });
-  }, []);
-
-  const removeReason = useCallback((reason: PauseReason) => {
-    setPauseReasons((previous) => {
-      if (!previous.has(reason)) return previous;
-      const next = new Set(previous);
-      next.delete(reason);
-      return next;
-    });
-  }, []);
-
-  const resume = useCallback(() => setPauseReasons(new Set()), []);
-
-  const paused = pauseReasons.size > 0;
-  const pauseLabel = pauseReasons.has('manual')
-    ? copy.pause.manual
-    : pauseReasons.has('modal')
-      ? copy.pause.modal
-      : pauseReasons.has('route')
-        ? copy.pause.route
-        : pauseReasons.has('hidden')
-          ? copy.pause.hidden
-          : null;
-
-  const anyDialog = Object.values(dialogs).some(Boolean);
-  useEffect(() => {
-    if (anyDialog) addReason('modal');
-    else removeReason('modal');
-  }, [anyDialog, addReason, removeReason]);
-
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.hidden) addReason('hidden');
-    };
-    onVisibilityChange();
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
-  }, [addReason]);
-
-  const setRoutePaused = useCallback(
-    (value: boolean) => {
-      if (value) addReason('route');
-      else removeReason('route');
-    },
-    [addReason, removeReason],
-  );
 
   const humanTurnId =
     game && game.phase === 'playing' && currentPlayer(game) === 'south'
@@ -237,27 +185,7 @@ export function useGameController(): GameController {
     return () => window.clearTimeout(id);
   }, [deadline, game, paused, playCardInternal]);
 
-  useEffect(() => {
-    if (!game || game.phase !== 'playing' || paused) return;
-    const actor = currentPlayer(game);
-    if (!actor || actor === 'south') return;
-    let settled = false;
-    const play = (card: ReturnType<typeof chooseAiCard>) => {
-      if (settled || !card) return;
-      settled = playCardInternal(actor, card.id, true);
-    };
-    const main = window.setTimeout(() => {
-      play(chooseAiCard(game, actor, settings.difficulty));
-    }, config.timing.aiDelayMs);
-    const watchdog = window.setTimeout(() => {
-      if (settled) return;
-      play(lowestLegalCard(game, actor));
-    }, config.timing.aiDelayMs + 1_200);
-    return () => {
-      window.clearTimeout(main);
-      window.clearTimeout(watchdog);
-    };
-  }, [game, paused, settings.difficulty, playCardInternal]);
+  useAiTurn({ game, paused, difficulty: settings.difficulty, playCard: playCardInternal });
 
   useEffect(() => {
     if (!game || game.phase !== 'roundComplete' && game.phase !== 'gameComplete') return;
@@ -288,13 +216,13 @@ export function useGameController(): GameController {
     const next = createGame({ id: crypto.randomUUID(), seed, at: Date.now() });
     setGame(next);
     setSelectedCardId(null);
-    setPauseReasons(new Set());
+    resume();
     setDeadline(null);
     remainingRef.current = null;
     turnRef.current = null;
     clearRuleError();
     setDialogs({ ...EMPTY_DIALOGS });
-  }, [clearRuleError, setDeadline]);
+  }, [clearRuleError, resume, setDeadline]);
 
   const requestNewGame = useCallback(() => {
     if (game && game.phase !== 'gameComplete') {
@@ -380,7 +308,7 @@ export function useGameController(): GameController {
           startGame();
           break;
         case 'pause':
-          addReason('manual');
+          pause();
           break;
         case 'resume':
           resume();
@@ -402,7 +330,7 @@ export function useGameController(): GameController {
           break;
       }
     },
-    [addReason, continueGame, openDialog, resume, startGame],
+    [continueGame, openDialog, pause, resume, startGame],
   );
 
   const handleShellCommand = useCallback(

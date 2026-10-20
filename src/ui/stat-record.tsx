@@ -2,7 +2,7 @@ import { styled } from '@jfrader/ui';
 import type { Stats } from '../engine/types';
 import { config } from '../config';
 import { copy } from '../content/en';
-import { eyebrow } from '../styles';
+import { eyebrow } from './styles';
 
 const Record = styled.dl(({ theme: t }) => ({
   display: 'flex',

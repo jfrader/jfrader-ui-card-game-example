@@ -3,10 +3,10 @@ import { Avatar } from '@jfrader/ui/avatar';
 import { GameSeat } from '@jfrader/ui/game-seat';
 import { useGameTableSeat } from '@jfrader/ui/game-table';
 import { Pill } from '@jfrader/ui/pill';
-import type { SeatView, TableView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { forcedColors, VisuallyHidden } from '../styles';
+import type { SeatView, TableView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { forcedColors, VisuallyHidden } from '../../ui/styles';
 
 const Chip = styled(GameSeat)(({ theme: t }) => ({
   gridTemplateColumns: 'auto minmax(0, 1fr) auto',

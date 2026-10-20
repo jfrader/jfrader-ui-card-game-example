@@ -2,13 +2,13 @@ import { Button, styled } from '@jfrader/ui';
 import { Dialog } from '@jfrader/ui/dialog';
 import { GameResult } from '@jfrader/ui/game-result';
 import { Pill } from '@jfrader/ui/pill';
-import { StatRecord } from '../components/stat-record';
-import { SuitIcon } from '../components/suit-icon';
-import type { ResultsView } from '../contracts';
-import { config } from '../config';
-import { copy } from '../content/en';
-import { trumpLabel } from '../app/presentation';
-import { Eyebrow } from '../styles';
+import { StatRecord } from '../../ui/stat-record';
+import { SuitIcon } from '../../ui/suit-icon';
+import type { ResultsView } from '../../contracts';
+import { config } from '../../config';
+import { copy } from '../../content/en';
+import { trumpLabel } from '../../app/presentation';
+import { Eyebrow } from '../../ui/styles';
 import { Celebration } from './celebration';
 import { DialogActions, DialogHeader, DialogLayout, DialogTitleRow } from './dialog.styles';
 import { ScoreTable } from './score-table';
@@ -25,6 +25,7 @@ const NextTrump = styled.p(({ theme: t }) => ({
 }));
 
 const LEAD_TONE = { sole: 'success', joint: 'accent', behind: 'neutral' } as const;
+const LIST_FORMAT = new Intl.ListFormat(config.locale, { style: 'long', type: 'conjunction' });
 
 export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame }: {
   open: boolean;
@@ -69,7 +70,7 @@ export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame 
     );
   }
 
-  const winners = new Intl.ListFormat(config.locale, { style: 'long', type: 'conjunction' }).format(view.winnerNames);
+  const winners = LIST_FORMAT.format(view.winnerNames);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content>

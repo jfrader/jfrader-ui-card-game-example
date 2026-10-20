@@ -1,10 +1,10 @@
 import { styled } from '@jfrader/ui';
 import { GameCard, type GameCardSize } from '@jfrader/ui/game-card';
 import { useGameTableSeat } from '@jfrader/ui/game-table';
-import type { SeatView, TableView } from '../contracts';
-import type { PlayerKey } from '../engine/types';
-import { copy } from '../content/en';
-import { forcedColors, reducedMotionOff } from '../styles';
+import type { SeatView, TableView } from '../../contracts';
+import type { PlayerKey } from '../../engine/types';
+import { copy } from '../../content/en';
+import { forcedColors, reducedMotionOff } from '../../ui/styles';
 
 const Slot = styled.div(({ theme: t }) => ({
   display: 'grid',
