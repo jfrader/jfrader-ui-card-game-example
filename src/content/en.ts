@@ -210,6 +210,7 @@ export const copy = {
   },
   footer: {
     builtWith: 'Built with @jfrader/ui',
+    docs: 'Documentation',
     source: 'Source',
     license: 'MIT',
   },

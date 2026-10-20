@@ -19,7 +19,6 @@ import {
   DEFAULT_STATS,
   loadSettings,
   loadStats,
-  resetStats as persistResetStats,
   saveSettings,
   saveStats,
 } from './storage';
@@ -355,11 +354,17 @@ export function useGameController(): GameController {
 
   const resetStats = useCallback(async () => {
     if (game && game.phase !== 'gameComplete') return;
-    if (!persistResetStats()) {
+    const next: Stats = {
+      ...DEFAULT_STATS,
+      // Keep the completed match marked as counted; otherwise the stats effect sees a reset
+      // counter and immediately counts the same match again.
+      lastCountedGameId: game?.phase === 'gameComplete' ? game.id : null,
+    };
+    if (!saveStats(next)) {
       toast({ title: copy.toast.storageWarning, tone: 'danger' });
       throw new Error('Could not reset stats');
     }
-    setStats(DEFAULT_STATS);
+    setStats(next);
   }, [game, toast]);
 
   const view = useMemo(

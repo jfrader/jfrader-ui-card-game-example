@@ -9,6 +9,6 @@ const Row = styled(Flex)(({ theme }) => ({ flexWrap: 'wrap', justifyContent: 'sp
 export function Footer() {
   return <Root><Content size="xl" paddingInline="md"><Divider /><Row>
     <a href={config.urls.library}>{copy.footer.builtWith}</a>
-    <Flex gap="md"><a href={config.urls.source}>{copy.footer.source}</a><a href={`${config.urls.source}/blob/master/LICENSE`}>{copy.footer.license}</a></Flex>
+    <Flex gap="md"><a href={config.urls.docs}>{copy.footer.docs}</a><a href={config.urls.source}>{copy.footer.source}</a><a href={`${config.urls.source}/blob/master/LICENSE`}>{copy.footer.license}</a></Flex>
   </Row></Content></Root>;
 }
