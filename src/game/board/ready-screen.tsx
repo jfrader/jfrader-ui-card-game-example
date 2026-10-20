@@ -5,7 +5,7 @@ import type { TableCommand, TableView } from '../../contracts';
 import type { Difficulty, Stats } from '../../engine/types';
 import { DifficultyControl } from '../../ui/difficulty-control';
 import { StatRecord } from '../../ui/stat-record';
-import { useCompactLayout } from '../../app/use-media-query';
+import { useCompactLayout } from '../../ui/use-media-query';
 import { copy } from '../../content/en';
 import { phone, reducedMotionOff } from '../../ui/styles';
 import { feltMaterial, Stage } from './table.styles';

@@ -4,7 +4,7 @@ import { Skeleton, Stack, styled } from '@jfrader/ui';
 import { Drawer } from '@jfrader/ui/drawer';
 import { ErrorBoundary } from './error-boundary';
 import { useGameController, type GameController } from './use-game-controller';
-import { useMediaQuery } from './use-media-query';
+import { useMediaQuery } from '../ui/use-media-query';
 import { AppShell } from '../shell/app-shell';
 import { config } from '../config';
 import { copy } from '../content/en';

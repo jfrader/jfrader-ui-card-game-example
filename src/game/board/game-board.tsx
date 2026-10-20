@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { GameTable } from '@jfrader/ui/game-table';
-import { useCompactLayout } from '../../app/use-media-query';
+import { useCompactLayout } from '../../ui/use-media-query';
 import type { TableCommand, TableView } from '../../contracts';
 import type { Difficulty, Stats } from '../../engine/types';
 import { copy } from '../../content/en';

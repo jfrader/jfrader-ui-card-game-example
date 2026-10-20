@@ -1,4 +1,4 @@
-import { copy } from '../content/en';
+import { copy, trumpLabel } from '../content/en';
 import {
   currentPlayer,
   legalMoves,
@@ -11,7 +11,7 @@ import {
   TRICKS_PER_ROUND,
   TRUMPS,
 } from '../engine';
-import type { Card, GameState, PlayerKey, Settings, Stats, Suit } from '../engine/types';
+import type { Card, GameState, PlayerKey, Settings, Stats } from '../engine/types';
 import type {
   CardView,
   ResultsView,
@@ -26,15 +26,11 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function cardLabel(card: Card): string {
+function cardLabel(card: Card): string {
   return `${capitalize(copy.ranks[card.rank])} of ${copy.suits[card.suit]}`;
 }
 
-export function trumpLabel(trump: Suit | null): string {
-  return trump ? copy.suitTitles[trump] : copy.table.noTrump;
-}
-
-export function cardView(card: Card, legal: boolean): CardView {
+function cardView(card: Card, legal: boolean): CardView {
   return {
     id: card.id,
     label: cardLabel(card),
@@ -75,7 +71,7 @@ function readySeats(): readonly SeatView[] {
   }));
 }
 
-export interface TableUiState {
+interface TableUiState {
   readonly paused: boolean;
   readonly pauseLabel: string | null;
   readonly deadline: number | null;
@@ -207,7 +203,7 @@ function roundState(state: GameState, number: number): ScoreTableView['rounds'][
   return state.phase === 'roundComplete' || state.phase === 'gameComplete' ? 'done' : 'current';
 }
 
-export function toScoreTable(state: GameState | null): ScoreTableView {
+function toScoreTable(state: GameState | null): ScoreTableView {
   const trumps = Array.from({ length: ROUND_COUNT }, (_, index) => TRUMPS[index] ?? null);
   if (!state) {
     return {

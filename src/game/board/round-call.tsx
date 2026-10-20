@@ -3,8 +3,7 @@ import { styled } from '@jfrader/ui';
 import { CallOverlay } from '@jfrader/ui/call-overlay';
 import type { TableView } from '../../contracts';
 import { config } from '../../config';
-import { copy } from '../../content/en';
-import { trumpLabel } from '../../app/presentation';
+import { copy, trumpLabel } from '../../content/en';
 
 const Frame = styled.div({
   position: 'absolute',

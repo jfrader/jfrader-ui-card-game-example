@@ -6,6 +6,7 @@ export const isDifficulty = (value: unknown): value is Difficulty =>
 
 export const TURN_ORDER: readonly PlayerKey[] = ['south', 'west', 'north', 'east'];
 export const SUITS: readonly Suit[] = ['hearts', 'diamonds', 'clubs', 'spades'];
+export const RED_SUITS: readonly Suit[] = SUITS.slice(0, 2);
 export const RANKS: readonly Rank[] = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 export const TRUMPS: readonly (Suit | null)[] = [...SUITS, null];
 export const ROUND_COUNT = 5;

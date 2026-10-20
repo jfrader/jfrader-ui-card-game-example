@@ -136,6 +136,7 @@ export function useGameController(): GameController {
       remainingRef.current = null;
     }
     if (!humanTurnId || !settings.turnTimer) {
+      remainingRef.current = null;
       setDeadline(null);
       return;
     }

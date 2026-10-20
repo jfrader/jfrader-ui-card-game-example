@@ -1,4 +1,5 @@
 import { config } from '../config';
+import type { Suit } from '../engine/types';
 
 const pluralRules = new Intl.PluralRules(config.locale);
 const word = (count: number, forms: Record<'one' | 'other', string>) =>
@@ -239,3 +240,8 @@ export const copy = {
       'End this match and deal a new game? The unfinished match will not count toward your stats.',
   },
 } as const;
+
+/** Visible title for a trump suit; `null` is the no-trump round. */
+export function trumpLabel(trump: Suit | null): string {
+  return trump ? copy.suitTitles[trump] : copy.table.noTrump;
+}
