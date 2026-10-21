@@ -1,0 +1,3 @@
+minimumReleaseAgeExclude:
+  - '@jfrader/tokens@0.10.0'
+  - '@jfrader/ui@0.10.0'

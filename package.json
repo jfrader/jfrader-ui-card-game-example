@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",
-    "@jfrader/tokens": "^0.9.1",
-    "@jfrader/ui": "^0.9.1",
+    "@jfrader/tokens": "^0.10.0",
+    "@jfrader/ui": "^0.10.0",
     "lucide-react": "^1.59.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
