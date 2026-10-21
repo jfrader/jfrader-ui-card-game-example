@@ -37,7 +37,7 @@ pnpm dev
 ## Components used
 
 Game: `GameTable` (Seat, Play, Floating), `GameSeat`, `GameHand` (per-card state through
-`slots.card`), `GameCard`, `FlipGameCard`, `GameActions`, `GameRounds`, `GameResult`, `CallOverlay`,
+`slots.card`), `GameCard`, `FlipGameCard`, `GameActions`, `GameRounds`, `GameMarks`, `GameScore.Table`, `GameResult`, `CallOverlay`,
 `DeckProvider`.
 
 Overlays and feedback: `Dialog`, `Drawer`, `Toast`, `Alert`, `Tabs`, `Popover`, `Pill`, `Skeleton`.
@@ -48,7 +48,7 @@ Data and controls: `Timeline`, `SegmentedControl`, `Switch`, `EmptyState`, `Brea
 Layout and styling: `Container`, `Flex`, `Stack`, `Card`, `Divider`, `Prose`, `Button`, `styled`,
 `ThemeProvider`.
 
-The per-round score table is app code (`src/game/panels/score-table.tsx`): `GameScore` lists totals only.
+The per-round score adapter (`src/game/panels/score-table.tsx`) maps the game's view model to `GameScore.Table`.
 
 The full composition contract is in [SPEC.md](SPEC.md). Published-package gaps found while building
 this example are recorded in [FINDINGS.md](FINDINGS.md).
@@ -94,9 +94,9 @@ beside the stage.
 ## Library notes
 
 The integration gaps found while building this example are classified in [FINDINGS.md](FINDINGS.md):
-library API, library docs, or consumer layout. The `GameSeat` hand-count fix is open in
-[jfrader-ui PR #395](https://github.com/jfrader/jfrader-ui/pull/395) for the next library release;
-the other library follow-ups are tracked in the jfrader-ui project.
+library API, library docs, or consumer layout. The game uses `@jfrader/ui@0.10.0` seat hand counts,
+decorative opponent fans, round strips, trick marks and per-round score tables. Other library
+follow-ups are tracked in the jfrader-ui project.
 
 ## Deployment
 

@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { styled } from '@jfrader/ui';
 import { FlipGameCard } from '@jfrader/ui/flip-game-card';
 import { GameCard } from '@jfrader/ui/game-card';
+import { GameMarks } from '@jfrader/ui/game-marks';
 import { Popover } from '@jfrader/ui/popover';
 import type { TableView } from '../../contracts';
 import { RED_SUITS } from '../../engine';
 import { config } from '../../config';
 import { copy, trumpLabel } from '../../content/en';
-import { Eyebrow } from '../../ui/styles';
+import { Eyebrow, visuallyHidden } from '../../ui/styles';
 import { SuitIcon } from '../../ui/suit-icon';
 
 const Stats = styled.dl(({ theme: t }) => ({
@@ -36,6 +37,8 @@ export function RoundStats({ view }: { view: TableView }) {
       <div>
         <Eyebrow as="dt">{copy.table.hudTrick}</Eyebrow>
         <dd>{Math.min(view.trickNumber, view.trickCount)}<Of>/{view.trickCount}</Of></dd>
+        <dd><GameMarks surface="transparent" sx={{ padding: 0 }} label={copy.status.tricksPlayed(view.completedTricks, view.trickCount)} count={view.completedTricks} max={view.trickCount} locale={config.locale}
+          slotProps={{ label: { sx: visuallyHidden }, count: { sx: visuallyHidden } }} /></dd>
       </div>
     </Stats>
   );
