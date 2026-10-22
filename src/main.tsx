@@ -10,10 +10,7 @@ import '@fontsource/inter/latin-600.css';
 import '@jfrader/tokens/tokens.css';
 import '@jfrader/tokens/base.css';
 import { App } from './app/app';
-import { config } from './config';
 import { copy } from './content/en';
-
-document.title = config.appName;
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Missing #root element.');

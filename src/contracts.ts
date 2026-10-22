@@ -63,6 +63,32 @@ export type TableCommand =
 
 export type ShellCommand = 'rules' | 'settings' | 'new-game';
 
+export type DialogKey = 'rules' | 'settings' | 'newGame' | 'results' | 'scores';
+
+export interface GameController {
+  readonly view: TableView;
+  readonly scoreHistory: ScoreHistoryView;
+  readonly results: ResultsView | null;
+  readonly selectedCardId: string | null;
+  readonly settings: Settings;
+  readonly stats: Stats;
+  readonly now: number;
+  readonly dialogs: Record<DialogKey, boolean>;
+  readonly canResetStats: boolean;
+  startGame: () => void;
+  requestNewGame: () => void;
+  confirmNewGame: () => void;
+  continueGame: () => void;
+  selectCard: (id: string | null) => void;
+  playCard: (id: string) => void;
+  handleCommand: (command: TableCommand) => void;
+  handleShellCommand: (command: 'rules' | 'settings' | 'new-game') => void;
+  updateSettings: (next: Settings) => void;
+  resetStats: () => Promise<void>;
+  openDialog: (key: DialogKey) => void;
+  closeDialog: (key: DialogKey) => void;
+}
+
 export interface ScoreTableView {
   readonly players: readonly {
     readonly key: PlayerKey;
