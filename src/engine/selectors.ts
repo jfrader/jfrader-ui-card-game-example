@@ -14,7 +14,7 @@ export function compareLowest(left: Card, right: Card): number {
 }
 
 export function sortHand(cards: readonly Card[]): readonly Card[] {
-  return [...cards].sort(
+  return cards.toSorted(
     (left, right) => SUITS.indexOf(left.suit) - SUITS.indexOf(right.suit) || compareLowest(left, right),
   );
 }

@@ -4,11 +4,11 @@ import { compareLowest } from './selectors';
 import type { Card, Difficulty, GameState, PlayerKey } from './types';
 
 export function lowestLegalCard(state: GameState, playerKey: PlayerKey): Card | null {
-  return [...legalMoves(state, playerKey)].sort(compareLowest)[0] ?? null;
+  return legalMoves(state, playerKey).toSorted(compareLowest)[0] ?? null;
 }
 
 export function chooseAiCard(state: GameState, playerKey: PlayerKey, difficulty: Difficulty): Card | null {
-  const legal = [...legalMoves(state, playerKey)].sort(compareLowest);
+  const legal = legalMoves(state, playerKey).toSorted(compareLowest);
   if (legal.length === 0) return null;
   if (difficulty === 'easy') {
     const seed = (state.seed ^ Math.imul(state.revision + 1, 0x9e3779b9)) >>> 0;
