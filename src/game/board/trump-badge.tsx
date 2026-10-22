@@ -1,65 +1,22 @@
-import { useEffect, useState } from 'react';
 import { styled } from '@jfrader/ui';
 import { FlipGameCard } from '@jfrader/ui/flip-game-card';
 import { GameCard } from '@jfrader/ui/game-card';
-import { GameMarks } from '@jfrader/ui/game-marks';
 import { Popover } from '@jfrader/ui/popover';
+import { useTimedFlag } from '../../app/use-timed-flag';
 import type { TableView } from '../../contracts';
 import { RED_SUITS } from '../../engine';
 import { config } from '../../config';
 import { copy, trumpLabel } from '../../content/en';
-import { Eyebrow, visuallyHidden } from '../../ui/styles';
+import { Eyebrow } from '../../ui/styles';
 import { SuitIcon } from '../../ui/suit-icon';
 
-const Stats = styled.dl(({ theme: t }) => ({
-  display: 'flex',
-  gap: t.space[5],
-  margin: 0,
-  '& > div': { display: 'grid', gap: t.space[1] },
-  '& dd': {
-    margin: 0,
-    fontSize: t.textSize.lg,
-    fontWeight: t.fontWeight.semibold,
-    lineHeight: t.lineHeight.tight,
-    fontVariantNumeric: 'tabular-nums',
-  },
-}));
-
-const Of = styled.span(({ theme: t }) => ({ color: t.color.textMuted, fontWeight: t.fontWeight.regular }));
-
-export function RoundStats({ view }: { view: TableView }) {
-  return (
-    <Stats aria-label={copy.a11y.hudRegion}>
-      <div>
-        <Eyebrow as="dt">{copy.table.hudRound}</Eyebrow>
-        <dd>
-          {view.roundNumber}
-          <Of>/{view.roundCount}</Of>
-        </dd>
-      </div>
-      <div>
-        <Eyebrow as="dt">{copy.table.hudTrick}</Eyebrow>
-        <dd>
-          {Math.min(view.trickNumber, view.trickCount)}
-          <Of>/{view.trickCount}</Of>
-        </dd>
-        <dd>
-          <GameMarks
-            surface="transparent"
-            sx={{ padding: 0 }}
-            label={copy.status.tricksPlayed(view.completedTricks, view.trickCount)}
-            count={view.completedTricks}
-            max={view.trickCount}
-            locale={config.locale}
-            slotProps={{ label: { sx: visuallyHidden }, count: { sx: visuallyHidden } }}
-          />
-        </dd>
-      </div>
-    </Stats>
-  );
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** Keeps the popover trigger's border and focus ring, trimmed to HUD height. */
 const TrumpSlot = styled.div(({ theme: t }) => ({
   '& [data-ui~="popover-trigger"]': {
     paddingBlock: t.space[1],
@@ -93,15 +50,9 @@ const TrumpFace = styled.span(({ theme: t }) => ({
 }));
 
 export function TrumpBadge({ view }: { view: TableView }) {
-  const [flipped, setFlipped] = useState(false);
-  const dealt = view.phase !== 'ready';
-
-  useEffect(() => {
-    if (!dealt || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    setFlipped(true);
-    const timeout = window.setTimeout(() => setFlipped(false), config.timing.trumpFlipMs);
-    return () => window.clearTimeout(timeout);
-  }, [dealt, view.roundNumber]);
+  const reduced = prefersReducedMotion();
+  const roundTrigger = view.phase !== 'ready' && !reduced ? view.roundNumber : null;
+  const flipped = useTimedFlag(roundTrigger, config.timing.trumpFlipMs);
 
   return (
     <TrumpSlot>

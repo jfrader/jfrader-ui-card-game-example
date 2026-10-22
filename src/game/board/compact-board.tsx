@@ -3,11 +3,12 @@ import { styled } from '@jfrader/ui';
 import type { TableView } from '../../contracts';
 import { config } from '../../config';
 import { copy } from '../../content/en';
-import { RoundStats, TrumpBadge } from './hud';
+import { PlayedCard } from './played-card';
 import { RoundCall } from './round-call';
+import { RoundStats } from './round-stats';
 import { SeatChip } from './seat-chip';
-import { PlayedCard } from './seat-play';
 import { feltMaterial, FlowBar, Stage } from './table.styles';
+import { TrumpBadge } from './trump-badge';
 
 const Felt = styled.div(({ theme: t }) => ({
   ...feltMaterial(t),
@@ -34,7 +35,6 @@ const Column = styled.div(({ theme: t }) => ({
   paddingBlockEnd: t.space[2],
 }));
 
-/** Keeps the round call over the card row, clear of the seat chips. */
 const CallLayer = styled.div({
   position: 'absolute',
   insetInline: 0,
@@ -43,11 +43,6 @@ const CallLayer = styled.div({
   pointerEvents: 'none',
 });
 
-/**
- * Phone table. At this width GameTable's round felt leaves room for 32px plays only
- * (GURI-2719, Give GameTable a compact four-play trick layout), so each player gets a
- * column: seat on top, their card in front of it.
- */
 export function CompactBoard({
   view,
   status,
@@ -69,7 +64,7 @@ export function CompactBoard({
         {view.seats.map((seat) => (
           <Column key={seat.key}>
             <SeatChip seat={seat} view={view} layout="stack" />
-            <PlayedCard seat={seat} view={view} from="north" />
+            <PlayedCard seat={seat} view={view} />
           </Column>
         ))}
         <CallLayer>

@@ -1,6 +1,5 @@
 import { styled } from '@jfrader/ui';
 import { GameCard, type GameCardSize } from '@jfrader/ui/game-card';
-import { useGameTableSeat } from '@jfrader/ui/game-table';
 import type { SeatView, TableView } from '../../contracts';
 import type { PlayerKey } from '../../engine/types';
 import { copy } from '../../content/en';
@@ -25,7 +24,6 @@ const Slot = styled.div(({ theme: t }) => ({
   '@keyframes play-enter': {
     from: { opacity: 0, transform: 'translate(var(--enter-x, 0), var(--enter-y, 0)) scale(0.92)' },
   },
-  // Plays can sit a few pixels apart on short tables, so the winner rises in place instead of moving.
   '&[data-winner="true"]': { position: 'relative', zIndex: 1, scale: 1.04 },
   '&[data-winner="true"] > [data-ui~="game-card"]': {
     outline: `3px solid ${t.color.success}`,
@@ -40,7 +38,6 @@ const Slot = styled.div(({ theme: t }) => ({
 
 const Placeholder = styled.div({ visibility: 'hidden' });
 
-/** `from` is the side the seat sits on relative to its card; it sets the entry and winner motion. */
 export function PlayedCard({
   seat,
   view,
@@ -71,9 +68,4 @@ export function PlayedCard({
       />
     </Slot>
   );
-}
-
-export function TablePlay({ view }: { view: TableView }) {
-  const { player } = useGameTableSeat<SeatView>();
-  return player ? <PlayedCard seat={player} view={view} /> : null;
 }

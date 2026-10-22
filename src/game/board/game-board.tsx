@@ -5,14 +5,16 @@ import type { TableCommand, TableView } from '../../contracts';
 import type { Difficulty, Stats } from '../../engine/types';
 import { copy } from '../../content/en';
 import { CompactBoard } from './compact-board';
-import { RoundStats, TrumpBadge } from './hud';
 import { PlayerHand } from './player-hand';
 import { ReadyScreen } from './ready-screen';
 import { RoundCall } from './round-call';
-import { TableSeat } from './seat-chip';
-import { TablePlay } from './seat-play';
+import { RoundStats } from './round-stats';
+import { TableActions } from './table-actions';
+import { TablePlay } from './table-play';
+import { TableSeat } from './table-seat';
 import { Board, BoardBar, Dock, Stage } from './table.styles';
-import { TableActions, TurnStatus } from './turn-bar';
+import { TrumpBadge } from './trump-badge';
+import { TurnStatus } from './turn-status';
 
 export interface GameBoardProps {
   view: TableView;

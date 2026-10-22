@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { styled } from '@jfrader/ui';
 import { CallOverlay } from '@jfrader/ui/call-overlay';
+import { useTimedFlag } from '../../app/use-timed-flag';
 import type { TableView } from '../../contracts';
 import { config } from '../../config';
 import { copy, trumpLabel } from '../../content/en';
@@ -13,23 +13,14 @@ const Frame = styled.div({
   pointerEvents: 'none',
 });
 
-/** Calls each new round on the felt while it is still empty. */
 export function RoundCall({ view }: { view: TableView }) {
-  const [open, setOpen] = useState(false);
-  const dealt = view.phase !== 'ready';
-
-  useEffect(() => {
-    if (!dealt) return;
-    setOpen(true);
-    const timeout = window.setTimeout(() => setOpen(false), config.timing.roundCallMs);
-    return () => window.clearTimeout(timeout);
-  }, [dealt, view.roundNumber]);
+  const roundTrigger = view.phase !== 'ready' ? view.roundNumber : null;
+  const open = useTimedFlag(roundTrigger, config.timing.roundCallMs);
 
   return (
     <Frame>
       <CallOverlay
         open={open}
-        onOpenChange={setOpen}
         tone="neutral"
         label={copy.table.roundCall(view.roundNumber, trumpLabel(view.trump))}
       />
