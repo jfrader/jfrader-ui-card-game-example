@@ -5,12 +5,22 @@ export function rankStrength(rank: Rank): number {
   return RANKS.indexOf(rank) + 2;
 }
 
+function compareText(left: string, right: string): number {
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
+}
+
 export function compareLowest(left: Card, right: Card): number {
   return (
     rankStrength(left.rank) - rankStrength(right.rank) ||
     SUITS.indexOf(left.suit) - SUITS.indexOf(right.suit) ||
-    (left.id < right.id ? -1 : left.id > right.id ? 1 : 0)
+    compareText(left.id, right.id)
   );
+}
+
+function outcomeFor(winners: readonly PlayerKey[]): GameScoreResult['outcome'] {
+  if (winners.length > 1) return 'draw';
+  return winners[0] === 'south' ? 'won' : 'lost';
 }
 
 export function sortHand(cards: readonly Card[]): readonly Card[] {
@@ -45,7 +55,7 @@ export function scoreGame(state: GameState): GameScoreResult {
     totals,
     winners,
     final: state.phase === 'gameComplete',
-    outcome: winners.length > 1 ? 'draw' : winners[0] === 'south' ? 'won' : 'lost',
+    outcome: outcomeFor(winners),
   };
 }
 
