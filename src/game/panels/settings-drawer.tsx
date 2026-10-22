@@ -1,7 +1,5 @@
 import { useId, useState } from 'react';
 import { Button, styled } from '@jfrader/ui';
-import { ActionButton } from '@jfrader/ui/action-button';
-import { Dialog } from '@jfrader/ui/dialog';
 import { Drawer } from '@jfrader/ui/drawer';
 import { Switch } from '@jfrader/ui/switch';
 import { DifficultyControl } from '../../ui/difficulty-control';
@@ -10,7 +8,7 @@ import type { TableView } from '../../contracts';
 import type { Stats } from '../../engine/types';
 import { copy } from '../../content/en';
 import { eyebrow } from '../../ui/styles';
-import { DialogActions, DialogHeader, DialogLayout } from './dialog.styles';
+import { ResetStatsDialog } from './reset-stats-dialog';
 import { useSheetSide } from './sheet-side';
 
 type Settings = TableView['settings'];
@@ -46,6 +44,7 @@ export function SettingsDrawer({
   const side = useSheetSide();
   const gameId = useId();
   const statsId = useId();
+  const update = (patch: Partial<Settings>) => onSettingsChange({ ...settings, ...patch });
   const close = (next: boolean) => {
     if (!next) setConfirmReset(false);
     onOpenChange(next);
@@ -65,25 +64,25 @@ export function SettingsDrawer({
                 <h3 id={gameId}>{copy.settings.gameSection}</h3>
                 <DifficultyControl
                   value={settings.difficulty}
-                  onValueChange={(difficulty) => onSettingsChange({ ...settings, difficulty })}
+                  onValueChange={(difficulty) => update({ difficulty })}
                 />
                 <Switch
                   label={copy.settings.hints}
                   description={copy.settings.hintsDescription}
                   checked={settings.showLegalHints}
-                  onCheckedChange={(showLegalHints) => onSettingsChange({ ...settings, showLegalHints })}
+                  onCheckedChange={(showLegalHints) => update({ showLegalHints })}
                 />
                 <Switch
                   label={copy.settings.timer}
                   description={copy.settings.timerDescription}
                   checked={settings.turnTimer}
-                  onCheckedChange={(turnTimer) => onSettingsChange({ ...settings, turnTimer })}
+                  onCheckedChange={(turnTimer) => update({ turnTimer })}
                 />
                 <Switch
                   label={copy.settings.autoSort}
                   description={copy.settings.autoSortDescription}
                   checked={settings.autoSortHand}
-                  onCheckedChange={(autoSortHand) => onSettingsChange({ ...settings, autoSortHand })}
+                  onCheckedChange={(autoSortHand) => update({ autoSortHand })}
                 />
               </Section>
               <Section aria-labelledby={statsId}>
@@ -109,31 +108,12 @@ export function SettingsDrawer({
               {copy.common.done}
             </Button>
           </Drawer.Footer>
-          <Dialog open={confirmReset} onOpenChange={setConfirmReset}>
-            <Dialog.Content>
-              <Dialog.Panel>
-                <DialogLayout>
-                  <DialogHeader>
-                    <Dialog.Title>{copy.settings.resetStats}</Dialog.Title>
-                    <Dialog.Description>{copy.settings.resetStatsConfirm}</Dialog.Description>
-                  </DialogHeader>
-                  <DialogActions>
-                    <Dialog.Close>{copy.common.cancel}</Dialog.Close>
-                    <ActionButton
-                      disabled={!canResetStats}
-                      label={copy.settings.resetStats}
-                      pendingLabel={copy.settings.resetStatsPending}
-                      successLabel={copy.settings.resetStatsSuccess}
-                      errorLabel={copy.settings.resetStatsError}
-                      onAction={async () => {
-                        await onResetStats();
-                      }}
-                    />
-                  </DialogActions>
-                </DialogLayout>
-              </Dialog.Panel>
-            </Dialog.Content>
-          </Dialog>
+          <ResetStatsDialog
+            open={confirmReset}
+            onOpenChange={setConfirmReset}
+            canReset={canResetStats}
+            onReset={onResetStats}
+          />
         </Drawer.Panel>
       </Drawer.Content>
     </Drawer>

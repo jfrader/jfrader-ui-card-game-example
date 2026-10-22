@@ -1,5 +1,5 @@
 import { styled } from '@jfrader/ui';
-import { GameScore } from '@jfrader/ui/game-score';
+import { GameScore, type GameScoreTableSlotProps } from '@jfrader/ui/game-score';
 import { SuitIcon } from '../../ui/suit-icon';
 import type { ScoreTableView } from '../../contracts';
 import { config } from '../../config';
@@ -7,6 +7,18 @@ import { copy } from '../../content/en';
 import { VisuallyHidden } from '../../ui/styles';
 
 const RoundLabel = styled.span({ display: 'grid', justifyItems: 'center' });
+
+const SLOT_PROPS: GameScoreTableSlotProps = {
+  table: { sx: { '& > thead th': { whiteSpace: 'nowrap' } } },
+  round: { sx: (t) => ({ paddingInline: t.space[1] }) },
+  cell: {
+    sx: (t) => ({
+      paddingInline: t.space[1],
+      '&[data-state="upcoming"]': { color: t.color.textMuted },
+    }),
+  },
+  total: { sx: (t) => ({ paddingInline: t.space[1] }) },
+};
 
 export function ScoreTable({ view }: { view: ScoreTableView }) {
   return (
@@ -16,17 +28,7 @@ export function ScoreTable({ view }: { view: ScoreTableView }) {
       tabIndex={0}
       role="region"
       aria-label={copy.scores.caption}
-      slotProps={{
-        table: { sx: { '& > thead th': { whiteSpace: 'nowrap' } } },
-        round: { sx: (t) => ({ paddingInline: t.space[1] }) },
-        cell: {
-          sx: (t) => ({
-            paddingInline: t.space[1],
-            '&[data-state="upcoming"]': { color: t.color.textMuted },
-          }),
-        },
-        total: { sx: (t) => ({ paddingInline: t.space[1] }) },
-      }}
+      slotProps={SLOT_PROPS}
       caption={copy.scores.caption}
       locale={config.locale}
       rounds={view.rounds.map((round) => ({

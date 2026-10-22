@@ -174,22 +174,57 @@ export const copy = {
     setupTitle: 'Setup',
     setupBody:
       'Five rounds of five cards each. The dealer rotates every round: you deal first, then West, North, East and you again.',
+    setupTurnOrder:
+      'Turn order is South (You) → West (Ada) → North (Milo) → East (Iris) → South. “Left of the dealer” means the next seat in this order. That seat leads the first trick; later tricks are led by the previous winner.',
+    setupDeal:
+      'Each round uses a freshly shuffled 52-card French deck without jokers. Deal one card at a time, starting left of the dealer, for five passes. Each player receives five cards. The other 32 cards remain face down and are not used. Cards can recur in later rounds, never within a round.',
     playTitle: 'Playing a trick',
     playBody:
       'The leader plays any card. Everyone else must follow the led suit when they can. If you have no card of that suit, play anything, including trump.',
+    playOrder:
+      'Play continues in the same cyclic order from the leader, with one card per player. There is no obligation to trump, overtrump or beat the current winning card. Any card can lead; trump does not need to be “broken.”',
+    followExample: {
+      lowCard: 'Two of clubs',
+      highCard: 'Ace of hearts',
+      body: 'Clubs were led. If you hold the two of clubs and the ace of hearts, you must play the club—even when hearts are trump.',
+    },
     winTitle: 'Winning a trick',
     winBody:
       'If any trump was played, the highest trump wins. Otherwise the highest card of the led suit wins. The winner leads the next trick.',
+    winRanks:
+      'Ranks run 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A. Ace is always high. Off-suit cards that are not trump cannot win; suits have no ranking of their own.',
     trumpTitle: 'Trump',
     trumpBody:
       'Rounds one to four use hearts, diamonds, clubs and spades as trump. Round five has no trump, so only the led suit can win.',
+    trumpExample: {
+      ledCard: 'Ace of clubs, led suit',
+      trumpCard: 'Two of hearts, trump',
+      body: 'Hearts are trump and clubs were led. A player with no clubs may play the two of hearts: it beats the ace of clubs. Playing trump is optional when you cannot follow suit.',
+    },
     scoringTitle: 'Scoring',
     scoringBody:
       'One point per trick. The player with the most points after round five wins. A tie at the top is a draw, even if you are not one of the leaders.',
+    scoringResolve:
+      'The fourth card resolves the trick and awards its winner one point immediately. All four cards stay visible until you choose Next trick. After the fifth trick choose Round results, or Final results in round five. There are exactly 25 points in a match, with no bonuses or penalties.',
+    scoringResults:
+      'Round results show round and total scores and the next trump. Choose Deal round to continue. A sole top score wins the match; all joint leaders are named in a draw. Under Your rounds, Led means you had the highest round score, alone or tied. It awards no extra points.',
     controlsTitle: 'Controls',
+    /** `{Key}` placeholders render as keyboard keys. */
+    controlsKeyboard:
+      'Use {Tab} and {Shift} + {Tab} to move through card buttons and controls. {Enter} or {Space} selects or clears a card. Activate Play card to commit it. {Escape} closes menus and dialogs without playing a card.',
+    controlsActions:
+      'In the table actions, use arrow keys, {Home} and {End} to move between actions. Pause and Resume stop and restart play.',
+    settingsHints:
+      'Legal-card hints dim cards you cannot play; turning hints off does not change the rules. Auto-sort changes only the order shown in your hand. Difficulty applies to the next scheduled opponent turn.',
+    settingsTimer:
+      'The optional 30-second turn timer is off by default. On expiry the lowest legal card is played automatically. No timer runs during trick review or results. Disabling the timer removes the deadline; enabling it starts a full timer on the next turn.',
+    settingsPause:
+      'Opening a dialog, visiting another page or hiding the tab pauses opponents and timers. Returning from a hidden tab requires Resume. Paused time is preserved, and no missed plays are made up.',
     privacyTitle: 'Opponents',
     privacyBody:
       'Ada, Milo and Iris play from hidden hands. Only their card counts are public until a card is played.',
+    privacyStats:
+      'Stats are stored only in this browser. Only completed games count; a draw is a game played, not a win. Starting a new game requires confirmation during an unfinished match. Abandoning a match does not affect stats. Reloading returns to the ready screen, not a saved hand. Stats can be reset before or after a match.',
     back: 'Back to table',
   },
   errors: {
