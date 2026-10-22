@@ -13,7 +13,15 @@ const Content = styled.div(({ theme: t }) => ({
   paddingBlockStart: t.space[4],
 }));
 
-export function Scoreboard({ view, now }: { view: ScoreHistoryView; now: number }) {
+export function Scoreboard({
+  view,
+  now,
+  timelineMaxHeight,
+}: {
+  view: ScoreHistoryView;
+  now: number;
+  timelineMaxHeight?: string;
+}) {
   const [tab, setTab] = useState('scores');
   return (
     <Tabs value={tab} onValueChange={setTab}>
@@ -28,7 +36,7 @@ export function Scoreboard({ view, now }: { view: ScoreHistoryView; now: number 
       </Tabs.Panel>
       <Tabs.Panel value="log">
         <Content>
-          <LogPanel events={view.events} now={now} />
+          <LogPanel events={view.events} now={now} maxHeight={timelineMaxHeight} />
         </Content>
       </Tabs.Panel>
     </Tabs>

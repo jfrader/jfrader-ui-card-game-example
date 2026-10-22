@@ -1,5 +1,4 @@
 import { styled } from '@jfrader/ui';
-import { config } from '../../config';
 import { phone, type Theme } from '../../ui/styles';
 
 const mix = (color: string, base: string, percent: number) =>
@@ -15,7 +14,7 @@ export const feltMaterial = (t: Theme) => ({
 export const Stage = styled.section(({ theme: t }) => ({
   display: 'grid',
   gridTemplateRows: 'minmax(0, 1fr) auto',
-  blockSize: `clamp(${config.layout.stageMinBlock}px, calc(100dvh - ${config.layout.topbarBlock}px - 2 * ${t.space[4]}), ${config.layout.stageMaxBlock}px)`,
+  blockSize: '100%',
   minInlineSize: 0,
   overflow: 'clip',
   border: `1px solid ${t.color.border}`,

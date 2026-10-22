@@ -4,7 +4,15 @@ import type { ScoreHistoryView } from '../../contracts';
 import { config } from '../../config';
 import { copy } from '../../content/en';
 
-export function LogPanel({ events, now }: { events: ScoreHistoryView['events']; now: number }) {
+export function LogPanel({
+  events,
+  now,
+  maxHeight,
+}: {
+  events: ScoreHistoryView['events'];
+  now: number;
+  maxHeight?: string;
+}) {
   if (events.length === 0) {
     return (
       <EmptyState
@@ -19,7 +27,7 @@ export function LogPanel({ events, now }: { events: ScoreHistoryView['events']; 
       events={events}
       now={now}
       locale={config.locale}
-      maxHeight="60dvh"
+      maxHeight={maxHeight}
       scrollToNew
       labels={{ region: copy.timeline.region, empty: copy.timeline.empty }}
     />

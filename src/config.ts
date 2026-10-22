@@ -28,8 +28,6 @@ export const config = {
     shellMaxInline: 1_440,
     sidebarInline: 312,
     topbarBlock: 56,
-    stageMinBlock: 600,
-    stageMaxBlock: 1_000,
     /** GameCard height divided by width in @jfrader/ui; keeps the dock as tall as a card row when the hand is empty. */
     gameCardAspect: 1.4,
   },

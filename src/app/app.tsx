@@ -5,7 +5,7 @@ import { useGameController } from './use-game-controller';
 import { dialogBinding } from './use-dialogs';
 import { TableRoute } from './table-route';
 import { SuspenseFallback } from './suspense-fallback';
-import { useMediaQuery } from '../ui/use-media-query';
+import { useCompactLayout, useMediaQuery } from '../ui/use-media-query';
 import { AppShell } from '../shell/app-shell';
 import { config } from '../config';
 import { copy } from '../content/en';
@@ -23,6 +23,8 @@ export function App() {
   const controller = useGameController();
   const location = useLocation();
   const inlineSidebar = useMediaQuery(`(min-width: ${config.breakpoints.inlineSidebar}px)`);
+  const compact = useCompactLayout();
+  const onTable = location.pathname === '/';
   const previousPath = useRef(location.pathname);
   const binding = (key: Parameters<typeof dialogBinding>[1]) => dialogBinding(controller, key);
 
@@ -43,6 +45,8 @@ export function App() {
         theme={themeState.theme}
         onThemeChange={themeState.setTheme}
         onCommand={controller.handleShellCommand}
+        fit={onTable && !compact}
+        railFooter={onTable && inlineSidebar}
       >
         <Routes>
           <Route path="/" element={<TableRoute controller={controller} inlineSidebar={inlineSidebar} />} />

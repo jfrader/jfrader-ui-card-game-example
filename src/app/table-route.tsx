@@ -7,6 +7,7 @@ import { config } from '../config';
 import { copy } from '../content/en';
 import { Scoreboard } from '../game/panels/scoreboard';
 import { useSheetSide } from '../game/panels/sheet-side';
+import { Footer } from '../shell/footer';
 import { VisuallyHidden } from '../ui/styles';
 import { GameBoard } from '../game/board/game-board';
 
@@ -14,18 +15,28 @@ const GameArea = styled.div<{ $inline: boolean }>(({ theme: t, $inline }) => ({
   display: 'grid',
   gridTemplateColumns: $inline ? `minmax(0, 1fr) ${config.layout.sidebarInline}px` : 'minmax(0, 1fr)',
   gap: t.space[4],
+  blockSize: '100%',
+  minBlockSize: 0,
   minInlineSize: 0,
 }));
 
 const Rail = styled.aside(({ theme: t }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   minInlineSize: 0,
   minBlockSize: 0,
-  overflowY: 'auto',
-  padding: t.space[4],
+  overflow: 'hidden',
   border: `1px solid ${t.color.border}`,
   borderRadius: t.radius.lg,
   backgroundColor: t.color.surface,
   '&:focus': { outline: 'none' },
+}));
+
+const RailBody = styled.div(({ theme: t }) => ({
+  flex: 1,
+  minBlockSize: 0,
+  overflowY: 'auto',
+  padding: t.space[4],
 }));
 
 export function TableRoute({
@@ -60,7 +71,10 @@ export function TableRoute({
         />
         {inlineSidebar && (
           <Rail id="score-rail" tabIndex={-1} aria-label={copy.a11y.scoreRegion}>
-            <Scoreboard view={controller.scoreHistory} now={controller.now} />
+            <RailBody>
+              <Scoreboard view={controller.scoreHistory} now={controller.now} />
+            </RailBody>
+            <Footer variant="rail" />
           </Rail>
         )}
       </GameArea>
@@ -73,7 +87,7 @@ export function TableRoute({
                 <Drawer.Close>{copy.common.close}</Drawer.Close>
               </Drawer.Header>
               <Drawer.Body>
-                <Scoreboard view={controller.scoreHistory} now={controller.now} />
+                <Scoreboard view={controller.scoreHistory} now={controller.now} timelineMaxHeight="60dvh" />
               </Drawer.Body>
             </Drawer.Panel>
           </Drawer.Content>
