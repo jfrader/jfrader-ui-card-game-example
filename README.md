@@ -25,14 +25,17 @@ pnpm install
 pnpm dev
 ```
 
-| Command          | What it does                     |
-| ---------------- | -------------------------------- |
-| `pnpm dev`       | Vite dev server                  |
-| `pnpm typecheck` | TypeScript, no emit              |
-| `pnpm build`     | Typecheck, then production build |
-| `pnpm preview`   | Serve `dist/` locally            |
-| `pnpm test`      | Vitest engine and storage tests  |
-| `pnpm test:e2e`  | Playwright browser scenarios     |
+| Command             | What it does                     |
+| ------------------- | -------------------------------- |
+| `pnpm dev`          | Vite dev server                  |
+| `pnpm lint`         | oxlint (correctness and React)   |
+| `pnpm format`       | Prettier, writes                 |
+| `pnpm format:check` | Prettier, check only             |
+| `pnpm typecheck`    | TypeScript, no emit              |
+| `pnpm build`        | Typecheck, then production build |
+| `pnpm preview`      | Serve `dist/` locally            |
+| `pnpm test`         | Vitest: engine, storage, views   |
+| `pnpm test:e2e`     | Playwright browser scenarios     |
 
 ## Components used
 
@@ -57,19 +60,24 @@ this example are recorded in [FINDINGS.md](FINDINGS.md).
 
 ```
 src/engine/        Pure rules, deck, AI, reducer and selectors (no React, DOM, clock or storage)
-src/app/           Controller, presentation, persistence, theme, pause/AI hooks, error boundary
-src/game/board/    GameTable stage: seats, plays, HUD, hand dock, turn bar, ready and phone board
-src/game/panels/   Score table, scoreboard, settings, rules, results and new-game dialogs
+src/app/           Controller composition, its hooks, and the view mappers
+  views/           Pure GameState to view-model mappers, one module per surface, plus tests
+src/game/board/    GameTable stage: one file per board component
+src/game/panels/   Scoreboard, score table, settings, rules, results and new-game dialogs
 src/shell/         AppShell, topbar and footer
 src/ui/            Shared styles, suit icon, stat record and difficulty control
 src/pages/         Rules and not-found routes
-src/content/       UI copy and accessible labels
-src/rules/         Shared rules prose and examples
+src/content/       UI copy and accessible labels — the only place app text lives
+src/rules/         Rules page structure that renders that copy
 ```
 
-The engine is deterministic given a seed or an injected five-deck fixture. The controller owns
-timing, pause reasons, selection, AI scheduling and persistence; renderers only map view models to
-props. App-owned styles use `styled` from `@jfrader/ui` with theme callbacks — no CSS modules.
+The engine is deterministic given a seed or an injected five-deck fixture. `useGameController`
+composes one hook per concern — match transitions, card selection, rule-error toasts, the turn
+clock, pause reasons, dialogs and stored preferences — and returns the same view models the board
+renders. Every state change goes through a single transition helper, so selection, results and
+stats can never drift from the game state. Renderers only map view models to props; view mapping
+is pure and unit-tested. App-owned styles use `styled` from `@jfrader/ui` with theme callbacks —
+no CSS modules.
 `vite.config.ts` dedupes React and Emotion and splits React, UI, icon and app code into cacheable
 chunks.
 
@@ -112,9 +120,9 @@ service's Redirects/Rewrites settings to serve direct routes such as `/rules` wi
 
 ## Testing
 
-`pnpm test` covers the engine and storage (37 tests). `pnpm test:e2e` plays a full match, checks four
-viewports and runs axe audits. `pnpm typecheck` and `pnpm build` must pass. Screenshots live in
-`docs/`.
+`pnpm test` covers the engine, storage and the view mappers (63 tests). `pnpm test:e2e` plays a full
+match, checks four viewports and runs axe audits. `pnpm format:check`, `pnpm lint`, `pnpm typecheck`
+and `pnpm build` must pass; CI runs all of them. Screenshots live in `docs/`.
 
 ## License
 
