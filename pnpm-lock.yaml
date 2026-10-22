@@ -12,11 +12,11 @@ importers:
         specifier: ^5.3.0
         version: 5.3.0
       '@jfrader/tokens':
-        specifier: ^0.10.0
-        version: 0.10.0
+        specifier: ^0.10.1
+        version: 0.10.1
       '@jfrader/ui':
-        specifier: ^0.10.0
-        version: 0.10.0(@emotion/cache@11.14.0)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: ^0.10.1
+        version: 0.10.1(@emotion/cache@11.14.0)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       lucide-react:
         specifier: ^1.59.0
         version: 1.59.0(@types/react@19.3.0)(react@19.3.1)
@@ -198,11 +198,11 @@ packages:
   '@internationalized/number@3.6.9':
     resolution: {integrity: sha512-GgWy2caO/+hV9sT/oCTWGHvbjmJMPT9kkXzoKRLnkEq7adghhR7UprhvY9sXrKfrp3NcDfhF6QQHXR1KfQbB8g==}
 
-  '@jfrader/tokens@0.10.0':
-    resolution: {integrity: sha512-ZWg9YBCx3+6ujuYuXc4ap/U3R7dfu3YNuqUS46n5r8Hdbg9WYhA2spKixFgg1u9rXDZT41F7ehT3CWyejdgFUw==}
+  '@jfrader/tokens@0.10.1':
+    resolution: {integrity: sha512-UZ5vLwcFsaOllOwR3TWTughK+Pw6URe7xTBjxw9WCmYihLX5rRm0CxV7oA1DtJGu1LxKJ8CpOsA4O2YGPMZBuQ==}
 
-  '@jfrader/ui@0.10.0':
-    resolution: {integrity: sha512-WgFRZvHeyZ3tg0uqhhhA+ZVyIWQy2eX8oEw8FZgVPCOqGewobf5i6DmHuxfZa53kOO69zTciuESGyVKyRhbFsQ==}
+  '@jfrader/ui@0.10.1':
+    resolution: {integrity: sha512-PxLD7K8Y09JFgoenEUUXNQAMuaTEGDHOiKdpm3qZ70YSDZ5gyq5xXDh1Mr6ZHYGWdJAx40vk2kgQBq/UMyVkLQ==}
     peerDependencies:
       '@emotion/cache': ^11.14.0
       next: ^15.0.0 || ^16.0.0
@@ -1308,15 +1308,15 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.23
 
-  '@jfrader/tokens@0.10.0': {}
+  '@jfrader/tokens@0.10.1': {}
 
-  '@jfrader/ui@0.10.0(@emotion/cache@11.14.0)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@jfrader/ui@0.10.1(@emotion/cache@11.14.0)(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.3.0)(react@19.3.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.1))(@types/react@19.3.0)(react@19.3.1)
       '@floating-ui/react': 0.27.20(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@internationalized/number': 3.6.9
-      '@jfrader/tokens': 0.10.0
+      '@jfrader/tokens': 0.10.1
       culori: 4.0.2
       decimal.js: 10.6.0
       libphonenumber-js: 1.13.15

@@ -6,9 +6,6 @@ import { copy } from '../../content/en';
 import { LogPanel } from './log-panel';
 import { ScoresPanel } from './scores-panel';
 
-// The library pins the cross axis in 0.10.1 (GURI-3005); until that ships the tab strip keeps 1px of vertical scroll range.
-const TabList = styled(Tabs.List)({ overflowY: 'clip' });
-
 const Content = styled.div(({ theme: t }) => ({
   display: 'grid',
   gap: t.space[5],
@@ -28,10 +25,10 @@ export function Scoreboard({
   const [tab, setTab] = useState('scores');
   return (
     <Tabs value={tab} onValueChange={setTab}>
-      <TabList aria-label={copy.scores.title}>
+      <Tabs.List aria-label={copy.scores.title}>
         <Tabs.Tab value="scores">{copy.scores.title}</Tabs.Tab>
         <Tabs.Tab value="log">{copy.scores.log}</Tabs.Tab>
-      </TabList>
+      </Tabs.List>
       <Tabs.Panel value="scores">
         <Content>
           <ScoresPanel view={view} />
