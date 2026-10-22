@@ -24,6 +24,12 @@ for (const viewport of viewports) {
       return {
         document: { client: doc.clientHeight, scroll: doc.scrollHeight },
         footerVisible: footer !== null && footer.getBoundingClientRect().height > 0,
+        tabStripScroll: (() => {
+          const list = document.querySelector('[data-ui~="tabs-list"]');
+          if (!list) return 0;
+          list.scrollTop = 4;
+          return list.scrollTop;
+        })(),
         footerInRail:
           footerBox !== undefined &&
           railBox !== undefined &&
@@ -39,6 +45,7 @@ for (const viewport of viewports) {
     expect(metrics.footerVisible).toBe(true);
     expect(metrics.footers).toBe(1);
     expect(metrics.footerInRail).toBe(viewport.rail);
+    if (viewport.rail) expect(metrics.tabStripScroll).toBe(0);
   });
 }
 
