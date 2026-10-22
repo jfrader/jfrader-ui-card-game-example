@@ -18,7 +18,9 @@ const Slot = styled.div(({ theme: t }) => ({
   '&[data-from="west"]': { '--enter-x': `calc(-1 * ${t.space[10]})` },
   '&[data-from="east"]': { '--enter-x': t.space[10] },
   [reducedMotionOff]: {
-    '&[data-played="true"]': { animation: `play-enter ${t.motion.duration.cardPlay} ${t.motion.easeStandard} both` },
+    '&[data-played="true"]': {
+      animation: `play-enter ${t.motion.duration.cardPlay} ${t.motion.easeStandard} both`,
+    },
   },
   '@keyframes play-enter': {
     from: { opacity: 0, transform: 'translate(var(--enter-x, 0), var(--enter-y, 0)) scale(0.92)' },
@@ -39,7 +41,12 @@ const Slot = styled.div(({ theme: t }) => ({
 const Placeholder = styled.div({ visibility: 'hidden' });
 
 /** `from` is the side the seat sits on relative to its card; it sets the entry and winner motion. */
-export function PlayedCard({ seat, view, from = seat.key, size = 'md' }: {
+export function PlayedCard({
+  seat,
+  view,
+  from = seat.key,
+  size = 'md',
+}: {
   seat: SeatView;
   view: TableView;
   from?: PlayerKey;
@@ -49,13 +56,19 @@ export function PlayedCard({ seat, view, from = seat.key, size = 'md' }: {
   if (!play) {
     return (
       <Slot data-from={from}>
-        <Placeholder aria-hidden="true"><GameCard size={size} label={copy.table.emptyPlay(seat.name)} face="back" /></Placeholder>
+        <Placeholder aria-hidden="true">
+          <GameCard size={size} label={copy.table.emptyPlay(seat.name)} face="back" />
+        </Placeholder>
       </Slot>
     );
   }
   return (
     <Slot data-from={from} data-played="true" data-winner={view.winnerKey === seat.key}>
-      <GameCard size={size} label={copy.table.playedCard(seat.name, play.card.label)} value={play.card.value} />
+      <GameCard
+        size={size}
+        label={copy.table.playedCard(seat.name, play.card.label)}
+        value={play.card.value}
+      />
     </Slot>
   );
 }

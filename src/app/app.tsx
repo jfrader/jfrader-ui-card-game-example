@@ -19,9 +19,7 @@ import { VisuallyHidden } from '../ui/styles';
 import { GameBoard } from '../game/board/game-board';
 import { useTheme } from './theme';
 
-const RulesPage = lazy(() =>
-  import('../pages/rules').then((module) => ({ default: module.RulesPage })),
-);
+const RulesPage = lazy(() => import('../pages/rules').then((module) => ({ default: module.RulesPage })));
 
 const GameArea = styled.div<{ $inline: boolean }>(({ theme: t, $inline }) => ({
   display: 'grid',
@@ -61,7 +59,9 @@ function TableRoute({ controller, inlineSidebar }: { controller: GameController;
           onSelectCard={controller.selectCard}
           onPlayCard={controller.playCard}
           onCommand={controller.handleCommand}
-          onDifficultyChange={(difficulty) => controller.updateSettings({ ...controller.settings, difficulty })}
+          onDifficultyChange={(difficulty) =>
+            controller.updateSettings({ ...controller.settings, difficulty })
+          }
         />
         {inlineSidebar && (
           <Rail id="score-rail" tabIndex={-1} aria-label={copy.a11y.scoreRegion}>
@@ -75,7 +75,9 @@ function TableRoute({ controller, inlineSidebar }: { controller: GameController;
           side={side}
           draggable={side === 'bottom'}
           open={controller.dialogs.scores}
-          onOpenChange={(open) => { if (!open) controller.closeDialog('scores'); }}
+          onOpenChange={(open) => {
+            if (!open) controller.closeDialog('scores');
+          }}
         >
           <Drawer.Content>
             <Drawer.Panel>

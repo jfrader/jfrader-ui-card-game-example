@@ -71,9 +71,15 @@ describe('storage', () => {
 
   it('rejects negative counters and wins above played', () => {
     const storage = new MemoryStorage();
-    storage.setItem(config.storage.stats, JSON.stringify({ gamesPlayed: 1, gamesWon: 2, lastCountedGameId: null }));
+    storage.setItem(
+      config.storage.stats,
+      JSON.stringify({ gamesPlayed: 1, gamesWon: 2, lastCountedGameId: null }),
+    );
     expect(loadStats(storage)).toEqual({ value: DEFAULT_STATS, error: 'invalid' });
-    storage.setItem(config.storage.stats, JSON.stringify({ gamesPlayed: -1, gamesWon: 0, lastCountedGameId: null }));
+    storage.setItem(
+      config.storage.stats,
+      JSON.stringify({ gamesPlayed: -1, gamesWon: 0, lastCountedGameId: null }),
+    );
     expect(loadStats(storage)).toEqual({ value: DEFAULT_STATS, error: 'invalid' });
   });
 

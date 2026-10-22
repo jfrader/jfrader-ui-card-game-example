@@ -84,7 +84,11 @@ const Commands = styled.div(({ theme: t }) => ({
 
 const CommandLabel = styled.span({ [phone]: visuallyHidden });
 
-export function Topbar({ theme, onThemeChange, onCommand }: {
+export function Topbar({
+  theme,
+  onThemeChange,
+  onCommand,
+}: {
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
   onCommand: (command: ShellCommand) => void;
@@ -93,18 +97,34 @@ export function Topbar({ theme, onThemeChange, onCommand }: {
     <Header>
       <Bar size="xl" paddingInline="md">
         <Brand to="/">
-          <Mark aria-hidden="true"><Spade fill="currentColor" /></Mark>
+          <Mark aria-hidden="true">
+            <Spade fill="currentColor" />
+          </Mark>
           <span>{copy.app.name}</span>
         </Brand>
         <Navigation aria-label={copy.nav.label}>
-          <NavigationLink to="/" end>{copy.nav.table}</NavigationLink>
+          <NavigationLink to="/" end>
+            {copy.nav.table}
+          </NavigationLink>
           <NavigationLink to="/rules">{copy.nav.rules}</NavigationLink>
         </Navigation>
         <Commands role="group" aria-label={copy.commands.label}>
-          <Button type="button" variant="ghost" size="sm" startIcon={<RotateCcw aria-hidden="true" />} onClick={() => onCommand('new-game')}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            startIcon={<RotateCcw aria-hidden="true" />}
+            onClick={() => onCommand('new-game')}
+          >
             <CommandLabel>{copy.commands.newGame}</CommandLabel>
           </Button>
-          <Button type="button" variant="ghost" size="sm" startIcon={<Settings aria-hidden="true" />} onClick={() => onCommand('settings')}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            startIcon={<Settings aria-hidden="true" />}
+            onClick={() => onCommand('settings')}
+          >
             <CommandLabel>{copy.commands.settings}</CommandLabel>
           </Button>
           <ThemeSwitch label={copy.a11y.theme} iconOnly value={theme} onValueChange={onThemeChange} />

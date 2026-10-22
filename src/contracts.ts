@@ -1,11 +1,4 @@
-import type {
-  GamePhase,
-  PlayerKey,
-  Rank,
-  Settings,
-  Stats,
-  Suit,
-} from './engine/types';
+import type { GamePhase, PlayerKey, Rank, Settings, Stats, Suit } from './engine/types';
 
 /** View models the table and panels consume. Renderers never call the engine. */
 export interface CardView {
@@ -66,14 +59,7 @@ export interface TableView {
 }
 
 export type TableCommand =
-  | 'start'
-  | 'pause'
-  | 'resume'
-  | 'continue'
-  | 'results'
-  | 'scores'
-  | 'rules'
-  | 'settings';
+  'start' | 'pause' | 'resume' | 'continue' | 'results' | 'scores' | 'rules' | 'settings';
 
 export type ShellCommand = 'rules' | 'settings' | 'new-game';
 

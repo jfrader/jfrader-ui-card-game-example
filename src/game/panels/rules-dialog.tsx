@@ -3,7 +3,13 @@ import { copy } from '../../content/en';
 import { RulesContent } from '../../rules/content';
 import { DialogLayout, DialogTitleRow } from './dialog.styles';
 
-export function RulesDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function RulesDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Content>

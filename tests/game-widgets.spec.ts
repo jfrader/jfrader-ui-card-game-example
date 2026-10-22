@@ -23,7 +23,10 @@ for (const { width, height } of viewports) {
     await expect(page.locator('[data-ui~="game-marks-mark"][data-filled="true"]')).toHaveCount(1);
     if (process.env.EVIDENCE_PHASE) {
       await page.waitForTimeout(1800);
-      await page.screenshot({ path: `/tmp/opencode/fivefold-2912/${process.env.EVIDENCE_PHASE}-${width}-board.png`, fullPage: true });
+      await page.screenshot({
+        path: `/tmp/opencode/fivefold-2912/${process.env.EVIDENCE_PHASE}-${width}-board.png`,
+        fullPage: true,
+      });
     }
     const scores = page.getByRole('button', { name: /Scores/ });
     if (await scores.count()) await scores.first().click();
@@ -31,14 +34,23 @@ for (const { width, height } of viewports) {
     await expect(page.locator('[data-ui~="game-score-table"] tbody tr[data-me="true"]')).toHaveCount(1);
     await expect(page.locator('[data-ui~="game-rounds"]')).toBeVisible();
     const violations = await new AxeBuilder({ page }).analyze();
-    expect(violations.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical')).toEqual([]);
-    expect(await page.getByRole('table', { name: 'Points by round' }).evaluate((table) => {
-      const region = table.parentElement!;
-      return region.scrollWidth - region.clientWidth;
-    })).toBeLessThanOrEqual(0);
+    expect(
+      violations.violations.filter(
+        (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+      ),
+    ).toEqual([]);
+    expect(
+      await page.getByRole('table', { name: 'Points by round' }).evaluate((table) => {
+        const region = table.parentElement!;
+        return region.scrollWidth - region.clientWidth;
+      }),
+    ).toBeLessThanOrEqual(0);
     if (process.env.EVIDENCE_PHASE) {
       await page.waitForTimeout(400);
-      await page.screenshot({ path: `/tmp/opencode/fivefold-2912/${process.env.EVIDENCE_PHASE}-${width}-scores.png`, fullPage: true });
+      await page.screenshot({
+        path: `/tmp/opencode/fivefold-2912/${process.env.EVIDENCE_PHASE}-${width}-scores.png`,
+        fullPage: true,
+      });
     }
   });
 }
@@ -54,7 +66,9 @@ test('seat timer receives finite caller-owned remaining milliseconds', async ({ 
   const remaining = Number(await timer.getAttribute('data-turn-remaining'));
   expect(remaining).toBeGreaterThan(0);
   expect(Number.isFinite(remaining)).toBe(true);
-  await expect.poll(async () => Number(await timer.getAttribute('data-turn-remaining'))).toBeLessThan(remaining);
+  await expect
+    .poll(async () => Number(await timer.getAttribute('data-turn-remaining')))
+    .toBeLessThan(remaining);
   await page.getByRole('button', { name: 'Settings' }).click();
   await expect(timer).toHaveCount(0);
   await page.keyboard.press('Escape');

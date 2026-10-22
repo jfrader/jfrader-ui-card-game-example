@@ -32,13 +32,28 @@ export function RoundStats({ view }: { view: TableView }) {
     <Stats aria-label={copy.a11y.hudRegion}>
       <div>
         <Eyebrow as="dt">{copy.table.hudRound}</Eyebrow>
-        <dd>{view.roundNumber}<Of>/{view.roundCount}</Of></dd>
+        <dd>
+          {view.roundNumber}
+          <Of>/{view.roundCount}</Of>
+        </dd>
       </div>
       <div>
         <Eyebrow as="dt">{copy.table.hudTrick}</Eyebrow>
-        <dd>{Math.min(view.trickNumber, view.trickCount)}<Of>/{view.trickCount}</Of></dd>
-        <dd><GameMarks surface="transparent" sx={{ padding: 0 }} label={copy.status.tricksPlayed(view.completedTricks, view.trickCount)} count={view.completedTricks} max={view.trickCount} locale={config.locale}
-          slotProps={{ label: { sx: visuallyHidden }, count: { sx: visuallyHidden } }} /></dd>
+        <dd>
+          {Math.min(view.trickNumber, view.trickCount)}
+          <Of>/{view.trickCount}</Of>
+        </dd>
+        <dd>
+          <GameMarks
+            surface="transparent"
+            sx={{ padding: 0 }}
+            label={copy.status.tricksPlayed(view.completedTricks, view.trickCount)}
+            count={view.completedTricks}
+            max={view.trickCount}
+            locale={config.locale}
+            slotProps={{ label: { sx: visuallyHidden }, count: { sx: visuallyHidden } }}
+          />
+        </dd>
       </div>
     </Stats>
   );
@@ -60,7 +75,12 @@ const TrumpButton = styled.span(({ theme: t }) => ({
   alignItems: 'center',
   gap: t.space[3],
   textAlign: 'start',
-  '& strong': { display: 'block', fontSize: t.textSize.md, fontWeight: t.fontWeight.semibold, lineHeight: t.lineHeight.tight },
+  '& strong': {
+    display: 'block',
+    fontSize: t.textSize.md,
+    fontWeight: t.fontWeight.semibold,
+    lineHeight: t.lineHeight.tight,
+  },
 }));
 
 const TrumpFace = styled.span(({ theme: t }) => ({

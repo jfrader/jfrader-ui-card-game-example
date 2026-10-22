@@ -25,7 +25,15 @@ const Section = styled.section(({ theme: t }) => ({
 
 const Note = styled.p(({ theme: t }) => ({ margin: 0, color: t.color.textMuted, fontSize: t.textSize.sm }));
 
-export function SettingsDrawer({ open, onOpenChange, settings, stats, canResetStats, onSettingsChange, onResetStats }: {
+export function SettingsDrawer({
+  open,
+  onOpenChange,
+  settings,
+  stats,
+  canResetStats,
+  onSettingsChange,
+  onResetStats,
+}: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   settings: Settings;
@@ -55,20 +63,41 @@ export function SettingsDrawer({ open, onOpenChange, settings, stats, canResetSt
             <Sections>
               <Section aria-labelledby={gameId}>
                 <h3 id={gameId}>{copy.settings.gameSection}</h3>
-                <DifficultyControl value={settings.difficulty} onValueChange={(difficulty) => onSettingsChange({ ...settings, difficulty })} />
-                <Switch label={copy.settings.hints} description={copy.settings.hintsDescription} checked={settings.showLegalHints}
-                  onCheckedChange={(showLegalHints) => onSettingsChange({ ...settings, showLegalHints })} />
-                <Switch label={copy.settings.timer} description={copy.settings.timerDescription} checked={settings.turnTimer}
-                  onCheckedChange={(turnTimer) => onSettingsChange({ ...settings, turnTimer })} />
-                <Switch label={copy.settings.autoSort} description={copy.settings.autoSortDescription} checked={settings.autoSortHand}
-                  onCheckedChange={(autoSortHand) => onSettingsChange({ ...settings, autoSortHand })} />
+                <DifficultyControl
+                  value={settings.difficulty}
+                  onValueChange={(difficulty) => onSettingsChange({ ...settings, difficulty })}
+                />
+                <Switch
+                  label={copy.settings.hints}
+                  description={copy.settings.hintsDescription}
+                  checked={settings.showLegalHints}
+                  onCheckedChange={(showLegalHints) => onSettingsChange({ ...settings, showLegalHints })}
+                />
+                <Switch
+                  label={copy.settings.timer}
+                  description={copy.settings.timerDescription}
+                  checked={settings.turnTimer}
+                  onCheckedChange={(turnTimer) => onSettingsChange({ ...settings, turnTimer })}
+                />
+                <Switch
+                  label={copy.settings.autoSort}
+                  description={copy.settings.autoSortDescription}
+                  checked={settings.autoSortHand}
+                  onCheckedChange={(autoSortHand) => onSettingsChange({ ...settings, autoSortHand })}
+                />
               </Section>
               <Section aria-labelledby={statsId}>
                 <h3 id={statsId}>{copy.settings.statsSection}</h3>
                 <StatRecord stats={stats} />
                 <Note>{copy.stats.localOnly}</Note>
                 <div>
-                  <Button type="button" variant="outline" tone="danger" disabled={!canResetStats} onClick={() => setConfirmReset(true)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    tone="danger"
+                    disabled={!canResetStats}
+                    onClick={() => setConfirmReset(true)}
+                  >
                     {copy.settings.resetStats}
                   </Button>
                 </div>
@@ -76,7 +105,9 @@ export function SettingsDrawer({ open, onOpenChange, settings, stats, canResetSt
             </Sections>
           </Drawer.Body>
           <Drawer.Footer>
-            <Button type="button" variant="solid" tone="accent" onClick={() => close(false)}>{copy.common.done}</Button>
+            <Button type="button" variant="solid" tone="accent" onClick={() => close(false)}>
+              {copy.common.done}
+            </Button>
           </Drawer.Footer>
           <Dialog open={confirmReset} onOpenChange={setConfirmReset}>
             <Dialog.Content>
@@ -88,9 +119,16 @@ export function SettingsDrawer({ open, onOpenChange, settings, stats, canResetSt
                   </DialogHeader>
                   <DialogActions>
                     <Dialog.Close>{copy.common.cancel}</Dialog.Close>
-                    <ActionButton disabled={!canResetStats} label={copy.settings.resetStats} pendingLabel={copy.settings.resetStatsPending}
-                      successLabel={copy.settings.resetStatsSuccess} errorLabel={copy.settings.resetStatsError}
-                      onAction={async () => { await onResetStats(); }} />
+                    <ActionButton
+                      disabled={!canResetStats}
+                      label={copy.settings.resetStats}
+                      pendingLabel={copy.settings.resetStatsPending}
+                      successLabel={copy.settings.resetStatsSuccess}
+                      errorLabel={copy.settings.resetStatsError}
+                      onAction={async () => {
+                        await onResetStats();
+                      }}
+                    />
                   </DialogActions>
                 </DialogLayout>
               </Dialog.Panel>

@@ -2,12 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { createGame, legalMoves, rankStrength, resolveTrick, sortHand } from './index';
 import type { Card, GameState, PlayerKey, Rank, Suit, TrickPlay } from './types';
 
-function card(suit: Suit, rank: Rank): Card { return { suit, rank, id: `${suit}-${rank}` }; }
-function play(playerKey: PlayerKey, suit: Suit, rank: Rank): TrickPlay { return { playerKey, card: card(suit, rank) }; }
+function card(suit: Suit, rank: Rank): Card {
+  return { suit, rank, id: `${suit}-${rank}` };
+}
+function play(playerKey: PlayerKey, suit: Suit, rank: Rank): TrickPlay {
+  return { playerKey, card: card(suit, rank) };
+}
 function position(hand: readonly Card[], plays: readonly TrickPlay[]): GameState {
   const state = createGame({ id: 'rules', seed: 1, at: 0 });
-  return { ...state, round: { ...state.round, hands: { ...state.round.hands, south: hand },
-    currentTrick: { number: 1, leader: plays.length ? 'east' : 'south', plays, winner: null } } };
+  return {
+    ...state,
+    round: {
+      ...state.round,
+      hands: { ...state.round.hands, south: hand },
+      currentTrick: { number: 1, leader: plays.length ? 'east' : 'south', plays, winner: null },
+    },
+  };
 }
 
 describe('rules', () => {
@@ -47,9 +57,15 @@ describe('rules', () => {
     expect(resolveTrick([first], null)).toBe('south');
     const sparse = [first];
     delete sparse[0];
-    const invalid = [[], sparse, [first, first], [first, { ...first, playerKey: 'west' as const }],
-      [first, play('south', 'clubs', '3')], [{ ...first, card: { ...first.card, id: 'bad' } }],
-      Array.from({ length: 5 }, () => first)];
+    const invalid = [
+      [],
+      sparse,
+      [first, first],
+      [first, { ...first, playerKey: 'west' as const }],
+      [first, play('south', 'clubs', '3')],
+      [{ ...first, card: { ...first.card, id: 'bad' } }],
+      Array.from({ length: 5 }, () => first),
+    ];
     for (const plays of invalid) expect(() => resolveTrick(plays, null)).toThrow(RangeError);
   });
 

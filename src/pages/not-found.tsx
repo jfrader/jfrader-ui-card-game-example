@@ -17,14 +17,22 @@ const HomeLink = styled(Link)(({ theme: t }) => ({
   color: t.color.accentText,
   fontWeight: t.fontWeight.medium,
   textUnderlineOffset: t.space[1],
-  '&:focus-visible': { outline: `2px solid ${t.color.focusRing}`, outlineOffset: 2, borderRadius: t.radius.sm },
+  '&:focus-visible': {
+    outline: `2px solid ${t.color.focusRing}`,
+    outlineOffset: 2,
+    borderRadius: t.radius.sm,
+  },
 }));
 
 export function NotFoundPage() {
   return (
     <Page>
-      <EmptyState headingLevel={1} title={copy.notFound.title} description={copy.notFound.description}
-        action={<HomeLink to="/">{copy.notFound.action}</HomeLink>} />
+      <EmptyState
+        headingLevel={1}
+        title={copy.notFound.title}
+        description={copy.notFound.description}
+        action={<HomeLink to="/">{copy.notFound.action}</HomeLink>}
+      />
     </Page>
   );
 }

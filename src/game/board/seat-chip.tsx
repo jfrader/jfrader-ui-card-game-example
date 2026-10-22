@@ -22,11 +22,20 @@ const Seat = styled(GameSeat)(({ theme: t }) => ({
   },
 }));
 
-export function SeatChip({ seat, view, layout = 'row' }: { seat: SeatView; view: TableView; layout?: 'row' | 'stack' }) {
+export function SeatChip({
+  seat,
+  view,
+  layout = 'row',
+}: {
+  seat: SeatView;
+  view: TableView;
+  layout?: 'row' | 'stack';
+}) {
   const winner = view.winnerKey === seat.key;
-  const turn = seat.active && seat.isMe && view.deadline !== null && !view.paused
-    ? { remainingMs: Math.max(0, view.deadline - view.now), durationMs: config.timing.turnDurationMs }
-    : undefined;
+  const turn =
+    seat.active && seat.isMe && view.deadline !== null && !view.paused
+      ? { remainingMs: Math.max(0, view.deadline - view.now), durationMs: config.timing.turnDurationMs }
+      : undefined;
   return (
     <Seat
       name={seat.name}
@@ -41,12 +50,29 @@ export function SeatChip({ seat, view, layout = 'row' }: { seat: SeatView; view:
       formatHandCount={copy.table.cards}
       locale={config.locale}
       turn={turn}
-      badges={<>
-        {seat.dealer && <span>{copy.table.dealer}</span>}
-        {!seat.isMe && layout === 'row' && <VisuallyHidden>{copy.table.cards(seat.handCount)}</VisuallyHidden>}
-        <VisuallyHidden>{seat.active ? (seat.isMe ? copy.table.yourTurn : copy.table.playing) : winner ? copy.table.takesTrick : ''}</VisuallyHidden>
-      </>}
-      points={<>{seat.totalPoints}<VisuallyHidden>{` ${copy.table.pointWord(seat.totalPoints)}`}</VisuallyHidden></>}
+      badges={
+        <>
+          {seat.dealer && <span>{copy.table.dealer}</span>}
+          {!seat.isMe && layout === 'row' && (
+            <VisuallyHidden>{copy.table.cards(seat.handCount)}</VisuallyHidden>
+          )}
+          <VisuallyHidden>
+            {seat.active
+              ? seat.isMe
+                ? copy.table.yourTurn
+                : copy.table.playing
+              : winner
+                ? copy.table.takesTrick
+                : ''}
+          </VisuallyHidden>
+        </>
+      }
+      points={
+        <>
+          {seat.totalPoints}
+          <VisuallyHidden>{` ${copy.table.pointWord(seat.totalPoints)}`}</VisuallyHidden>
+        </>
+      }
     />
   );
 }

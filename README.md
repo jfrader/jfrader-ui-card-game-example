@@ -12,8 +12,8 @@ app.
 
 [Play the live demo](https://fivefold.jfrader.com).
 
-| Desktop | Phone |
-| --- | --- |
+| Desktop                                           | Phone                                                           |
+| ------------------------------------------------- | --------------------------------------------------------------- |
 | ![Fivefold table on desktop](docs/screenshot.png) | ![Fivefold compact board on a phone](docs/screenshot-phone.png) |
 
 ## Run
@@ -25,14 +25,14 @@ pnpm install
 pnpm dev
 ```
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | Vite dev server |
-| `pnpm typecheck` | TypeScript, no emit |
-| `pnpm build` | Typecheck, then production build |
-| `pnpm preview` | Serve `dist/` locally |
-| `pnpm test` | Vitest engine and storage tests |
-| `pnpm test:e2e` | Playwright browser scenarios |
+| Command          | What it does                     |
+| ---------------- | -------------------------------- |
+| `pnpm dev`       | Vite dev server                  |
+| `pnpm typecheck` | TypeScript, no emit              |
+| `pnpm build`     | Typecheck, then production build |
+| `pnpm preview`   | Serve `dist/` locally            |
+| `pnpm test`      | Vitest engine and storage tests  |
+| `pnpm test:e2e`  | Playwright browser scenarios     |
 
 ## Components used
 

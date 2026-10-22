@@ -28,9 +28,18 @@ const percent = new Intl.NumberFormat(config.locale, { style: 'percent', maximum
 export function StatRecord({ stats, surface }: { stats: Stats; surface?: 'felt' }) {
   return (
     <Record data-surface={surface}>
-      <div><dt>{copy.stats.gamesPlayed}</dt><dd>{numbers.format(stats.gamesPlayed)}</dd></div>
-      <div><dt>{copy.stats.gamesWon}</dt><dd>{numbers.format(stats.gamesWon)}</dd></div>
-      <div><dt>{copy.stats.winRate}</dt><dd>{percent.format(stats.gamesPlayed ? stats.gamesWon / stats.gamesPlayed : 0)}</dd></div>
+      <div>
+        <dt>{copy.stats.gamesPlayed}</dt>
+        <dd>{numbers.format(stats.gamesPlayed)}</dd>
+      </div>
+      <div>
+        <dt>{copy.stats.gamesWon}</dt>
+        <dd>{numbers.format(stats.gamesWon)}</dd>
+      </div>
+      <div>
+        <dt>{copy.stats.winRate}</dt>
+        <dd>{percent.format(stats.gamesPlayed ? stats.gamesWon / stats.gamesPlayed : 0)}</dd>
+      </div>
     </Record>
   );
 }

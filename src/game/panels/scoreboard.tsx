@@ -54,10 +54,22 @@ export function Scoreboard({ view, now }: { view: ScoreHistoryView; now: number 
       </Tabs.Panel>
       <Tabs.Panel value="log">
         <Content>
-          {view.events.length === 0
-            ? <EmptyState title={copy.scores.noHistory} description={copy.scores.noHistoryDescription} headingLevel={3} />
-            : <Timeline events={view.events} now={now} locale={config.locale} maxHeight="60dvh" scrollToNew
-                labels={{ region: copy.timeline.region, empty: copy.timeline.empty }} />}
+          {view.events.length === 0 ? (
+            <EmptyState
+              title={copy.scores.noHistory}
+              description={copy.scores.noHistoryDescription}
+              headingLevel={3}
+            />
+          ) : (
+            <Timeline
+              events={view.events}
+              now={now}
+              locale={config.locale}
+              maxHeight="60dvh"
+              scrollToNew
+              labels={{ region: copy.timeline.region, empty: copy.timeline.empty }}
+            />
+          )}
         </Content>
       </Tabs.Panel>
     </Tabs>

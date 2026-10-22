@@ -31,13 +31,26 @@ export function GameBoard(props: GameBoardProps) {
   const statusId = useId();
 
   if (view.phase === 'ready') {
-    return <ReadyScreen view={view} stats={props.stats} onCommand={onCommand} onDifficultyChange={props.onDifficultyChange} />;
+    return (
+      <ReadyScreen
+        view={view}
+        stats={props.stats}
+        onCommand={onCommand}
+        onDifficultyChange={props.onDifficultyChange}
+      />
+    );
   }
 
   const hand = (
     <Dock>
-      <PlayerHand view={view} statusId={statusId} selectedCardId={selectedCardId}
-        onSelectCard={onSelectCard} onPlayCard={onPlayCard} onCommand={onCommand} />
+      <PlayerHand
+        view={view}
+        statusId={statusId}
+        selectedCardId={selectedCardId}
+        onSelectCard={onSelectCard}
+        onPlayCard={onPlayCard}
+        onCommand={onCommand}
+      />
     </Dock>
   );
   const status = <TurnStatus id={statusId} view={view} />;
@@ -60,9 +73,15 @@ export function GameBoard(props: GameBoardProps) {
           surface="match"
           seatPlacement="edge"
         >
-          <GameTable.Seat><TableSeat view={view} /></GameTable.Seat>
-          <GameTable.Play><TablePlay view={view} /></GameTable.Play>
-          <GameTable.Floating><RoundCall view={view} /></GameTable.Floating>
+          <GameTable.Seat>
+            <TableSeat view={view} />
+          </GameTable.Seat>
+          <GameTable.Play>
+            <TablePlay view={view} />
+          </GameTable.Play>
+          <GameTable.Floating>
+            <RoundCall view={view} />
+          </GameTable.Floating>
         </GameTable>
         <BoardBar $edge="end">
           {status}

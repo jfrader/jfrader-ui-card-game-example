@@ -14,7 +14,9 @@ const Felt = styled.div(({ theme: t }) => ({
   position: 'relative',
   display: 'grid',
   gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-  [`@media (max-width: ${config.breakpoints.feltTwoColumns}px)`]: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
+  [`@media (max-width: ${config.breakpoints.feltTwoColumns}px)`]: {
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  },
   [`@media (max-width: ${config.breakpoints.feltOneColumn}px)`]: { gridTemplateColumns: 'minmax(0, 1fr)' },
   gap: t.space[2],
   padding: t.space[2],
@@ -46,7 +48,12 @@ const CallLayer = styled.div({
  * (GURI-2719, Give GameTable a compact four-play trick layout), so each player gets a
  * column: seat on top, their card in front of it.
  */
-export function CompactBoard({ view, status, actions, hand }: {
+export function CompactBoard({
+  view,
+  status,
+  actions,
+  hand,
+}: {
   view: TableView;
   status: ReactNode;
   actions: ReactNode;
@@ -65,7 +72,9 @@ export function CompactBoard({ view, status, actions, hand }: {
             <PlayedCard seat={seat} view={view} from="north" />
           </Column>
         ))}
-        <CallLayer><RoundCall view={view} /></CallLayer>
+        <CallLayer>
+          <RoundCall view={view} />
+        </CallLayer>
       </Felt>
       <FlowBar>
         {status}

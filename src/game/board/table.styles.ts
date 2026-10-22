@@ -83,4 +83,3 @@ export const Dock = styled.div(({ theme: t }) => ({
     backgroundColor: 'transparent',
   },
 }));
-

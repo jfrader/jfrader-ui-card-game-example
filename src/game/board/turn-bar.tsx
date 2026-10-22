@@ -56,8 +56,16 @@ export function TurnStatus({ id, view }: { id: string; view: TableView }) {
     <Status id={id} data-tone={view.status.tone} role="status" aria-atomic="true">
       <Title>{view.status.title}</Title>
       {view.canPlay && view.deadline !== null && (
-        <Clock target={view.deadline} variant="compact" units={['seconds']} unitDisplay="narrow" label={null}
-          locale={config.locale} announceCompletion={false} aria-label={copy.a11y.turnTime} />
+        <Clock
+          target={view.deadline}
+          variant="compact"
+          units={['seconds']}
+          unitDisplay="narrow"
+          label={null}
+          locale={config.locale}
+          announceCompletion={false}
+          aria-label={copy.a11y.turnTime}
+        />
       )}
       {view.status.detail && <Detail>{view.status.detail}</Detail>}
     </Status>
@@ -71,19 +79,40 @@ const Toolbar = styled(GameActions)({
 
 const ActionLabel = styled.span({ [phone]: visuallyHidden });
 
-export function TableActions({ view, showScores, onCommand }: {
+export function TableActions({
+  view,
+  showScores,
+  onCommand,
+}: {
   view: TableView;
   showScores: boolean;
   onCommand: (command: TableCommand) => void;
 }) {
   const actions: GameActionItem[] = [];
   if (view.phase === 'playing') {
-    actions.push(view.paused
-      ? { key: 'resume', label: <ActionLabel>{copy.table.resume}</ActionLabel>, startIcon: <Play aria-hidden="true" />, onSelect: () => onCommand('resume') }
-      : { key: 'pause', label: <ActionLabel>{copy.table.pause}</ActionLabel>, startIcon: <Pause aria-hidden="true" />, onSelect: () => onCommand('pause') });
+    actions.push(
+      view.paused
+        ? {
+            key: 'resume',
+            label: <ActionLabel>{copy.table.resume}</ActionLabel>,
+            startIcon: <Play aria-hidden="true" />,
+            onSelect: () => onCommand('resume'),
+          }
+        : {
+            key: 'pause',
+            label: <ActionLabel>{copy.table.pause}</ActionLabel>,
+            startIcon: <Pause aria-hidden="true" />,
+            onSelect: () => onCommand('pause'),
+          },
+    );
   }
   if (showScores) {
-    actions.push({ key: 'scores', label: <ActionLabel>{copy.commands.scores}</ActionLabel>, startIcon: <ListOrdered aria-hidden="true" />, onSelect: () => onCommand('scores') });
+    actions.push({
+      key: 'scores',
+      label: <ActionLabel>{copy.commands.scores}</ActionLabel>,
+      startIcon: <ListOrdered aria-hidden="true" />,
+      onSelect: () => onCommand('scores'),
+    });
   }
   if (actions.length === 0) return null;
   return <Toolbar actions={actions} label={copy.table.actionsLabel} size="sm" variant="ghost" />;

@@ -1,19 +1,6 @@
 export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades';
 
-export type Rank =
-  | '2'
-  | '3'
-  | '4'
-  | '5'
-  | '6'
-  | '7'
-  | '8'
-  | '9'
-  | '10'
-  | 'J'
-  | 'Q'
-  | 'K'
-  | 'A';
+export type Rank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A';
 
 export type PlayerKey = 'south' | 'west' | 'north' | 'east';
 
@@ -134,12 +121,7 @@ export type GameAction =
       readonly at: number;
     };
 
-export type RuleError =
-  | 'stale-action'
-  | 'wrong-phase'
-  | 'wrong-player'
-  | 'unknown-card'
-  | 'must-follow-suit';
+export type RuleError = 'stale-action' | 'wrong-phase' | 'wrong-player' | 'unknown-card' | 'must-follow-suit';
 
 export type Transition =
   | { readonly ok: true; readonly state: GameState }

@@ -31,7 +31,12 @@ const Hero = styled.div(({ theme: t }) => ({
   textAlign: 'center',
   overflow: 'clip',
   boxShadow: `inset 0 0 ${t.space[12]} ${t.color.scrim}`,
-  [phone]: { gap: t.space[5], paddingBlock: t.space[8], paddingInline: t.space[4], borderRadius: t.radius.lg },
+  [phone]: {
+    gap: t.space[5],
+    paddingBlock: t.space[8],
+    paddingInline: t.space[4],
+    borderRadius: t.radius.lg,
+  },
 }));
 
 const Fan = styled.div(({ theme: t }) => ({
@@ -102,8 +107,13 @@ export function ReadyScreen({ view, stats, onCommand, onDifficultyChange }: Read
       <Hero>
         <Fan aria-hidden="true" data-size={cardSize}>
           {FAN.map((value, index) => (
-            <GameCard key={`${value.suit}-${value.rank}`} size={cardSize} label={`${value.rank} ${value.suit}`} value={value}
-              style={{ '--fan-index': index, '--fan-spread': `${FAN_SPREAD_DEG}deg` } as CSSProperties} />
+            <GameCard
+              key={`${value.suit}-${value.rank}`}
+              size={cardSize}
+              label={`${value.rank} ${value.suit}`}
+              value={value}
+              style={{ '--fan-index': index, '--fan-spread': `${FAN_SPREAD_DEG}deg` } as CSSProperties}
+            />
           ))}
         </Fan>
         <Heading>
@@ -112,10 +122,18 @@ export function ReadyScreen({ view, stats, onCommand, onDifficultyChange }: Read
         </Heading>
         <DifficultyControl value={view.settings.difficulty} onValueChange={onDifficultyChange} />
         <Actions>
-          <Button type="button" variant="solid" tone="accent" size="lg" onClick={() => onCommand('start')}>{copy.table.start}</Button>
-          <Button type="button" variant="solid" size="lg" onClick={() => onCommand('rules')}>{copy.table.howToPlay}</Button>
+          <Button type="button" variant="solid" tone="accent" size="lg" onClick={() => onCommand('start')}>
+            {copy.table.start}
+          </Button>
+          <Button type="button" variant="solid" size="lg" onClick={() => onCommand('rules')}>
+            {copy.table.howToPlay}
+          </Button>
         </Actions>
-        {stats.gamesPlayed > 0 && <Record><StatRecord stats={stats} surface="felt" /></Record>}
+        {stats.gamesPlayed > 0 && (
+          <Record>
+            <StatRecord stats={stats} surface="felt" />
+          </Record>
+        )}
       </Hero>
     </Stage>
   );

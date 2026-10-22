@@ -40,7 +40,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <Alert tone="danger" title={copy.errors.renderTitle}>
           {copy.errors.renderBody}
         </Alert>
-        <Button type="button" variant="solid" tone="accent" onClick={() => window.location.reload()}>{copy.errors.reload}</Button>
+        <Button type="button" variant="solid" tone="accent" onClick={() => window.location.reload()}>
+          {copy.errors.reload}
+        </Button>
       </Page>
     );
   }

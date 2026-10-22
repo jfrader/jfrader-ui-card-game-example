@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
-  TURN_ORDER, TRUMPS, advanceRound, chooseAiCard, createGame, currentPlayer, gameReducer,
-  legalMoves, lowestLegalCard, playCard, roundOutcomes, roundScores, scoreGame, sortHand,
+  TURN_ORDER,
+  TRUMPS,
+  advanceRound,
+  chooseAiCard,
+  createGame,
+  currentPlayer,
+  gameReducer,
+  legalMoves,
+  lowestLegalCard,
+  playCard,
+  roundOutcomes,
+  roundScores,
+  scoreGame,
+  sortHand,
 } from './index';
 import { canonicalDeck } from './deck';
 import type { Difficulty, GameAction, GameState, PlayerKey, RoundState, Transition, Trick } from './types';
@@ -16,7 +28,13 @@ function action(state: GameState): GameAction {
   const base = { gameId: state.id, expectedRevision: state.revision, at: state.revision + 1 };
   if (state.phase === 'playing') {
     const playerKey = currentPlayer(state)!;
-    return { ...base, type: 'PLAY_CARD', playerKey, cardId: lowestLegalCard(state, playerKey)!.id, automatic: true };
+    return {
+      ...base,
+      type: 'PLAY_CARD',
+      playerKey,
+      cardId: lowestLegalCard(state, playerKey)!.id,
+      automatic: true,
+    };
   }
   return { ...base, type: state.phase === 'trickComplete' ? 'CONTINUE_TRICK' : 'ADVANCE_ROUND' };
 }
@@ -36,21 +54,34 @@ function freeze<T>(value: T): T {
 
 function invariant(state: GameState): void {
   for (const round of [...state.completedRounds, state.round]) {
-    const cards = [...Object.values(round.hands).flat(), ...round.undealt,
+    const cards = [
+      ...Object.values(round.hands).flat(),
+      ...round.undealt,
       ...round.completedTricks.flatMap((trick) => trick.plays.map((play) => play.card)),
-      ...(round.currentTrick.winner === null ? round.currentTrick.plays.map((play) => play.card) : [])];
+      ...(round.currentTrick.winner === null ? round.currentTrick.plays.map((play) => play.card) : []),
+    ];
     expect(cards).toHaveLength(52);
     expect(new Set(cards.map((card) => card.id)).size).toBe(52);
-    expect(new Set(round.completedTricks.map((trick) => trick.number)).size).toBe(round.completedTricks.length);
-    expect(Object.values(roundScores(round)).reduce((sum, score) => sum + score, 0)).toBe(round.completedTricks.length);
+    expect(new Set(round.completedTricks.map((trick) => trick.number)).size).toBe(
+      round.completedTricks.length,
+    );
+    expect(Object.values(roundScores(round)).reduce((sum, score) => sum + score, 0)).toBe(
+      round.completedTricks.length,
+    );
   }
   expect(Object.values(scoreGame(state).totals).reduce((sum, score) => sum + score, 0)).toBe(
-    [...state.completedRounds, state.round].reduce((sum, round) => sum + round.completedTricks.length, 0));
+    [...state.completedRounds, state.round].reduce((sum, round) => sum + round.completedTricks.length, 0),
+  );
   expect(new Set(state.log.map((event) => event.id)).size).toBe(state.log.length);
 }
 
 function scoredRound(base: RoundState, winners: readonly PlayerKey[], number = 1): RoundState {
-  const completedTricks: Trick[] = winners.map((winner, index) => ({ number: index + 1, leader: winner, plays: [], winner }));
+  const completedTricks: Trick[] = winners.map((winner, index) => ({
+    number: index + 1,
+    leader: winner,
+    plays: [],
+    winner,
+  }));
   return { ...base, number, completedTricks };
 }
 
@@ -82,27 +113,64 @@ describe('transitions', () => {
     let state = createGame({ id: 'invalid', seed: 1, at: 0, decks });
     const first = action(state);
     if (first.type !== 'PLAY_CARD') throw new Error('Expected play');
-    expect(playCard(state, { ...first, playerKey: 'south' })).toEqual({ ok: false, state, error: 'wrong-player' });
-    expect(playCard(state, { ...first, cardId: 'absent' })).toEqual({ ok: false, state, error: 'unknown-card' });
+    expect(playCard(state, { ...first, playerKey: 'south' })).toEqual({
+      ok: false,
+      state,
+      error: 'wrong-player',
+    });
+    expect(playCard(state, { ...first, cardId: 'absent' })).toEqual({
+      ok: false,
+      state,
+      error: 'unknown-card',
+    });
     state = accept(playCard(state, first));
     const request = action(state);
     if (request.type !== 'PLAY_CARD') throw new Error('Expected play');
     const offSuit = state.round.hands[request.playerKey].find((card) => card.suit !== 'hearts')!;
-    expect(playCard(state, { ...request, cardId: offSuit.id })).toEqual({ ok: false, state, error: 'must-follow-suit' });
+    expect(playCard(state, { ...request, cardId: offSuit.id })).toEqual({
+      ok: false,
+      state,
+      error: 'must-follow-suit',
+    });
     const repeated = playCard(state, first);
     expect(repeated).toEqual({ ok: false, state, error: 'stale-action' });
     expect(repeated.state).toBe(state);
-    expect(playCard(state, { ...request, gameId: 'previous-game' })).toEqual({ ok: false, state, error: 'stale-action' });
+    expect(playCard(state, { ...request, gameId: 'previous-game' })).toEqual({
+      ok: false,
+      state,
+      error: 'stale-action',
+    });
   });
 
   it('checks revision before phase, and gates continue/advance/play by phase', () => {
     let state = createGame({ id: 'gates', seed: 7, at: 0 });
     const base = { gameId: state.id, expectedRevision: state.revision, at: 0 };
-    expect(gameReducer(state, { ...base, type: 'CONTINUE_TRICK' })).toEqual({ ok: false, state, error: 'wrong-phase' });
-    expect(advanceRound(state, { ...base, type: 'ADVANCE_ROUND' })).toEqual({ ok: false, state, error: 'wrong-phase' });
+    expect(gameReducer(state, { ...base, type: 'CONTINUE_TRICK' })).toEqual({
+      ok: false,
+      state,
+      error: 'wrong-phase',
+    });
+    expect(advanceRound(state, { ...base, type: 'ADVANCE_ROUND' })).toEqual({
+      ok: false,
+      state,
+      error: 'wrong-phase',
+    });
     state = until(state, 'trickComplete');
-    expect(gameReducer(state, { ...base, type: 'CONTINUE_TRICK' })).toEqual({ ok: false, state, error: 'stale-action' });
-    expect(playCard(state, { ...base, expectedRevision: state.revision, type: 'PLAY_CARD', playerKey: 'south', cardId: '', automatic: false })).toEqual({ ok: false, state, error: 'wrong-phase' });
+    expect(gameReducer(state, { ...base, type: 'CONTINUE_TRICK' })).toEqual({
+      ok: false,
+      state,
+      error: 'stale-action',
+    });
+    expect(
+      playCard(state, {
+        ...base,
+        expectedRevision: state.revision,
+        type: 'PLAY_CARD',
+        playerKey: 'south',
+        cardId: '',
+        automatic: false,
+      }),
+    ).toEqual({ ok: false, state, error: 'wrong-phase' });
     const request = action(state);
     state = accept(gameReducer(state, request));
     expect(gameReducer(state, request)).toEqual({ ok: false, state, error: 'stale-action' });
@@ -149,8 +217,12 @@ describe('transitions', () => {
   it('distinguishes sole human/AI winners and all top-tie cardinalities, including AI-only ties', () => {
     const base = createGame({ id: 'scores', seed: 1, at: 0 });
     const cases: readonly (readonly PlayerKey[])[] = [
-      ['south', 'south', 'west'], ['west', 'west', 'south'], ['south', 'west'],
-      ['west', 'north'], ['south', 'west', 'north'], ['south', 'west', 'north', 'east'],
+      ['south', 'south', 'west'],
+      ['west', 'west', 'south'],
+      ['south', 'west'],
+      ['west', 'north'],
+      ['south', 'west', 'north'],
+      ['south', 'west', 'north', 'east'],
     ];
     const outcomes = ['won', 'lost', 'draw', 'draw', 'draw', 'draw'];
     cases.forEach((winners, index) => {
@@ -163,8 +235,20 @@ describe('transitions', () => {
   it('marks joint South round leads won, lower scores lost and unfinished/future rounds pending', () => {
     const state = createGame({ id: 'outcomes', seed: 1, at: 0 });
     const tied = scoredRound(state.round, ['south', 'south', 'west', 'west', 'east']);
-    expect(roundOutcomes({ ...state, phase: 'roundComplete', round: tied })).toEqual(['won', 'pending', 'pending', 'pending', 'pending']);
-    expect(roundOutcomes({ ...state, phase: 'roundComplete', round: scoredRound(state.round, ['west', 'west', 'west', 'south', 'east']) })[0]).toBe('lost');
+    expect(roundOutcomes({ ...state, phase: 'roundComplete', round: tied })).toEqual([
+      'won',
+      'pending',
+      'pending',
+      'pending',
+      'pending',
+    ]);
+    expect(
+      roundOutcomes({
+        ...state,
+        phase: 'roundComplete',
+        round: scoredRound(state.round, ['west', 'west', 'west', 'south', 'east']),
+      })[0],
+    ).toBe('lost');
   });
 
   it('preserves conservation, legal AI choices and frozen inputs after every action across seeded games', () => {
@@ -180,7 +264,10 @@ describe('transitions', () => {
             const card = chooseAiCard(state, request.playerKey, difficulty);
             expect(legalMoves(state, request.playerKey)).toContainEqual(card);
           }
-          request = { ...request, cardId: chooseAiCard(state, request.playerKey, difficulties[seed % 3]!)!.id };
+          request = {
+            ...request,
+            cardId: chooseAiCard(state, request.playerKey, difficulties[seed % 3]!)!.id,
+          };
           sortHand(state.round.hands[request.playerKey]);
         }
         roundOutcomes(state);

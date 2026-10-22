@@ -2,26 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useToast } from '@jfrader/ui/toast';
 import { config } from '../config';
 import { copy } from '../content/en';
-import {
-  createGame,
-  currentPlayer,
-  gameReducer,
-  legalMoves,
-  lowestLegalCard,
-  scoreGame,
-} from '../engine';
+import { createGame, currentPlayer, gameReducer, legalMoves, lowestLegalCard, scoreGame } from '../engine';
 import type { GameAction, GameState, PlayerKey, RuleError, Settings, Stats, Suit } from '../engine/types';
 import type { ResultsView, ScoreHistoryView, TableCommand, TableView } from '../contracts';
 import { toResultsView, toScoreHistoryView, toTableView } from './presentation';
 import { useAiTurn } from './use-ai-turn';
 import { usePauseState } from './use-pause-state';
-import {
-  DEFAULT_STATS,
-  loadSettings,
-  loadStats,
-  saveSettings,
-  saveStats,
-} from './storage';
+import { DEFAULT_STATS, loadSettings, loadStats, saveSettings, saveStats } from './storage';
 
 function ruleErrorMessage(error: RuleError, ledSuit: Suit | null): string {
   switch (error) {
@@ -96,11 +83,14 @@ export function useGameController(): GameController {
     errorToastRef.current = null;
   }, [dismiss]);
 
-  const reportRuleError = useCallback((error: RuleError) => {
-    clearRuleError();
-    const ledSuit = game?.round.currentTrick.plays[0]?.card.suit ?? null;
-    errorToastRef.current = toast({ title: ruleErrorMessage(error, ledSuit), tone: 'warning' });
-  }, [clearRuleError, game, toast]);
+  const reportRuleError = useCallback(
+    (error: RuleError) => {
+      clearRuleError();
+      const ledSuit = game?.round.currentTrick.plays[0]?.card.suit ?? null;
+      errorToastRef.current = toast({ title: ruleErrorMessage(error, ledSuit), tone: 'warning' });
+    },
+    [clearRuleError, game, toast],
+  );
 
   const setDeadline = useCallback((value: number | null) => {
     deadlineRef.current = value;
@@ -188,7 +178,7 @@ export function useGameController(): GameController {
   useAiTurn({ game, paused, difficulty: settings.difficulty, playCard: playCardInternal });
 
   useEffect(() => {
-    if (!game || game.phase !== 'roundComplete' && game.phase !== 'gameComplete') return;
+    if (!game || (game.phase !== 'roundComplete' && game.phase !== 'gameComplete')) return;
     setDialogs((previous) => (previous.results ? previous : { ...previous, results: true }));
   }, [game?.phase, game?.id]);
 

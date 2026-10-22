@@ -10,7 +10,9 @@ const viewports = [
 
 async function seriousViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(rules).analyze();
-  return results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical');
+  return results.violations.filter(
+    (violation) => violation.impact === 'serious' || violation.impact === 'critical',
+  );
 }
 
 for (const colorScheme of palettes) {
@@ -18,7 +20,9 @@ for (const colorScheme of palettes) {
     test.use({ colorScheme });
 
     for (const viewport of viewports) {
-      test(`ready and playing table have no serious accessibility violations on ${viewport.name}`, async ({ page }) => {
+      test(`ready and playing table have no serious accessibility violations on ${viewport.name}`, async ({
+        page,
+      }) => {
         await page.setViewportSize({ width: viewport.width, height: viewport.height });
         await page.goto('/');
         expect(await seriousViolations(page)).toEqual([]);

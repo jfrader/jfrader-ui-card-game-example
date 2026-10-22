@@ -3,7 +3,11 @@ import { Dialog } from '@jfrader/ui/dialog';
 import { copy } from '../../content/en';
 import { DialogActions, DialogHeader, DialogLayout } from './dialog.styles';
 
-export function NewGameDialog({ open, onOpenChange, onConfirm }: {
+export function NewGameDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
@@ -19,7 +23,15 @@ export function NewGameDialog({ open, onOpenChange, onConfirm }: {
             </DialogHeader>
             <DialogActions>
               <Dialog.Close>{copy.common.cancel}</Dialog.Close>
-              <Button type="button" variant="solid" tone="accent" onClick={() => { onOpenChange(false); onConfirm(); }}>
+              <Button
+                type="button"
+                variant="solid"
+                tone="accent"
+                onClick={() => {
+                  onOpenChange(false);
+                  onConfirm();
+                }}
+              >
                 {copy.commands.newGame}
               </Button>
             </DialogActions>

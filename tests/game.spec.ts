@@ -8,9 +8,7 @@ test('ready screen exposes one page heading and starts a match', async ({ page }
 
   await page.getByRole('button', { name: 'Start game' }).click();
   await expect(page.locator('[data-hand-card]')).toHaveCount(5);
-  await expect(
-    page.getByRole('button', { name: /of (hearts|diamonds|clubs|spades)$/ }),
-  ).toHaveCount(5);
+  await expect(page.getByRole('button', { name: /of (hearts|diamonds|clubs|spades)$/ })).toHaveCount(5);
 });
 
 test('a human can select and play a legal card through a completed trick', async ({ page }) => {
@@ -34,7 +32,9 @@ test('a human can select and play a legal card through a completed trick', async
 
 test('settings reserves the page gutter and keeps the stage width stable', async ({ page }) => {
   await page.goto('/');
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).scrollbarGutter)).toBe('stable');
+  await expect
+    .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).scrollbarGutter))
+    .toBe('stable');
   await page.getByRole('button', { name: 'Start game' }).click();
   const stage = page.locator('section[aria-label]').first();
   const before = await stage.boundingBox();
@@ -61,12 +61,16 @@ test('your hand stays at full strength when it is not your turn', async ({ page 
 
   const cards = page.locator('[data-hand-card]');
   await expect(cards).toHaveCount(4);
-  const states = await cards.evaluateAll((buttons) => buttons.map((button) => ({
-    unavailable: button.getAttribute('aria-disabled'),
-    opacity: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).opacity,
-    filter: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).filter,
-  })));
-  expect(states).toEqual(Array.from({ length: 4 }, () => ({ unavailable: 'true', opacity: '1', filter: 'none' })));
+  const states = await cards.evaluateAll((buttons) =>
+    buttons.map((button) => ({
+      unavailable: button.getAttribute('aria-disabled'),
+      opacity: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).opacity,
+      filter: getComputedStyle(button.querySelector('[data-ui~="game-card"]')!).filter,
+    })),
+  );
+  expect(states).toEqual(
+    Array.from({ length: 4 }, () => ({ unavailable: 'true', opacity: '1', filter: 'none' })),
+  );
 });
 
 test('a full match reaches the result dialog and records local stats', async ({ page }) => {
@@ -106,9 +110,9 @@ test('a full match reaches the result dialog and records local stats', async ({ 
   }
 
   await expect(page.getByRole('heading', { name: 'Match complete' })).toBeVisible();
-  await expect(
-    page.getByRole('dialog').filter({ hasText: 'Match complete' }),
-  ).toContainText(/You win|You lose|Draw/);
+  await expect(page.getByRole('dialog').filter({ hasText: 'Match complete' })).toContainText(
+    /You win|You lose|Draw/,
+  );
   await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible();
 
   const stats = await page.evaluate(() => localStorage.getItem('fivefold.stats.v1'));

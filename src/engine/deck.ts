@@ -1,4 +1,13 @@
-import { DECK_SIZE, RANKS, ROUND_COUNT, SUITS, TRICKS_PER_ROUND, TRUMPS, TURN_ORDER, nextSeat } from './constants';
+import {
+  DECK_SIZE,
+  RANKS,
+  ROUND_COUNT,
+  SUITS,
+  TRICKS_PER_ROUND,
+  TRUMPS,
+  TURN_ORDER,
+  nextSeat,
+} from './constants';
 import type { Card, CreateGameOptions, PlayerKey, RoundState } from './types';
 
 const UINT32_RANGE = 0x1_0000_0000;
@@ -6,7 +15,7 @@ const UINT32_RANGE = 0x1_0000_0000;
 export function mulberry32(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
-    state = (state + 0x6D2B79F5) >>> 0;
+    state = (state + 0x6d2b79f5) >>> 0;
     let mixed = Math.imul(state ^ (state >>> 15), state | 1);
     mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
     return ((mixed ^ (mixed >>> 14)) >>> 0) / UINT32_RANGE;
@@ -18,20 +27,37 @@ export function canonicalDeck(): Card[] {
 }
 
 export function validCard(card: Card): boolean {
-  return card != null && SUITS.includes(card.suit) && RANKS.includes(card.rank)
-    && card.id === `${card.suit}-${card.rank}`;
+  return (
+    card != null &&
+    SUITS.includes(card.suit) &&
+    RANKS.includes(card.rank) &&
+    card.id === `${card.suit}-${card.rank}`
+  );
 }
 
 export function prepareDecks(options: CreateGameOptions): readonly (readonly Card[])[] {
-  if (typeof options.id !== 'string' || options.id.trim().length === 0
-    || !Number.isInteger(options.seed) || options.seed < 0 || options.seed >= UINT32_RANGE
-    || !Number.isFinite(options.at)) {
+  if (
+    typeof options.id !== 'string' ||
+    options.id.trim().length === 0 ||
+    !Number.isInteger(options.seed) ||
+    options.seed < 0 ||
+    options.seed >= UINT32_RANGE ||
+    !Number.isFinite(options.at)
+  ) {
     throw new RangeError('Invalid game options');
   }
   if (options.decks !== undefined) {
-    if (!Array.isArray(options.decks) || options.decks.length !== ROUND_COUNT || Array.from(options.decks).some((deck) =>
-      !Array.isArray(deck) || deck.length !== DECK_SIZE || Array.from(deck).some((card) => !validCard(card))
-      || new Set(deck.map((card) => card.id)).size !== DECK_SIZE)) {
+    if (
+      !Array.isArray(options.decks) ||
+      options.decks.length !== ROUND_COUNT ||
+      Array.from(options.decks).some(
+        (deck) =>
+          !Array.isArray(deck) ||
+          deck.length !== DECK_SIZE ||
+          Array.from(deck).some((card) => !validCard(card)) ||
+          new Set(deck.map((card) => card.id)).size !== DECK_SIZE,
+      )
+    ) {
       throw new RangeError('Expected five complete canonical decks');
     }
     return options.decks.map((deck: readonly Card[]) => deck.map((card) => ({ ...card })));
@@ -56,8 +82,12 @@ export function dealRound(deck: readonly Card[], number: number): RoundState {
     hands[nextSeat(leader, index)].push(deck[index]!);
   }
   return {
-    number, dealer, trump: TRUMPS[number - 1]!, hands,
-    undealt: deck.slice(dealtCount), completedTricks: [],
+    number,
+    dealer,
+    trump: TRUMPS[number - 1]!,
+    hands,
+    undealt: deck.slice(dealtCount),
+    completedTricks: [],
     currentTrick: { number: 1, leader, plays: [], winner: null },
   };
 }

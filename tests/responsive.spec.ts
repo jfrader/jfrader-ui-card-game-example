@@ -33,18 +33,26 @@ for (const viewport of viewports) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto('/');
       await page.getByRole('button', { name: 'Start game' }).click();
-      await expect(page.locator('[data-ui~="game-table-play"] [data-played="true"]')).not.toHaveCount(0, { timeout: 8_000 });
+      await expect(page.locator('[data-ui~="game-table-play"] [data-played="true"]')).not.toHaveCount(0, {
+        timeout: 8_000,
+      });
       await page.waitForTimeout(800);
 
       await expect(page.locator('[data-ui~="game-table"]')).toHaveAttribute('data-layout-fit', 'fitted');
       const overlaps = await page.evaluate(() => {
-        const boxes = [...document.querySelectorAll('[data-ui~="game-table-seat"] > *, [data-ui~="game-table-play"] [data-ui~="game-card"]')]
+        const boxes = [
+          ...document.querySelectorAll(
+            '[data-ui~="game-table-seat"] > *, [data-ui~="game-table-play"] [data-ui~="game-card"]',
+          ),
+        ]
           .map((element) => element.getBoundingClientRect())
           .filter((box) => box.width > 0);
         let count = 0;
-        for (const [index, a] of boxes.entries()) for (const b of boxes.slice(index + 1)) {
-          if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1) count += 1;
-        }
+        for (const [index, a] of boxes.entries())
+          for (const b of boxes.slice(index + 1)) {
+            if (a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1)
+              count += 1;
+          }
         return count;
       });
       expect(overlaps).toBe(0);

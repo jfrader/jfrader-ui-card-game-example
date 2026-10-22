@@ -19,7 +19,12 @@ export function ScoreTable({ view }: { view: ScoreTableView }) {
       slotProps={{
         table: { sx: { '& > thead th': { whiteSpace: 'nowrap' } } },
         round: { sx: (t) => ({ paddingInline: t.space[1] }) },
-        cell: { sx: (t) => ({ paddingInline: t.space[1], '&[data-state="upcoming"]': { color: t.color.textMuted } }) },
+        cell: {
+          sx: (t) => ({
+            paddingInline: t.space[1],
+            '&[data-state="upcoming"]': { color: t.color.textMuted },
+          }),
+        },
         total: { sx: (t) => ({ paddingInline: t.space[1] }) },
       }}
       caption={copy.scores.caption}
@@ -27,14 +32,23 @@ export function ScoreTable({ view }: { view: ScoreTableView }) {
       rounds={view.rounds.map((round) => ({
         key: String(round.number),
         state: round.state === 'done' ? 'complete' : round.state,
-        label: <RoundLabel><SuitIcon suit={round.trump} size={12} /><VisuallyHidden>{copy.scores.roundHeaderLabel(round.number)}</VisuallyHidden><span aria-hidden="true">{round.number}</span></RoundLabel>,
+        label: (
+          <RoundLabel>
+            <SuitIcon suit={round.trump} size={12} />
+            <VisuallyHidden>{copy.scores.roundHeaderLabel(round.number)}</VisuallyHidden>
+            <span aria-hidden="true">{round.number}</span>
+          </RoundLabel>
+        ),
       }))}
       players={view.players.map((player) => ({
         ...player,
         label: player.name,
-        scores: Object.fromEntries(view.rounds.map((round) => [
-          String(round.number), round.state === 'upcoming' ? undefined : round.scores[player.key] ?? 0,
-        ])),
+        scores: Object.fromEntries(
+          view.rounds.map((round) => [
+            String(round.number),
+            round.state === 'upcoming' ? undefined : (round.scores[player.key] ?? 0),
+          ]),
+        ),
       }))}
       labels={{
         player: copy.scores.player,

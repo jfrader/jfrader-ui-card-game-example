@@ -26,7 +26,13 @@ const NextTrump = styled.p(({ theme: t }) => ({
 const LEAD_TONE = { sole: 'success', joint: 'accent', behind: 'neutral' } as const;
 const LIST_FORMAT = new Intl.ListFormat(config.locale, { style: 'long', type: 'conjunction' });
 
-export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame }: {
+export function ResultsDialog({
+  open,
+  onOpenChange,
+  view,
+  onContinue,
+  onNewGame,
+}: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   view: ResultsView | null;
@@ -58,7 +64,15 @@ export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame 
               </NextTrump>
               <DialogActions>
                 <Dialog.Close>{copy.common.close}</Dialog.Close>
-                <Button type="button" variant="solid" tone="accent" onClick={() => { close(); onContinue(); }}>
+                <Button
+                  type="button"
+                  variant="solid"
+                  tone="accent"
+                  onClick={() => {
+                    close();
+                    onContinue();
+                  }}
+                >
                   {copy.results.dealRound(view.roundNumber + 1)}
                 </Button>
               </DialogActions>
@@ -79,12 +93,28 @@ export function ResultsDialog({ open, onOpenChange, view, onContinue, onNewGame 
             <GameResult
               outcome={view.outcome}
               title={copy.results[view.outcome]}
-              summary={<>{copy.results.finalSummary(view.yourPoints)} {copy.results.winnerNames(winners)}</>}
+              summary={
+                <>
+                  {copy.results.finalSummary(view.yourPoints)} {copy.results.winnerNames(winners)}
+                </>
+              }
               celebration={view.outcome === 'won' ? <Celebration /> : undefined}
               actions={
                 <>
-                  <Button type="button" variant="solid" tone="accent" onClick={() => { close(); onNewGame(); }}>{copy.results.playAgain}</Button>
-                  <Button type="button" onClick={close}>{copy.results.reviewScores}</Button>
+                  <Button
+                    type="button"
+                    variant="solid"
+                    tone="accent"
+                    onClick={() => {
+                      close();
+                      onNewGame();
+                    }}
+                  >
+                    {copy.results.playAgain}
+                  </Button>
+                  <Button type="button" onClick={close}>
+                    {copy.results.reviewScores}
+                  </Button>
                 </>
               }
             />

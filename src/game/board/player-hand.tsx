@@ -13,7 +13,11 @@ interface HandState {
   readonly describedBy: string | undefined;
 }
 
-const HandContext = createContext<HandState>({ available: new Set(), darkenUnavailable: false, describedBy: undefined });
+const HandContext = createContext<HandState>({
+  available: new Set(),
+  darkenUnavailable: false,
+  describedBy: undefined,
+});
 
 const CardButton = styled.button(({ theme: t }) => ({
   [reducedMotionOff]: {
@@ -37,7 +41,9 @@ function HandCard(props: ComponentProps<NonNullable<GameHandSlots['card']>>) {
       data-available={!unavailable}
       data-darken={unavailable && darkenUnavailable}
       aria-disabled={unavailable || props['aria-disabled'] || undefined}
-      aria-describedby={[props['aria-describedby'], unavailable && describedBy].filter(Boolean).join(' ') || undefined}
+      aria-describedby={
+        [props['aria-describedby'], unavailable && describedBy].filter(Boolean).join(' ') || undefined
+      }
     />
   );
 }
@@ -78,17 +84,29 @@ export interface PlayerHandProps {
   onCommand: (command: TableCommand) => void;
 }
 
-export function PlayerHand({ view, statusId, selectedCardId, onSelectCard, onPlayCard, onCommand }: PlayerHandProps) {
+export function PlayerHand({
+  view,
+  statusId,
+  selectedCardId,
+  onSelectCard,
+  onPlayCard,
+  onCommand,
+}: PlayerHandProps) {
   const headingId = useId();
-  const state = useMemo<HandState>(() => ({
-    available: new Set(view.hand.filter((card) => card.legal).map((card) => card.id)),
-    darkenUnavailable: view.canPlay && view.settings.showLegalHints,
-    describedBy: statusId,
-  }), [view.hand, view.canPlay, view.settings.showLegalHints, statusId]);
+  const state = useMemo<HandState>(
+    () => ({
+      available: new Set(view.hand.filter((card) => card.legal).map((card) => card.id)),
+      darkenUnavailable: view.canPlay && view.settings.showLegalHints,
+      describedBy: statusId,
+    }),
+    [view.hand, view.canPlay, view.settings.showLegalHints, statusId],
+  );
 
   return (
     <Frame aria-labelledby={headingId} data-advance={view.advance !== null}>
-      <VisuallyHidden as="h2" id={headingId}>{copy.hand.regionLabel}</VisuallyHidden>
+      <VisuallyHidden as="h2" id={headingId}>
+        {copy.hand.regionLabel}
+      </VisuallyHidden>
       <HandContext value={state}>
         <HandViewport orientation="horizontal" scrollbars="native" fade={0}>
           <GameHand

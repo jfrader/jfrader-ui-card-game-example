@@ -40,7 +40,9 @@ function readStored(storage: StorageLike | null, key: string): { present: boolea
   if (!storage) return { present: false, value: null };
   try {
     const raw = storage.getItem(key);
-    return raw === null ? { present: false, value: null } : { present: true, value: JSON.parse(raw) as unknown };
+    return raw === null
+      ? { present: false, value: null }
+      : { present: true, value: JSON.parse(raw) as unknown };
   } catch {
     return { present: true, value: null };
   }
@@ -101,7 +103,9 @@ export function loadStats(storage: StorageLike | null = defaultStorage()): LoadR
   if (!storage) return { value: DEFAULT_STATS, error: 'unavailable' };
   const stored = readStored(storage, config.storage.stats);
   if (!stored.present) return { value: DEFAULT_STATS, error: null };
-  return isStats(stored.value) ? { value: stored.value, error: null } : { value: DEFAULT_STATS, error: 'invalid' };
+  return isStats(stored.value)
+    ? { value: stored.value, error: null }
+    : { value: DEFAULT_STATS, error: 'invalid' };
 }
 
 export function saveStats(stats: Stats, storage: StorageLike | null = defaultStorage()): boolean {
